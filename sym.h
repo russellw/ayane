@@ -12,4 +12,6 @@ inline size_t keyword(sym *s) {
 
 sym *intern(const char *s, int n);
 
+inline sym *intern(const char *s) { return intern(s, strlen(s)); }
+
 inline void fpr(FILE *F, sym *s) { fwrite(s->s, 1, s->n, F); }

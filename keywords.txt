@@ -1,1 +1,12 @@
 ax
+help
+h
+v
+V
+version
+dimacs
+tptp
+lst
+p
+cnf
+t

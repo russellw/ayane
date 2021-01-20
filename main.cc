@@ -104,13 +104,14 @@ void parse(int argc, const char **argv) {
     // option
     while (*s == '-')
       ++s;
-    switch (*s) {
-    case '?':
-    case 'h':
+    switch (keyword(intern(s))) {
+    case w_h:
+    case w_help:
       help();
       exit(0);
-    case 'V':
-    case 'v':
+    case w_v:
+    case w_V:
+    case w_version:
       printf("Aklo " version ", %zu-bit "
 #ifdef DEBUG
              "debug"
@@ -120,30 +121,23 @@ void parse(int argc, const char **argv) {
              " build\n",
              sizeof(void *) * 8);
       exit(0);
-    case 't': {
-      auto timelimit = optdouble(argc, argv, i);
+    case w_t: {
+      auto seconds = optdouble(argc, argv, i);
 #ifdef _WIN32
       HANDLE timer = 0;
-      CreateTimerQueueTimer(&timer, 0, timeout, 0, (DWORD)(timelimit * 1000), 0,
+      CreateTimerQueueTimer(&timer, 0, timeout, 0, (DWORD)(seconds * 1000), 0,
                             WT_EXECUTEINTIMERTHREAD);
 #else
-      alarm(timelimit);
+      alarm(seconds);
 #endif
       break;
     }
-    case 'x': {
-      auto t = opt(argc, argv, i);
-      if (!strcmp(t, "dimacs")) {
-        lang = dimacs;
-        break;
-      }
-      if (!strcmp(t, "tptp")) {
-        lang = tptp;
-        break;
-      }
-      fprintf(stderr, "%s: Unknown language\n", t);
-      exit(1);
-    }
+    case w_dimacs:
+      lang = dimacs;
+      break;
+    case w_tptp:
+      lang = tptp;
+      break;
     default:
       fprintf(stderr, "%s: Unknown option\n", argv[i]);
       exit(1);

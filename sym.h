@@ -1,6 +1,6 @@
 struct sym {
-  unsigned short n;
-  char s[0x20 - sizeof(unsigned short)];
+  uint16_t n;
+  char s[0x20 - sizeof(uint16_t)];
 };
 
 extern sym keywords[];

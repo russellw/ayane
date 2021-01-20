@@ -6,7 +6,7 @@ clang -I\mpir -Werror -Wno-deprecated-declarations -c *.cc
 if errorlevel 1 goto :eof
 del *.o
 
-cl /DDEBUG /Feayane /I\mpir /J /MTd /Zi *.cc dbghelp.lib
+cl /DDEBUG /Feayane /I\mpir /J /MTd /Zi *.cc \mpir\lib\x64\Debug\mpir.lib dbghelp.lib
 if errorlevel 1 goto :eof
 
 ayane %*

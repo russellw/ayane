@@ -26,3 +26,4 @@
 #include "sym.h"
 
 #include "keywords.h"
+#include "parsing.h"

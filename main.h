@@ -29,3 +29,6 @@
 
 #include "keywords.h"
 #include "parsing.h"
+
+// unit tests
+#include "test.h"

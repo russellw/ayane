@@ -154,6 +154,7 @@ int main(int argc, const char **argv) {
 #ifdef _WIN32
   AddVectoredExceptionHandler(0, handler);
 #endif
+  test();
 
   parse(argc - 1, argv + 1);
   if (!files.n) {

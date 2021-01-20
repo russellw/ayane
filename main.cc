@@ -105,12 +105,8 @@ void parse(int argc, const char **argv) {
     while (*s == '-')
       ++s;
     switch (keyword(intern(s))) {
-    case w_h:
-    case w_help:
-      help();
-      exit(0);
-    case w_v:
     case w_V:
+    case w_v:
     case w_version:
       printf("Aklo " version ", %zu-bit "
 #ifdef DEBUG
@@ -120,6 +116,13 @@ void parse(int argc, const char **argv) {
 #endif
              " build\n",
              sizeof(void *) * 8);
+      exit(0);
+    case w_dimacs:
+      lang = dimacs;
+      break;
+    case w_h:
+    case w_help:
+      help();
       exit(0);
     case w_t: {
       auto seconds = optdouble(argc, argv, i);
@@ -132,9 +135,6 @@ void parse(int argc, const char **argv) {
 #endif
       break;
     }
-    case w_dimacs:
-      lang = dimacs;
-      break;
     case w_tptp:
       lang = tptp;
       break;

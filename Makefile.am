@@ -1,23 +1,16 @@
-bin_PROGRAMS = aklo
-aklo_SOURCES =\
-	cpp.cc\
-	cpp.h\
+bin_PROGRAMS = ayane
+ayane_SOURCES =\
 	etc.cc\
 	etc.h\
 	keywords.cc\
 	keywords.h\
 	main.cc\
 	main.h\
-	map.h\
 	mem.cc\
 	mem.h\
 	parsing.cc\
 	parsing.h\
-	script.cc\
-	script.h\
 	set.h\
-	ssa.cc\
-	ssa.h\
 	sym.cc\
 	sym.h\
 	vec.h

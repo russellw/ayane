@@ -1,6 +1,7 @@
 *.ilk
 *.lst
 *.pdb
+*.zip
 
 # Prerequisites
 *.d

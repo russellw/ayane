@@ -1,4 +1,4 @@
-AC_INIT([Aklo], [3], [russell.wallace@gmail.com], [aklo], [https://github.com/russellw/aklo])
+AC_INIT([Ayane], [3], [russell.wallace@gmail.com], [ayane], [https://github.com/russellw/ayane])
 AM_INIT_AUTOMAKE([-Wall foreign])
 AC_PROG_CC
 AC_PROG_CXX

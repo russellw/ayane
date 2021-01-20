@@ -7,7 +7,7 @@ inline void fpr(FILE *F, void *p) { fprintf(F, "%p", p); }
 
 #ifdef DEBUG
 void stacktrace();
-bool assertfail(const char *filename, int line, const char *s);
+bool assertfail(const char *file, int line, const char *s);
 #define assert(a) (a) || assertfail(__FILE__, __LINE__, #a)
 #define debug(a)                                                               \
   do {                                                                         \

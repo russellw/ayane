@@ -50,9 +50,9 @@ void help() {
          "-t seconds  Time limit\n");
 }
 
-const char *ext(const char *filename) {
+const char *ext(const char *file) {
   // don't care about a.b/c
-  auto s = strrchr(filename, '.');
+  auto s = strrchr(file, '.');
   return s ? s + 1 : "";
 }
 
@@ -170,7 +170,7 @@ int main(int argc, const char **argv) {
     files.push("stdin");
   }
 
-  for (auto filename : files)
-    puts(filename);
+  for (auto file : files)
+    puts(file);
   return 0;
 }

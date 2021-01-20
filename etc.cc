@@ -32,8 +32,8 @@ void stacktrace() {
 #endif
 }
 
-bool assertfail(const char *filename, int line, const char *s) {
-  fprintf(stderr, "%s:%d: Assert failed: %s\n", filename, line, s);
+bool assertfail(const char *file, int line, const char *s) {
+  fprintf(stderr, "%s:%d: Assert failed: %s\n", file, line, s);
   stacktrace();
   exit(1);
   // keep the compiler happy about the use of || in the assert macro

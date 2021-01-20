@@ -10,14 +10,24 @@ def read_lines(filename):
         return [s.rstrip("\n") for s in f]
 
 
+def write_lines(filename, lines):
+    with open(filename, "w") as f:
+        for s in lines:
+            f.write(s + "\n")
+
+
 lines = read_lines("keywords.txt")
+old = lines
+lines.sort()
+if lines != old:
+    write_lines("keywords.txt", lines)
 
 # header
 with open("keywords.h", "w") as f:
     f.write("// AUTO GENERATED FILE - DO NOT MODIFY\n")
     f.write("enum {\n")
     for s in lines:
-        f.write("w_" + s + ",\n")
+        f.write("k_" + s + ",\n")
     f.write("nkeywords\n")
     f.write("};\n")
 

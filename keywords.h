@@ -1,16 +1,16 @@
 // AUTO GENERATED FILE - DO NOT MODIFY
 enum {
-  w_ax,
-  w_help,
-  w_h,
-  w_v,
-  w_V,
-  w_version,
-  w_dimacs,
-  w_tptp,
-  w_lst,
-  w_p,
-  w_cnf,
-  w_t,
+  k_V,
+  k_ax,
+  k_cnf,
+  k_dimacs,
+  k_h,
+  k_help,
+  k_lst,
+  k_p,
+  k_t,
+  k_tptp,
+  k_v,
+  k_version,
   nkeywords
 };

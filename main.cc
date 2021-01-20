@@ -105,9 +105,9 @@ void parse(int argc, const char **argv) {
     while (*s == '-')
       ++s;
     switch (keyword(intern(s))) {
-    case w_V:
-    case w_v:
-    case w_version:
+    case k_V:
+    case k_v:
+    case k_version:
       printf("Ayane " version ", %zu-bit "
 #ifdef DEBUG
              "debug"
@@ -117,14 +117,14 @@ void parse(int argc, const char **argv) {
              " build\n",
              sizeof(void *) * 8);
       exit(0);
-    case w_dimacs:
+    case k_dimacs:
       lang = dimacs;
       break;
-    case w_h:
-    case w_help:
+    case k_h:
+    case k_help:
       help();
       exit(0);
-    case w_t: {
+    case k_t: {
       auto seconds = optdouble(argc, argv, i);
 #ifdef _WIN32
       HANDLE timer = 0;
@@ -135,7 +135,7 @@ void parse(int argc, const char **argv) {
 #endif
       break;
     }
-    case w_tptp:
+    case k_tptp:
       lang = tptp;
       break;
     default:

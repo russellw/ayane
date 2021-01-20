@@ -108,7 +108,7 @@ void parse(int argc, const char **argv) {
     case w_V:
     case w_v:
     case w_version:
-      printf("Aklo " version ", %zu-bit "
+      printf("Ayane " version ", %zu-bit "
 #ifdef DEBUG
              "debug"
 #else

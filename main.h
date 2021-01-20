@@ -19,4 +19,10 @@
 #include "mem.h"
 
 // containers
+#include "set.h"
 #include "vec.h"
+
+// specific
+#include "sym.h"
+
+#include "keywords.h"

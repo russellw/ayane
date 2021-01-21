@@ -62,6 +62,8 @@ ty type(const ty *p, int n) {
   if (entries[i])
     return entries[i];
   if (ctypes.n >= cap * 3 / 4) {
+    if (ctypes.n >= ctype_tag)
+      err("Too many types");
     expand();
     i = slot(entries, cap, p, n);
   }

@@ -17,6 +17,21 @@ void test_vec() {
   v.push('c');
   assert(v.n == 3);
   assert(v.back() == 'c');
+
+  vec<char, 1> w;
+  assert(w.n == 0);
+
+  w.push('a');
+  assert(w.n == 1);
+  assert(w.back() == 'a');
+
+  w.push('b');
+  assert(w.n == 2);
+  assert(w.back() == 'b');
+
+  w.push('c');
+  assert(w.n == 3);
+  assert(w.back() == 'c');
 }
 
 void test_types() {

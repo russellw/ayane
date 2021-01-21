@@ -1,12 +1,9 @@
-template <class Key, class T> struct bank {
-  typedef T *value_type;
-
-private:
+template <class Key, class T> class bank {
   int cap = 0x10;
   int n = 0;
-  value_type *p = (value_type *)xcalloc(cap, sizeof(value_type));
+  T **p = (T **)xcalloc(cap, sizeof(T *));
 
-  int slot(value_type *p, int cap, const Key &k) {
+  int slot(T **p, int cap, const Key &k) {
     auto mask = cap - 1;
     auto i = k.hash() & mask;
     while (p[i] && !(k == p[i]))
@@ -16,7 +13,7 @@ private:
 
   void expand() {
     auto cap1 = cap * 2;
-    auto p1 = (value_type *)xcalloc(cap1, sizeof(value_type));
+    auto p1 = (T **)xcalloc(cap1, sizeof(T *));
     for (int i = 0; i != cap; ++i) {
       auto a = p[i];
       if (a) {
@@ -30,7 +27,7 @@ private:
   }
 
 public:
-  void add(const Key &k, value_type a) {
+  void add(const Key &k, T *a) {
     if (++n > cap * 3 / 4)
       expand();
     auto i = slot(p, cap, k);

@@ -19,6 +19,44 @@ void test_vec() {
   assert(v.back() == 'c');
 }
 
+void test_types() {
+  auto bird = type(intern("bird"));
+  assert(bird == type(intern("bird")));
+  assert(!isctype(bird));
+
+  auto plane = type(intern("plane"));
+  assert(plane == type(intern("plane")));
+  assert(!isctype(plane));
+
+  assert(bird != plane);
+
+  vec<ty> v;
+  v.push(t_bool);
+  v.push(t_int);
+  v.push(t_int);
+  auto t_predicate_int_int = type(v.p, v.n);
+  assert(t_predicate_int_int == type(v.p, v.n));
+  assert(isctype(t_predicate_int_int));
+  auto T = ctype(t_predicate_int_int);
+  assert(T->n == 3);
+  assert(T->v[0] == t_bool);
+  assert(T->v[1] == t_int);
+  assert(T->v[2] == t_int);
+
+  v.n = 0;
+  v.push(t_bool);
+  v.push(t_rat);
+  v.push(t_rat);
+  auto t_predicate_rat_rat = type(v.p, v.n);
+  assert(t_predicate_rat_rat == type(v.p, v.n));
+  assert(isctype(t_predicate_rat_rat));
+  T = ctype(t_predicate_rat_rat);
+  assert(T->n == 3);
+  assert(T->v[0] == t_bool);
+  assert(T->v[1] == t_rat);
+  assert(T->v[2] == t_rat);
+}
+
 void test_sym() {
   assert(keyword(intern("ax")) == k_ax);
   assert(keyword(intern("cnf")) == k_cnf);
@@ -44,6 +82,7 @@ void test_gmp() {
 void test() {
   test_gmp();
   test_sym();
+  test_types();
   test_vec();
 }
 #endif

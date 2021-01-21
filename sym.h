@@ -5,8 +5,8 @@ struct sym {
 
 extern sym keywords[];
 
-inline size_t keyword(sym *s) {
-  size_t i = (char *)s - (char *)keywords;
+inline size_t keyword(sym *S) {
+  size_t i = (char *)S - (char *)keywords;
   return i / sizeof(sym);
 }
 
@@ -14,4 +14,4 @@ sym *intern(const char *s, int n);
 
 inline sym *intern(const char *s) { return intern(s, strlen(s)); }
 
-inline void fpr(FILE *F, sym *s) { fwrite(s->s, 1, s->n, F); }
+inline void fpr(FILE *F, sym *S) { fwrite(S->s, 1, S->n, F); }

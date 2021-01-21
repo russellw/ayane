@@ -1,13 +1,13 @@
 #include "main.h"
 
-void *xmalloc(size_t bytes) {
-  auto r = malloc(bytes);
+void *xmalloc(size_t n) {
+  auto r = malloc(n);
   if (!r) {
     perror("malloc");
     exit(1);
   }
 #ifdef DEBUG
-  memset(r, 0xcc, bytes);
+  memset(r, 0xcc, n);
 #endif
   return r;
 }
@@ -21,8 +21,8 @@ void *xcalloc(size_t n, size_t size) {
   return r;
 }
 
-void *xrealloc(void *p, size_t bytes) {
-  auto r = realloc(p, bytes);
+void *xrealloc(void *p, size_t n) {
+  auto r = realloc(p, n);
   if (!r) {
     perror("realloc");
     exit(1);
@@ -30,19 +30,19 @@ void *xrealloc(void *p, size_t bytes) {
   return r;
 }
 
-void *mmalloc(int bytes) {
-  bytes = bytes + 7 & ~7;
+void *mmalloc(int n) {
+  n = n + 7 & ~7;
   static char *end;
   static char *p;
-  if (end - p < bytes) {
-    auto chunk = std::max(bytes, 10000);
+  if (end - p < n) {
+    auto chunk = std::max(n, 10000);
     p = (char *)xmalloc(chunk);
     end = p + chunk;
   }
   auto r = p;
 #ifdef DEBUG
-  memset(r, 0xcc, bytes);
+  memset(r, 0xcc, n);
 #endif
-  p += bytes;
+  p += n;
   return r;
 }

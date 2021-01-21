@@ -12,6 +12,7 @@
 
 #include <algorithm>
 #include <iterator>
+#include <unordered_map>
 #include <utility>
 
 #include <gmp.h>
@@ -25,6 +26,7 @@
 
 // specific
 #include "sym.h"
+#include "types.h"
 
 #include "keywords.h"
 #include "parsing.h"

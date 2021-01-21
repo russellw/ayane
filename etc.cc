@@ -41,11 +41,11 @@ bool assertfail(const char *file, int line, const char *s) {
 }
 #endif
 
-unsigned fnv(const void *p, int bytes) {
+unsigned fnv(const void *p, int n) {
   // Fowler-Noll-Vo-1a
   auto p1 = (const char *)p;
   unsigned h = 2166136261u;
-  while (bytes--) {
+  while (n--) {
     h ^= *p1++;
     h *= 16777619;
   }

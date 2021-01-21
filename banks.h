@@ -1,6 +1,6 @@
 template <class Key, class T> class bank {
-  int cap = 0x10;
-  int n = 0;
+  int cap = 0x100;
+  int count = 0;
   T **p = (T **)xcalloc(cap, sizeof(T *));
 
   int slot(T **p, int cap, const Key &k) {
@@ -27,9 +27,9 @@ template <class Key, class T> class bank {
   }
 
 public:
-  void add(const Key &k, T *a) {
-    if (++n > cap * 3 / 4)
-      expand();
+  void init(const Key &k, T *a) {
+    ++count;
+    assert(count <= cap * 3 / 4);
     auto i = slot(p, cap, k);
     assert(!p[i]);
     p[i] = a;
@@ -39,7 +39,7 @@ public:
     auto i = slot(p, cap, k);
     if (p[i])
       return p[i];
-    if (++n > cap * 3 / 4) {
+    if (++count > cap * 3 / 4) {
       expand();
       i = slot(p, cap, k);
     }

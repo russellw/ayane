@@ -32,7 +32,7 @@ struct init {
       auto t = keywords + i;
       assert(t->n < sizeof t->s);
       key k(t);
-      syms.add(k, t);
+      syms.init(k, t);
     }
   }
 } init1;

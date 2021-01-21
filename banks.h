@@ -1,4 +1,4 @@
-template <class Key, class T> struct set {
+template <class Key, class T> struct bank {
   typedef T *value_type;
 
 private:

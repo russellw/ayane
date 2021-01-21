@@ -24,7 +24,7 @@ struct key {
   }
 };
 
-set<key, sym> syms;
+bank<key, sym> syms;
 
 struct init {
   init() {

@@ -1,12 +1,18 @@
-template <class Key, class T> class bank {
+template <class T> class bank {
   int cap = 0x100;
   int count = 0;
   T **p = (T **)xcalloc(cap, sizeof(T *));
 
-  int slot(T **p, int cap, const Key &k) {
+  bool eq(T *a, const void *s, int bytes) {
+    if (a->n != bytes)
+      return false;
+    return !memcmp(a->s, s, bytes);
+  }
+
+  int slot(T **p, int cap, const void *s, int bytes) {
     auto mask = cap - 1;
-    auto i = k.hash() & mask;
-    while (p[i] && !(k == p[i]))
+    auto i = fnv(s, bytes) & mask;
+    while (p[i] && !eq(p[i], s, bytes))
       i = (i + 1) & mask;
     return i;
   }
@@ -16,10 +22,8 @@ template <class Key, class T> class bank {
     auto p1 = (T **)xcalloc(cap1, sizeof(T *));
     for (int i = 0; i != cap; ++i) {
       auto a = p[i];
-      if (a) {
-        Key k(a);
-        p1[slot(p1, cap1, k)] = a;
-      }
+      if (a)
+        p1[slot(p1, cap1, a->s, a->n)] = a;
     }
     free(p);
     cap = cap1;
@@ -27,22 +31,22 @@ template <class Key, class T> class bank {
   }
 
 public:
-  void init(const Key &k, T *a) {
+  void init(T *a) {
     ++count;
     assert(count <= cap * 3 / 4);
-    auto i = slot(p, cap, k);
+    auto i = slot(p, cap, a->s, a->n);
     assert(!p[i]);
     p[i] = a;
   }
 
-  T *operator[](const Key &k) {
-    auto i = slot(p, cap, k);
+  T *intern(const void *s, int bytes) {
+    auto i = slot(p, cap, s, bytes);
     if (p[i])
       return p[i];
     if (++count > cap * 3 / 4) {
       expand();
-      i = slot(p, cap, k);
+      i = slot(p, cap, s, bytes);
     }
-    return p[i] = k.store();
+    return p[i] = store(s, bytes);
   }
 };

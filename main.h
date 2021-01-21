@@ -21,7 +21,6 @@
 #include "mem.h"
 
 // containers
-#include "banks.h"
 #include "vec.h"
 
 // specific

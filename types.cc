@@ -27,8 +27,8 @@ void expand() {
   for (int i = 0; i != cap; ++i) {
     auto t = entries[i];
     if (t) {
-      auto T = ctype(t);
-      entries1[slot(entries1, cap1, T->v, T->n)] = t;
+      auto t1 = ctype(t);
+      entries1[slot(entries1, cap1, t1->v, t1->n)] = t;
     }
   }
   free(entries);

@@ -79,24 +79,55 @@ void test_sym() {
   assert(intern("xyz") == intern("xyz", 3));
 }
 
-void test_gmp() {
-  mpz_t a;
-  mpz_init_set_ui(a, 1);
-  mpz_t b;
-  mpz_init_set_ui(b, 2);
-  mpz_t r;
-  mpz_init(r);
-  mpz_add(r, a, b);
-  assert(mpz_get_ui(r) == 3);
-  mpz_clear(a);
-  mpz_clear(b);
-  mpz_clear(r);
+void test_ints() {
+  int_t x1;
+  mpz_init_set_ui(x1.val, 1);
+  auto a1 = int1(&x1);
+  auto y1 = intp(a1);
+  assert(!mpz_cmp_ui(y1->val, 1));
+
+  int_t x2;
+  mpz_init_set_ui(x2.val, 2);
+  auto a2 = int1(&x2);
+  auto y2 = intp(a2);
+  assert(!mpz_cmp_ui(y2->val, 2));
+
+  int_t x3;
+  mpz_init(x3.val);
+  mpz_add(x3.val, y1->val, y2->val);
+  auto a3 = int1(&x3);
+  auto y3 = intp(a3);
+  assert(!mpz_cmp_ui(y3->val, 3));
+}
+
+void test_rats() {
+  rat_t x1;
+  mpq_init(x1.val);
+  mpq_set_ui(x1.val, 1, 1);
+  auto a1 = rat(&x1);
+  auto y1 = ratp(a1);
+  assert(!mpq_cmp_ui(y1->val, 1, 1));
+
+  rat_t x2;
+  mpq_init(x2.val);
+  mpq_set_ui(x2.val, 2, 1);
+  auto a2 = rat(&x2);
+  auto y2 = ratp(a2);
+  assert(!mpq_cmp_ui(y2->val, 2, 1));
+
+  rat_t x3;
+  mpq_init(x3.val);
+  mpq_add(x3.val, y1->val, y2->val);
+  auto a3 = rat(&x3);
+  auto y3 = ratp(a3);
+  assert(!mpq_cmp_ui(y3->val, 3, 1));
 }
 } // namespace
 
 void test() {
-  test_gmp();
   test_sym();
+  test_ints();
+  test_rats();
   test_types();
   test_vec();
 }

@@ -6,17 +6,17 @@ enum {
 
   a_all,
 
-  a_shift = 28,
-  a_mask = 7 << a_shift,
+  a_bits = 28,
+  a_tags = 7 << a_bits,
 
-  a_distinct_object = 1 << a_shift,
-  a_fn = 2 << a_shift,
-  a_int = 3 << a_shift,
-  a_rat = 4 << a_shift,
-  a_real = 5 << a_shift,
-  a_var = 6 << a_shift,
+  a_distinct_object = 1 << a_bits,
+  a_fn = 2 << a_bits,
+  a_int = 3 << a_bits,
+  a_rat = 4 << a_bits,
+  a_real = 5 << a_bits,
+  a_var = 6 << a_bits,
 
-  a_compound = 1 << 31,
+  a_compound = 8 << a_bits
 };
 
 struct int_t {
@@ -40,5 +40,11 @@ struct rat_t {
 
   void clear() { mpq_clear(val); }
 };
+
+term int1(int_t *x);
+term rat(rat_t *x);
+
+int_t *intp(term a);
+rat_t *ratp(term a);
 
 term fn(sym *name);

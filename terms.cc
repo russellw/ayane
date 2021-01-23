@@ -2,7 +2,7 @@
 
 namespace {
 template <class T> struct bank {
-  vec<T *> ptrs;
+  static_vec<T *> ptrs;
 
 private:
   size_t cap = 0x10;
@@ -36,8 +36,6 @@ private:
   }
 
 public:
-  bank() { ptrs.push(0); }
-
   term put(T *x) {
     auto i = slot(entries, cap, x);
     if (entries[i]) {

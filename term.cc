@@ -43,8 +43,6 @@ public:
       return entries[i];
     }
     if (ptrs.n >= cap * 3 / 4) {
-      if (ptrs.n >= 1 << a_bits)
-        err("Too many numbers");
       expand();
       i = slot(entries, cap, x);
     }

@@ -1,20 +1,21 @@
 enum { t_bool, t_int, t_rat, t_real, t_individual, basic_types };
 
 // compound types
-const ty ctype_tag = 1 << 15;
+const int t_bits = 15;
+const ty t_compound = 1 << t_bits;
 
 struct ctype_t {
   ty n;
   ty v[999];
 };
 
-extern vec<ctype_t *> ctypes;
+extern static_vec<ctype_t *, t_compound> ctypes;
 
-inline ty isctype(ty t) { return t & ctype_tag; }
+inline ty isctype(ty t) { return t & t_compound; }
 
 inline ctype_t *ctype(ty t) {
   assert(isctype(t));
-  return ctypes[t & ~ctype_tag];
+  return ctypes[t & ~t_compound];
 }
 
 ty type(const sym *name);

@@ -26,8 +26,8 @@
 
 // specific
 #include "sym.h"
-#include "terms.h"
-#include "types.h"
+#include "term.h"
+#include "type.h"
 
 #include "keywords.h"
 #include "parsing.h"

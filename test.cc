@@ -51,7 +51,7 @@ void test_vec() {
   assert(w.back() == 'c');
 }
 
-void test_types() {
+void test_type() {
   auto bird = type(intern("bird"));
   assert(bird == type(intern("bird")));
   assert(!isctype(bird));
@@ -96,7 +96,7 @@ void test_sym() {
   assert(intern("xyz") == intern("xyz", 3));
 }
 
-void test_ints() {
+void test_int() {
   int_t x1;
   mpz_init_set_ui(x1.val, 1);
   auto a1 = int1(&x1);
@@ -117,7 +117,7 @@ void test_ints() {
   assert(!mpz_cmp_ui(y3->val, 3));
 }
 
-void test_rats() {
+void test_rat() {
   rat_t x1;
   mpq_init(x1.val);
   mpq_set_ui(x1.val, 1, 1);
@@ -143,9 +143,9 @@ void test_rats() {
 
 void test() {
   test_sym();
-  test_ints();
-  test_rats();
-  test_types();
+  test_int();
+  test_rat();
+  test_type();
   test_vec();
   test_static_vec();
 }

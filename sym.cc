@@ -34,6 +34,7 @@ void expand() {
 
 sym *store(const char *s, size_t n) {
   auto r = (sym *)mmalloc(offsetof(sym, s) + n);
+  r->f = 0;
   r->n = n;
   memcpy(r->s, s, n);
   return r;

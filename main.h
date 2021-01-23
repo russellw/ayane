@@ -17,6 +17,9 @@
 
 #include <gmp.h>
 
+typedef uint16_t ty;
+typedef uint32_t term;
+
 // general
 #include "etc.h"
 #include "mem.h"

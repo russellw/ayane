@@ -1,11 +1,41 @@
 struct sym {
+  // Function named by this symbol; 0 if this symbol does not name a function.
+  // For example, a symbol might just name a type, or it could name both a type
+  // and a symbol
+
+  // Types named by symbols are referenced via a separate hash table to save
+  // memory, because there are typically fewer types than symbols
+  term f;
+
+  // Number of characters (or UTF-8 bytes, if it's a Unicode string) in this
+  // symbol
+
+  // Symbols don't use null terminators, though keywords (which are statically
+  // declared symbols) will have their strings padded out with nulls to the
+  // declared length of the character array
   uint16_t n;
-  char s[0x20 - sizeof(uint16_t)];
+
+  // For the keyword system to work, the size of the declared character array
+  // must be large enough to hold the longest keyword
+
+  // For the system to work efficiently, the size of the whole structure must be
+  // a power of 2
+
+  // When symbols are allocated on the heap, the code doing the allocation is
+  // responsible for allocating enough space to hold the corresponding strings
+  char s[0x20 - sizeof(term) - sizeof(uint16_t)];
 };
 
 extern sym keywords[];
 
 inline size_t keyword(sym *S) {
+  // Turn a symbol into a keyword number by subtracting the base of the keyword
+  // array and dividing by the declared size of a symbol structure (which is
+  // efficient as long as that size is a power of 2)
+
+  // It's okay if the symbol is not a keyword; that just means the resulting
+  // number will not correspond to any keyword and will not match any case in a
+  // switch statement
   size_t i = (char *)S - (char *)keywords;
   return i / sizeof(sym);
 }

@@ -159,11 +159,9 @@ template <class T, size_t small = 4> struct vec {
   }
 };
 
-template <class T> struct static_vec {
+template <class T, size_t limit> struct static_vec {
   typedef T *iterator;
   typedef const T *const_iterator;
-  typedef std::reverse_iterator<iterator> reverse_iterator;
-  typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
   size_t cap = 1;
   size_t n = 1;
@@ -219,49 +217,11 @@ template <class T> struct static_vec {
   iterator end() { return p + n; }
   const_iterator end() const { return p + n; }
 
-  reverse_iterator rbegin() { return reverse_iterator(p + n); }
-  const_reverse_iterator rbegin() const { return reverse_iterator(p + n); }
-
-  reverse_iterator rend() { return reverse_iterator(p); }
-  const_reverse_iterator rend() const { return const_reverse_iterator(p); }
-
   // modifiers
   void push(T a) {
+    if (n >= limit)
+      err("Too many objects");
     reserve(n + 1);
     p[n++] = a;
-  }
-
-  void pop() {
-    assert(n);
-    --n;
-  }
-
-  void insert(const_iterator position, T *first, T *last) {
-    assert(p <= position);
-    assert(position <= end());
-    auto i = position - p;
-
-    assert(first <= last);
-    auto m = last - first;
-
-    reserve(n + m);
-    memmove(p + i + m, p + i, (n - i) * sizeof(T));
-    memcpy(p + i, first, m * sizeof(T));
-    n += m;
-  }
-
-  void erase(iterator position) { erase(position, position + 1); }
-
-  void erase(iterator first, iterator last) {
-    assert(p <= first);
-    assert(first <= end());
-
-    assert(p <= last);
-    assert(last <= end());
-
-    assert(first <= last);
-
-    memmove(first, last, (end() - last) * sizeof(T));
-    n -= last - first;
   }
 };

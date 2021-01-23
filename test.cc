@@ -3,7 +3,7 @@
 #ifdef DEBUG
 namespace {
 void test_static_vec() {
-  static static_vec<char> v;
+  static static_vec<char, 100> v;
   assert(v.n == 1);
 
   v.push('a');

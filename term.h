@@ -1,5 +1,3 @@
-typedef uint32_t term;
-
 enum {
   a_false,
   a_true,
@@ -47,4 +45,18 @@ term rat(rat_t *x);
 int_t *intp(term a);
 rat_t *ratp(term a);
 
+struct fn_t {
+  ty t;
+  sym *name;
+};
+
+extern static_vec<fn_t *, 1 << a_bits> fns;
+
 term fn(sym *name);
+
+inline fn_t *fnp(term a) {
+  assert((a & a_tags) == a_fn);
+  auto r = fns[a & (1 << a_bits) - 1];
+  assert(r);
+  return r;
+}

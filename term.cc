@@ -2,7 +2,7 @@
 
 namespace {
 template <class T> struct bank {
-  static_vec<T *> ptrs;
+  static_vec<T *, 1 << a_bits> ptrs;
 
 private:
   size_t cap = 0x10;
@@ -75,4 +75,18 @@ rat_t *ratp(term a) {
   auto r = rats.ptrs[a & (1 << a_bits) - 1];
   assert(r);
   return r;
+}
+
+static_vec<fn_t *, 1 << a_bits> fns;
+
+term fn(sym *name) {
+  auto a = name->f;
+  if (a)
+    return a;
+  auto p = (fn_t *)malloc(sizeof(fn_t));
+  p->name = name;
+  p->t = 0;
+  a = fns.n;
+  fns.push(p);
+  return a | a_fn;
 }

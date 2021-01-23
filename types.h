@@ -12,7 +12,7 @@ struct ctype_t {
 
 extern vec<ctype_t *> ctypes;
 
-inline int isctype(ty t) { return t & ctype_tag; }
+inline ty isctype(ty t) { return t & ctype_tag; }
 
 inline ctype_t *ctype(ty t) {
   assert(isctype(t));
@@ -20,4 +20,4 @@ inline ctype_t *ctype(ty t) {
 }
 
 ty type(const sym *name);
-ty type(const ty *p, int n);
+ty type(const ty *p, size_t n);

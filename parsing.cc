@@ -46,7 +46,7 @@ srcfile::srcfile(const char *filename)
 #ifdef _WIN32
     _setmode(0, O_BINARY);
 #endif
-    int chunk = 1 << 20;
+    size_t chunk = 1 << 20;
     size_t cap = 0;
     for (;;) {
       if (n + chunk + 2 > cap) {
@@ -88,7 +88,7 @@ __declspec(noreturn)
     void err(const char *msg) {
   if (filename && filesrc && toksrc) {
     // line number
-    int line = 1;
+    size_t line = 1;
     for (auto s = filesrc; s != toksrc; ++s)
       if (*s == '\n')
         ++line;
@@ -105,7 +105,7 @@ __declspec(noreturn)
     for (auto s1 = s0; s1 != toksrc; ++s1)
       fputc(*s1 == '\t' ? '\t' : ' ', stderr);
     fprintf(stderr, "^\n");
-    fprintf(stderr, "%s:%d: ", filename, line);
+    fprintf(stderr, "%s:%zu: ", filename, line);
   }
   fprintf(stderr, "%s\n", msg);
   exit(1);

@@ -21,4 +21,4 @@ bool assertfail(const char *file, int line, const char *s);
 #define debug(a)
 #endif
 
-unsigned fnv(const void *p, int n);
+unsigned fnv(const void *p, size_t n);

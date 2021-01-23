@@ -41,7 +41,7 @@ bool assertfail(const char *file, int line, const char *s) {
 }
 #endif
 
-unsigned fnv(const void *p, int n) {
+unsigned fnv(const void *p, size_t n) {
   // Fowler-Noll-Vo-1a
   auto p1 = (const char *)p;
   unsigned h = 2166136261u;

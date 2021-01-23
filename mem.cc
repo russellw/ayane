@@ -30,12 +30,13 @@ void *xrealloc(void *p, size_t n) {
   return r;
 }
 
-void *mmalloc(int n) {
-  n = n + 7 & ~7;
+void *mmalloc(size_t n) {
+  auto align = sizeof(void *) - 1;
+  n = n + align & ~align;
   static char *end;
   static char *p;
   if (end - p < n) {
-    auto chunk = std::max(n, 10000);
+    auto chunk = std::max(n, (size_t)10000);
     p = (char *)xmalloc(chunk);
     end = p + chunk;
   }

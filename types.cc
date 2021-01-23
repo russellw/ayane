@@ -4,16 +4,16 @@ namespace {
 std::unordered_map<const sym *, ty> atypes;
 
 // hash table for structure sharing
-int cap = 0x10;
+size_t cap = 0x10;
 ty *entries = (ty *)xcalloc(cap, sizeof(ty));
 
-bool eq(const ctype_t *t, const ty *p, int n) {
+bool eq(const ctype_t *t, const ty *p, size_t n) {
   if (t->n != n)
     return false;
   return !memcmp(t->v, p, n * sizeof(ty));
 }
 
-int slot(ty *entries, int cap, const ty *p, int n) {
+size_t slot(ty *entries, size_t cap, const ty *p, size_t n) {
   auto mask = cap - 1;
   auto i = fnv(p, n * sizeof(ty)) & mask;
   while (entries[i] && !eq(ctype(entries[i]), p, n))
@@ -24,7 +24,7 @@ int slot(ty *entries, int cap, const ty *p, int n) {
 void expand() {
   auto cap1 = cap * 2;
   auto entries1 = (ty *)xcalloc(cap1, sizeof(ty));
-  for (int i = 0; i != cap; ++i) {
+  for (size_t i = 0; i != cap; ++i) {
     auto t = entries[i];
     if (t) {
       auto t1 = ctype(t);
@@ -36,7 +36,7 @@ void expand() {
   entries = entries1;
 }
 
-ctype_t *store(const ty *p, int n) {
+ctype_t *store(const ty *p, size_t n) {
   auto r = (ctype_t *)mmalloc(offsetof(ctype_t, v) + n * sizeof(ty));
   r->n = n;
   memcpy(r->v, p, n * sizeof(ty));
@@ -57,7 +57,7 @@ ty type(const sym *name) {
   return i;
 }
 
-ty type(const ty *p, int n) {
+ty type(const ty *p, size_t n) {
   auto i = slot(entries, cap, p, n);
   if (entries[i])
     return entries[i];

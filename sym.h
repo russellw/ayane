@@ -10,7 +10,7 @@ inline size_t keyword(sym *S) {
   return i / sizeof(sym);
 }
 
-sym *intern(const char *s, int n);
+sym *intern(const char *s, size_t n);
 
 inline sym *intern(const char *s) { return intern(s, strlen(s)); }
 

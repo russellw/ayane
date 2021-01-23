@@ -52,7 +52,8 @@ struct fn_t {
 
 extern static_vec<fn_t *, 1 << a_bits> fns;
 
-term fn(sym *name);
+term fn(ty t);
+term fn(ty t, sym *name);
 
 inline fn_t *fnp(term a) {
   assert((a & a_tags) == a_fn);

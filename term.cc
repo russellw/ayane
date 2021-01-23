@@ -77,14 +77,31 @@ rat_t *ratp(term a) {
 
 static_vec<fn_t *, 1 << a_bits> fns;
 
-term fn(sym *name) {
+namespace {
+fn_t *mkfn(ty t) {
+  auto p = (fn_t *)malloc(sizeof(fn_t));
+  p->name = 0;
+  p->t = t;
+  fns.push(p);
+  return p;
+}
+} // namespace
+
+term fn(ty t) {
+  auto i = fns.n;
+  fns.push(mkfn(t));
+  return i | a_fn;
+}
+
+term fn(ty t, sym *name) {
   auto a = name->f;
   if (a)
     return a;
   auto p = (fn_t *)malloc(sizeof(fn_t));
   p->name = name;
-  p->t = 0;
-  a = fns.n;
+  p->t = t;
+  a = fns.n | a_fn;
+  name->f = a;
   fns.push(p);
-  return a | a_fn;
+  return a;
 }

@@ -6,7 +6,7 @@ const ty t_compound = 1 << t_bits;
 
 struct ctype_t {
   ty n;
-  ty v[999];
+  ty v[0];
 };
 
 extern static_vec<ctype_t *, t_compound> ctypes;

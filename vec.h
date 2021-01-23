@@ -38,14 +38,14 @@ template <class T, size_t small = 4> struct vec {
   }
 
   // move
-  vec(vec &b) : n(b.n) {
-    if (b.p == b.v) {
-      memcpy(v, b.v, n * sizeof(T));
+  vec(vec &x) : n(x.n) {
+    if (x.p == x.v) {
+      memcpy(v, x.v, n * sizeof(T));
       return;
     }
-    cap = b.cap;
-    p = b.p;
-    b.p = b.v;
+    cap = x.cap;
+    p = x.p;
+    x.p = x.v;
   }
 
   ~vec() {
@@ -152,10 +152,10 @@ template <class T, size_t small = 4> struct vec {
     n -= last - first;
   }
 
-  bool operator==(const vec &b) {
-    if (n != b.n)
+  bool operator==(const vec &x) {
+    if (n != x.n)
       return false;
-    return !memcmp(p, b.p, n * sizeof(T));
+    return !memcmp(p, x.p, n * sizeof(T));
   }
 };
 

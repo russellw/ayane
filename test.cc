@@ -117,6 +117,29 @@ void test_int() {
   assert(!mpz_cmp_ui(y3->val, 3));
 }
 
+void test_fn() {
+  auto blank = fn(t_individual);
+  auto blankp = fnp(blank);
+  assert(blankp->t == t_individual);
+
+  auto red = fn(t_individual, intern("red"));
+  auto redp = fnp(red);
+  assert(redp->t == t_individual);
+
+  auto green = fn(t_individual, intern("green"));
+  auto greenp = fnp(green);
+  assert(greenp->t == t_individual);
+
+  auto blue = fn(t_individual, intern("blue"));
+  auto bluep = fnp(blue);
+  assert(bluep->t == t_individual);
+
+  assert(!blankp->name);
+  assert(redp->name == intern("red"));
+  assert(greenp->name == intern("green"));
+  assert(bluep->name == intern("blue"));
+}
+
 void test_rat() {
   rat_t x1;
   mpq_init(x1.val);
@@ -147,6 +170,7 @@ void test() {
   test_rat();
   test_type();
   test_vec();
+  test_fn();
   test_static_vec();
 }
 #endif

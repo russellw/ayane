@@ -57,7 +57,7 @@ term rat(rat_t *x) { return tag(rats.put(x), a_rat); }
 term real(rat_t *x) { return tag(rats.put(x), a_real); }
 
 namespace {
-fn_t *mkfn(ty t) {
+fn_t *mkfn(type t) {
   auto r = (fn_t *)xmalloc(sizeof(fn_t));
   r->name = 0;
   r->t = t;
@@ -65,9 +65,9 @@ fn_t *mkfn(ty t) {
 }
 } // namespace
 
-term fn(ty t) { return tag(mkfn(t), a_fn); }
+term fn(type t) { return tag(mkfn(t), a_fn); }
 
-term fn(ty t, sym *name) {
+term fn(type t, sym *name) {
   auto a = name->f;
   if (a)
     return a;

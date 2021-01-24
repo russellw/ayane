@@ -17,7 +17,7 @@
 
 #include <gmp.h>
 
-typedef uint16_t ty;
+typedef uint16_t type;
 typedef size_t term;
 
 // general

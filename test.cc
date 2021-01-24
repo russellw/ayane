@@ -45,12 +45,12 @@ void test_type() {
 
   assert(bird != plane);
 
-  vec<ty> v;
+  vec<type> v;
   v.push(t_bool);
   v.push(t_int);
   v.push(t_int);
-  auto t_predicate_int_int = type(v.p, v.n);
-  assert(t_predicate_int_int == type(v.p, v.n));
+  auto t_predicate_int_int = ctype(v.p, v.n);
+  assert(t_predicate_int_int == ctype(v.p, v.n));
   assert(isctype(t_predicate_int_int));
   auto t = ctype(t_predicate_int_int);
   assert(t->n == 3);
@@ -62,8 +62,8 @@ void test_type() {
   v.push(t_bool);
   v.push(t_rat);
   v.push(t_rat);
-  auto t_predicate_rat_rat = type(v.p, v.n);
-  assert(t_predicate_rat_rat == type(v.p, v.n));
+  auto t_predicate_rat_rat = ctype(v.p, v.n);
+  assert(t_predicate_rat_rat == ctype(v.p, v.n));
   assert(isctype(t_predicate_rat_rat));
   t = ctype(t_predicate_rat_rat);
   assert(t->n == 3);

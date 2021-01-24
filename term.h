@@ -46,7 +46,7 @@ struct cterm_t {
 };
 
 struct fn_t {
-  ty t;
+  type t;
   sym *name;
 };
 
@@ -70,8 +70,8 @@ term rat(rat_t *x);
 int_t *intp(term a);
 rat_t *ratp(term a);
 
-term fn(ty t);
-term fn(ty t, sym *name);
+term fn(type t);
+term fn(type t, sym *name);
 
 inline fn_t *fnp(term a) {
   assert(tag(a) == a_fn);

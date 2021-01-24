@@ -1,13 +1,13 @@
 inline void fpr(FILE *F, char c) { fputc(c, F); }
 inline void fpr(FILE *F, const char *s) { fputs(s, F); }
 inline void fpr(FILE *F, double a) { fprintf(F, "%f", a); }
-inline void fpr(FILE *F, int a) { fprintf(F, "%d", a); }
-inline void fpr(FILE *F, size_t a) { fprintf(F, "%zu", a); }
+inline void fpr(FILE *F, uint64_t a) { fprintf(F, "%" PRIu64, a); }
+inline void fpr(FILE *F, uint32_t a) { fprintf(F, "%" PRIu32, a); }
 inline void fpr(FILE *F, void *p) { fprintf(F, "%p", p); }
 
 #ifdef DEBUG
 void stacktrace();
-bool assertfail(const char *file, int line, const char *s);
+bool assertfail(const char *file, size_t line, const char *s);
 #define assert(a) (a) || assertfail(__FILE__, __LINE__, #a)
 #define debug(a)                                                               \
   do {                                                                         \
@@ -21,4 +21,4 @@ bool assertfail(const char *file, int line, const char *s);
 #define debug(a)
 #endif
 
-unsigned fnv(const void *p, size_t n);
+size_t fnv(const void *p, size_t n);

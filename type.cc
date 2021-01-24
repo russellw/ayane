@@ -47,7 +47,7 @@ ctype_t *mk(const ty *p, size_t n) {
 }
 } // namespace
 
-static_vec<ctype_t *, t_compound> ctypes;
+vec<ctype_t *> ctypes(0);
 
 ty type(const sym *name) {
   auto &t = atypes[name];
@@ -61,6 +61,8 @@ ty type(const ty *p, size_t n) {
   if (entries[i])
     return entries[i] | t_compound;
   if (ctypes.n >= cap * 3 / 4) {
+    if (ctypes.n >= t_compound)
+      err("Too many types");
     expand();
     i = slot(entries, cap, p, n);
   }

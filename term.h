@@ -37,6 +37,16 @@ struct rat_t {
   void clear() { mpq_clear(val); }
 };
 
+struct cterm_t {
+  uint16_t n;
+  term v[0];
+};
+
+struct fn_t {
+  ty t;
+  sym *name;
+};
+
 inline size_t tag(term a) { return a & 7; }
 
 inline term tag(void *p, int a) { return (size_t)p | a; }
@@ -56,11 +66,6 @@ term rat(rat_t *x);
 
 int_t *intp(term a);
 rat_t *ratp(term a);
-
-struct fn_t {
-  ty t;
-  sym *name;
-};
 
 term fn(ty t);
 term fn(ty t, sym *name);

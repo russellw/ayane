@@ -32,8 +32,8 @@ void stacktrace() {
 #endif
 }
 
-bool assertfail(const char *file, int line, const char *s) {
-  fprintf(stderr, "%s:%d: assert failed: %s\n", file, line, s);
+bool assertfail(const char *file, size_t line, const char *s) {
+  fprintf(stderr, "%s:%zu: assert failed: %s\n", file, line, s);
   stacktrace();
   exit(1);
   // keep the compiler happy about the use of || in the assert macro
@@ -41,10 +41,10 @@ bool assertfail(const char *file, int line, const char *s) {
 }
 #endif
 
-unsigned fnv(const void *p, size_t n) {
+size_t fnv(const void *p, size_t n) {
   // Fowler-Noll-Vo-1a
   auto p1 = (const char *)p;
-  unsigned h = 2166136261u;
+  size_t h = 2166136261u;
   while (n--) {
     h ^= *p1++;
     h *= 16777619;

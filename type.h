@@ -9,7 +9,7 @@ struct ctype_t {
   ty v[0];
 };
 
-extern static_vec<ctype_t *, t_compound> ctypes;
+extern vec<ctype_t *> ctypes;
 
 inline ty isctype(ty t) { return t & t_compound; }
 

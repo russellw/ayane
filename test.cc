@@ -2,23 +2,6 @@
 
 #ifdef DEBUG
 namespace {
-void test_static_vec() {
-  static static_vec<char, 100> v;
-  assert(v.n == 1);
-
-  v.push('a');
-  assert(v.n == 2);
-  assert(v.back() == 'a');
-
-  v.push('b');
-  assert(v.n == 3);
-  assert(v.back() == 'b');
-
-  v.push('c');
-  assert(v.n == 4);
-  assert(v.back() == 'c');
-}
-
 void test_vec() {
   vec<char> v;
   assert(v.n == 0);
@@ -171,6 +154,5 @@ void test() {
   test_type();
   test_vec();
   test_fn();
-  test_static_vec();
 }
 #endif

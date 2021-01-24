@@ -49,7 +49,7 @@ ctype_t *mk(const ty *p, size_t n) {
 
 vec<ctype_t *> ctypes(0);
 
-ty type(const sym *name) {
+ty atype(const sym *name) {
   auto &t = atypes[name];
   if (t)
     return t;

@@ -18,5 +18,5 @@ inline ctype_t *ctype(ty t) {
   return ctypes[t & ~t_compound];
 }
 
-ty type(const sym *name);
+ty atype(const sym *name);
 ty type(const ty *p, size_t n);

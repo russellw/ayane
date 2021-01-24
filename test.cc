@@ -35,12 +35,12 @@ void test_vec() {
 }
 
 void test_type() {
-  auto bird = type(intern("bird"));
-  assert(bird == type(intern("bird")));
+  auto bird = atype(intern("bird"));
+  assert(bird == atype(intern("bird")));
   assert(!isctype(bird));
 
-  auto plane = type(intern("plane"));
-  assert(plane == type(intern("plane")));
+  auto plane = atype(intern("plane"));
+  assert(plane == atype(intern("plane")));
   assert(!isctype(plane));
 
   assert(bird != plane);

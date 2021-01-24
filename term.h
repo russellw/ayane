@@ -6,6 +6,7 @@ enum {
   a_real,
   a_var,
   a_compound,
+  a_basic,
 };
 
 enum {
@@ -13,6 +14,8 @@ enum {
   b_true,
 
   b_all,
+  b_and,
+  b_not,
 };
 
 struct int_t {
@@ -74,3 +77,14 @@ inline fn_t *fnp(term a) {
   assert(tag(a) == a_fn);
   return (fn_t *)(a & ~(size_t)7);
 }
+
+inline cterm_t *ctermp(term a) {
+  assert(tag(a) == a_compound);
+  return (cterm_t *)(a & ~(size_t)7);
+}
+
+inline term aterm(int op) { return op << 3 | a_basic; }
+
+term cterm(vec<term> &v);
+term cterm(int op, term a);
+term cterm(int op, term a, term b);

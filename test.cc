@@ -100,6 +100,26 @@ void test_int() {
   assert(!mpz_cmp_ui(y3->val, 3));
 }
 
+void test_term() {
+  auto red = fn(t_bool, intern("red"));
+  auto green = fn(t_bool, intern("green"));
+  auto blue = fn(t_bool, intern("blue"));
+
+  auto a = cterm(b_not, red);
+  assert(a == cterm(b_not, red));
+
+  a = cterm(b_and, red, green);
+  assert(a == cterm(b_and, red, green));
+
+  vec<term> v;
+  v.push(aterm(b_and));
+  v.push(red);
+  v.push(green);
+  v.push(blue);
+  a = cterm(v);
+  assert(a == cterm(v));
+}
+
 void test_fn() {
   auto blank = fn(t_individual);
   auto blankp = fnp(blank);
@@ -154,5 +174,6 @@ void test() {
   test_type();
   test_vec();
   test_fn();
+  test_term();
 }
 #endif

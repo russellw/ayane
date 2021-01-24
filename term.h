@@ -1,20 +1,18 @@
 enum {
-  a_false,
-  a_true,
+  a_distinct_object,
+  a_fn,
+  a_int,
+  a_rat,
+  a_real,
+  a_var,
+  a_compound,
+};
 
-  a_all,
+enum {
+  b_false,
+  b_true,
 
-  a_bits = 28,
-  a_tags = 7 << a_bits,
-
-  a_distinct_object = 1 << a_bits,
-  a_fn = 2 << a_bits,
-  a_int = 3 << a_bits,
-  a_rat = 4 << a_bits,
-  a_real = 5 << a_bits,
-  a_var = 6 << a_bits,
-
-  a_compound = 8 << a_bits
+  b_all,
 };
 
 struct int_t {
@@ -39,6 +37,20 @@ struct rat_t {
   void clear() { mpq_clear(val); }
 };
 
+inline size_t tag(term a) { return a & 7; }
+
+inline term tag(void *p, int a) { return (size_t)p | a; }
+
+inline int_t *intp(term a) {
+  assert(tag(a) == a_int);
+  return (int_t *)(a & ~(size_t)7);
+}
+
+inline rat_t *ratp(term a) {
+  assert(tag(a) == a_rat || tag(a) == a_real);
+  return (rat_t *)(a & ~(size_t)7);
+}
+
 term int1(int_t *x);
 term rat(rat_t *x);
 
@@ -50,14 +62,10 @@ struct fn_t {
   sym *name;
 };
 
-extern static_vec<fn_t *, 1 << a_bits> fns;
-
 term fn(ty t);
 term fn(ty t, sym *name);
 
 inline fn_t *fnp(term a) {
-  assert((a & a_tags) == a_fn);
-  auto r = fns[a & (1 << a_bits) - 1];
-  assert(r);
-  return r;
+  assert(tag(a) == a_fn);
+  return (fn_t *)(a & ~(size_t)7);
 }

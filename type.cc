@@ -53,9 +53,7 @@ ty type(const sym *name) {
   auto &t = atypes[name];
   if (t)
     return t;
-  auto i = atypes.size() + basic_types;
-  t = i;
-  return i;
+  return t = atypes.size() + basic_types;
 }
 
 ty type(const ty *p, size_t n) {

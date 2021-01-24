@@ -31,8 +31,7 @@ void *xrealloc(void *p, size_t n) {
 }
 
 void *mmalloc(size_t n) {
-  auto align = sizeof(void *) - 1;
-  n = n + align & ~align;
+  n = n + 7 & ~7;
   static char *end;
   static char *p;
   if (end - p < n) {

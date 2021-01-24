@@ -44,7 +44,7 @@ struct init {
   init() {
     for (size_t i = 0; i != nkeywords; ++i) {
       auto S = keywords + i;
-      assert(S->n < sizeof S->s);
+      assert(S->n <= sizeof S->s);
       ++count;
       assert(count <= cap * 3 / 4);
       auto j = slot(entries, cap, S->s, S->n);

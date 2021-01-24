@@ -18,7 +18,7 @@
 #include <gmp.h>
 
 typedef uint16_t ty;
-typedef uint32_t term;
+typedef size_t term;
 
 // general
 #include "etc.h"

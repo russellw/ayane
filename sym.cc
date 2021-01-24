@@ -32,7 +32,7 @@ void expand() {
   entries = entries1;
 }
 
-sym *store(const char *s, size_t n) {
+sym *mk(const char *s, size_t n) {
   auto r = (sym *)mmalloc(offsetof(sym, s) + n);
   r->f = 0;
   r->n = n;
@@ -65,5 +65,5 @@ sym *intern(const char *s, size_t n) {
     expand();
     i = slot(entries, cap, s, n);
   }
-  return entries[i] = store(s, n);
+  return entries[i] = mk(s, n);
 }

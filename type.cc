@@ -36,7 +36,7 @@ void expand() {
   entries = entries1;
 }
 
-ctype_t *store(const ty *p, size_t n) {
+ctype_t *mk(const ty *p, size_t n) {
   // Types have little enough information associated with them that we can reuse
   // type objects between problems, so we never need to free them, so we can use
   // monotonic allocation for minimal overhead
@@ -68,6 +68,6 @@ ty type(const ty *p, size_t n) {
   }
   auto t = ctypes.n;
   entries[i] = t;
-  ctypes.push(store(p, n));
+  ctypes.push(mk(p, n));
   return t | t_compound;
 }

@@ -66,6 +66,7 @@ inline rat_t *ratp(term a) {
 
 term int1(int_t *x);
 term rat(rat_t *x);
+term real(rat_t *x);
 
 int_t *intp(term a);
 rat_t *ratp(term a);

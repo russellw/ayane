@@ -71,3 +71,19 @@ type ctype(const type *p, size_t n) {
   ctypes.push(mk(p, n));
   return t | t_compound;
 }
+
+type typeof(term a) {
+  switch (tag(a)) {
+  case a_var:
+    return a >> 3 & (1 << 8 * sizeof(type)) - 1;
+  case a_int:
+    return t_int;
+  case a_rat:
+    return t_rat;
+  case a_real:
+    return t_real;
+  case a_fn:
+    return fnp(a)->t;
+  }
+  __builtin_unreachable();
+}

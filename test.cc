@@ -79,6 +79,23 @@ void test_sym() {
   assert(intern("xyz") == intern("xyz", 3));
 }
 
+void test_typeof() {
+  assert(typeof(var(t_int, 13)) == t_int);
+
+  int_t i1;
+  mpz_init_set_ui(i1.val, 1);
+  assert(typeof(int1(&i1)) == t_int);
+
+  rat_t r1;
+  mpq_init(r1.val);
+  mpq_set_ui(r1.val, 1, 3);
+  assert(typeof(rat(&r1)) == t_rat);
+  assert(typeof(real(&r1)) == t_real);
+
+  auto red = fn(t_bool, intern("red"));
+  assert(typeof(red) == t_bool);
+}
+
 void test_int() {
   int_t x1;
   mpz_init_set_ui(x1.val, 1);
@@ -121,21 +138,21 @@ void test_term() {
 }
 
 void test_fn() {
-  auto blank = fn(t_individual);
+  auto blank = fn(t_bool);
   auto blankp = fnp(blank);
-  assert(blankp->t == t_individual);
+  assert(blankp->t == t_bool);
 
-  auto red = fn(t_individual, intern("red"));
+  auto red = fn(t_bool, intern("red"));
   auto redp = fnp(red);
-  assert(redp->t == t_individual);
+  assert(redp->t == t_bool);
 
-  auto green = fn(t_individual, intern("green"));
+  auto green = fn(t_bool, intern("green"));
   auto greenp = fnp(green);
-  assert(greenp->t == t_individual);
+  assert(greenp->t == t_bool);
 
-  auto blue = fn(t_individual, intern("blue"));
+  auto blue = fn(t_bool, intern("blue"));
   auto bluep = fnp(blue);
-  assert(bluep->t == t_individual);
+  assert(bluep->t == t_bool);
 
   assert(!blankp->name);
   assert(redp->name == intern("red"));
@@ -182,6 +199,7 @@ void test() {
   test_int();
   test_rat();
   test_type();
+  test_typeof();
   test_vec();
   test_fn();
   test_term();

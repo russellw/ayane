@@ -20,3 +20,4 @@ inline ctype_t *ctype(type t) {
 
 type atype(const sym *name);
 type ctype(const type *p, size_t n);
+type typeof(term a);

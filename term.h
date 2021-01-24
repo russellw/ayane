@@ -88,3 +88,12 @@ inline term aterm(int op) { return op << 3 | a_basic; }
 term cterm(vec<term> &v);
 term cterm(int op, term a);
 term cterm(int op, term a, term b);
+
+inline term var(type t, size_t i) {
+  return i << (8 * sizeof(type) + 3) | t << 3 | a_var;
+}
+
+inline size_t vari(term a) {
+  assert(tag(a) == a_var);
+  return a >> (8 * sizeof(type) + 3);
+}

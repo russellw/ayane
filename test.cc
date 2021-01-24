@@ -143,6 +143,16 @@ void test_fn() {
   assert(bluep->name == intern("blue"));
 }
 
+void test_var() {
+  auto x = var(t_int, 0);
+  assert(vari(x) == 0);
+
+  auto y = var(t_int, 1);
+  assert(vari(y) == 1);
+
+  assert(x != y);
+}
+
 void test_rat() {
   rat_t x1;
   mpq_init(x1.val);
@@ -175,5 +185,6 @@ void test() {
   test_vec();
   test_fn();
   test_term();
+  test_var();
 }
 #endif

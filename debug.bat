@@ -3,7 +3,7 @@ move *.asm \temp
 
 rem Try building with both clang and Microsoft C++
 rem for two chances to find compile-time errors
-clang -I\mpir -Werror -Wno-deprecated-declarations -c *.cc
+clang -I\mpir -Wall -Werror -Wno-deprecated-declarations -c *.cc
 if errorlevel 1 goto :eof
 del *.o
 

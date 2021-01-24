@@ -50,11 +50,13 @@ void help() {
          "-t seconds  Time limit\n");
 }
 
+#if 0
 const char *ext(const char *file) {
   // don't care about a.b/c
   auto s = strrchr(file, '.');
   return s ? s + 1 : "";
 }
+#endif
 
 const char *opt(int argc, const char **argv, int &i) {
   auto s = argv[i];

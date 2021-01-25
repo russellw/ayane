@@ -4,10 +4,10 @@ template <class T> class bank_set {
   w count;
   T **entries = (T **)xcalloc(cap, sizeof(T *));
 
-  w slot(T **entries, w cap, T *t) {
+  w slot(T **entries, w cap, T *x) {
     auto mask = cap - 1;
-    auto i = t->hash() & mask;
-    while (entries[i] && !entries[i]->eq(t))
+    auto i = x->hash() & mask;
+    while (entries[i] && !entries[i]->eq(x))
       i = (i + 1) & mask;
     return i;
   }
@@ -16,33 +16,33 @@ template <class T> class bank_set {
     auto cap1 = cap * 2;
     auto entries1 = (T **)xcalloc(cap1, sizeof(T *));
     for (w i = 0; i != cap; ++i) {
-      auto t = entries[i];
-      if (t)
-        entries1[slot(entries1, cap1, t)] = t;
+      auto x = entries[i];
+      if (x)
+        entries1[slot(entries1, cap1, x)] = x;
     }
     free(entries);
     cap = cap1;
     entries = entries1;
   }
 
-  T *store(T *t) {
+  T *store(T *x) {
     auto r = (T *)xmalloc(sizeof(T));
-    *r = *t;
+    *r = *x;
     return r;
   }
 
 public:
-  T *put(T *t) {
-    auto i = slot(entries, cap, t);
+  T *put(T *x) {
+    auto i = slot(entries, cap, x);
     if (entries[i]) {
-      t->clear();
+      x->clear();
       return entries[i];
     }
     if (++count > cap * 3 / 4) {
       expand();
-      i = slot(entries, cap, t);
+      i = slot(entries, cap, x);
     }
-    return entries[i] = store(t);
+    return entries[i] = store(x);
   }
 };
 
@@ -75,12 +75,12 @@ template <class K, class T, class R> class bank_map {
   }
 
 public:
-  void add(T *t) {
+  void add(T *x) {
     ++count;
     assert(count <= cap * 3 / 4);
-    auto i = slot(entries, cap, t->v, t->n);
+    auto i = slot(entries, cap, x->v, x->n);
     assert(!entries[i]);
-    entries[i] = t;
+    entries[i] = x;
   }
 
   R put(const K *p, w n) {

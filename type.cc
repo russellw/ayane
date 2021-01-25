@@ -1,9 +1,8 @@
 #include "main.h"
 
 namespace {
-std::unordered_map<const sym *, type> atypes;
+type atypes = basic_types;
 
-// hash table for structure sharing
 size_t cap = 0x10;
 type *entries = (type *)xcalloc(cap, sizeof(type));
 
@@ -46,11 +45,12 @@ ctype_t *mk(const type *p, size_t n) {
 
 vec<ctype_t *> ctypes(0);
 
-type atype(const sym *name) {
-  auto &t = atypes[name];
-  if (t)
-    return t;
-  return t = atypes.size() + basic_types;
+type atype(sym *name) {
+  if (name->t)
+    return name->t;
+  if (atypes >= t_compound)
+    err("Too many atomic types");
+  return name->t = atypes++;
 }
 
 type ctype(const type *p, size_t n) {
@@ -59,7 +59,7 @@ type ctype(const type *p, size_t n) {
     return entries[i] | t_compound;
   if (ctypes.n >= cap * 3 / 4) {
     if (ctypes.n >= t_compound)
-      err("Too many types");
+      err("Too many compound types");
     expand();
     i = slot(entries, cap, p, n);
   }

@@ -1,11 +1,6 @@
 struct sym {
-  // Function named by this symbol; 0 if this symbol does not name a function.
-  // For example, a symbol might just name a type, or it could name both a type
-  // and a symbol
-
-  // Types named by symbols are referenced via a separate hash table to save
-  // memory, because there are typically fewer types than symbols
   term f;
+  type t;
 
   // Number of characters (or UTF-8 bytes, if it's a Unicode string) in this
   // symbol
@@ -23,7 +18,7 @@ struct sym {
 
   // When symbols are allocated on the heap, the code doing the allocation is
   // responsible for allocating enough space to hold the corresponding strings
-  char s[0x20 - sizeof(term) - sizeof(uint16_t)];
+  char s[0x20 - sizeof(term) - sizeof(type) - sizeof(uint16_t)];
 };
 
 extern sym keywords[];

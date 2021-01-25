@@ -12,7 +12,6 @@
 
 #include <algorithm>
 #include <iterator>
-#include <unordered_map>
 #include <utility>
 
 #include <gmp.h>

@@ -18,8 +18,6 @@ enum {
   b_not,
 };
 
-inline w tag(w a) { return a & 7; }
-
 inline w tag(void *p, w a) { return (w)p | a; }
 
 struct int_t {
@@ -70,12 +68,12 @@ struct fn_t {
 };
 
 inline int_t *intp(w a) {
-  assert(tag(a) == a_int);
+  assert((a & 7) == a_int);
   return (int_t *)(a & ~(w)7);
 }
 
 inline rat_t *ratp(w a) {
-  assert(tag(a) == a_rat || tag(a) == a_real);
+  assert((a & 7) == a_rat || (a & 7) == a_real);
   return (rat_t *)(a & ~(w)7);
 }
 
@@ -90,12 +88,12 @@ w fn(type t);
 w fn(type t, sym *name);
 
 inline fn_t *fnp(w a) {
-  assert(tag(a) == a_fn);
+  assert((a & 7) == a_fn);
   return (fn_t *)(a & ~(w)7);
 }
 
 inline cterm_t *ctermp(w a) {
-  assert(tag(a) == a_compound);
+  assert((a & 7) == a_compound);
   return (cterm_t *)(a & ~(w)7);
 }
 
@@ -110,6 +108,6 @@ inline w var(type t, w i) {
 }
 
 inline w vari(w a) {
-  assert(tag(a) == a_var);
+  assert((a & 7) == a_var);
   return a >> (8 * sizeof(type) + 3);
 }

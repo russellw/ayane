@@ -75,7 +75,7 @@ type ctype(const type *p, w n) {
 }
 
 type typeof(w a) {
-  switch (tag(a)) {
+  switch (a & 7) {
   case a_var:
     return a >> 3 & (1 << 8 * sizeof(type)) - 1;
   case a_int:

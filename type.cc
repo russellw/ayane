@@ -8,16 +8,16 @@
 namespace {
 type atypes = basic_types;
 
-size_t cap = 0x10;
+w cap = 0x10;
 type *entries = (type *)xcalloc(cap, sizeof(type));
 
-bool eq(const ctype_t *t, const type *p, size_t n) {
+bool eq(const ctype_t *t, const type *p, w n) {
   if (t->n != n)
     return false;
   return !memcmp(t->v, p, n * sizeof(type));
 }
 
-size_t slot(type *entries, size_t cap, const type *p, size_t n) {
+w slot(type *entries, w cap, const type *p, w n) {
   auto mask = cap - 1;
   auto i = fnv(p, n * sizeof(type)) & mask;
   while (entries[i] && !eq(ctypes[entries[i]], p, n))
@@ -28,7 +28,7 @@ size_t slot(type *entries, size_t cap, const type *p, size_t n) {
 void expand() {
   auto cap1 = cap * 2;
   auto entries1 = (type *)xcalloc(cap1, sizeof(type));
-  for (size_t i = 0; i != cap; ++i) {
+  for (w i = 0; i != cap; ++i) {
     auto t = entries[i];
     if (t) {
       auto t1 = ctypes[t];
@@ -40,7 +40,7 @@ void expand() {
   entries = entries1;
 }
 
-ctype_t *store(const type *p, size_t n) {
+ctype_t *store(const type *p, w n) {
   auto r = (ctype_t *)xmalloc(offsetof(ctype_t, v) + n * sizeof(type));
   r->n = n;
   memcpy(r->v, p, n * sizeof(type));
@@ -58,7 +58,7 @@ type atype(sym *name) {
   return name->t = atypes++;
 }
 
-type ctype(const type *p, size_t n) {
+type ctype(const type *p, w n) {
   auto i = slot(entries, cap, p, n);
   if (entries[i])
     return entries[i] | t_compound;

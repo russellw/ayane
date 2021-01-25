@@ -20,13 +20,13 @@ struct sym {
   // responsible for allocating enough space to hold the corresponding strings
   char v[0x20 - sizeof(w) - sizeof(type) - sizeof(uint16_t)];
 
-  bool eq(const char *s, size_t n) const {
+  bool eq(const char *s, w n) const {
     if (this->n != n)
       return false;
     return !memcmp(v, s, n);
   }
 
-  static sym *store(const char *s, size_t n) {
+  static sym *store(const char *s, w n) {
     auto r = (sym *)xmalloc(offsetof(sym, v) + n);
     memset(r, 0, offsetof(sym, v));
     r->n = n;
@@ -39,7 +39,7 @@ struct sym {
 
 extern sym keywords[];
 
-inline size_t keyword(sym *S) {
+inline w keyword(sym *S) {
   // Turn a symbol into a keyword number by subtracting the base of the keyword
   // array and dividing by the declared size of a symbol structure (which is
   // efficient as long as that size is a power of 2)
@@ -47,11 +47,11 @@ inline size_t keyword(sym *S) {
   // It's okay if the symbol is not a keyword; that just means the resulting
   // number will not correspond to any keyword and will not match any case in a
   // switch statement
-  size_t i = (char *)S - (char *)keywords;
+  w i = (char *)S - (char *)keywords;
   return i / sizeof(sym);
 }
 
-sym *intern(const char *s, size_t n);
+sym *intern(const char *s, w n);
 
 inline sym *intern(const char *s) { return intern(s, strlen(s)); }
 

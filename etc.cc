@@ -32,7 +32,7 @@ void stacktrace() {
 #endif
 }
 
-bool assertfail(const char *file, size_t line, const char *s) {
+bool assertfail(const char *file, w line, const char *s) {
   fprintf(stderr, "%s:%zu: assert failed: %s\n", file, line, s);
   stacktrace();
   exit(1);
@@ -41,10 +41,10 @@ bool assertfail(const char *file, size_t line, const char *s) {
 }
 #endif
 
-size_t fnv(const void *p, size_t n) {
+w fnv(const void *p, w n) {
   // Fowler-Noll-Vo-1a
   auto p1 = (const char *)p;
-  size_t h = 2166136261u;
+  w h = 2166136261u;
   while (n--) {
     h ^= *p1++;
     h *= 16777619;

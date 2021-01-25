@@ -1,10 +1,10 @@
 template <class T> class bank_set {
   // Must be a power of 2
-  size_t cap = 0x10;
-  size_t count;
+  w cap = 0x10;
+  w count;
   T **entries = (T **)xcalloc(cap, sizeof(T *));
 
-  size_t slot(T **entries, size_t cap, T *t) {
+  w slot(T **entries, w cap, T *t) {
     auto mask = cap - 1;
     auto i = t->hash() & mask;
     while (entries[i] && !entries[i]->eq(t))
@@ -15,7 +15,7 @@ template <class T> class bank_set {
   void expand() {
     auto cap1 = cap * 2;
     auto entries1 = (T **)xcalloc(cap1, sizeof(T *));
-    for (size_t i = 0; i != cap; ++i) {
+    for (w i = 0; i != cap; ++i) {
       auto t = entries[i];
       if (t)
         entries1[slot(entries1, cap1, t)] = t;
@@ -49,11 +49,11 @@ public:
 template <class K, class T, class R> class bank_map {
   // Must be a power of 2, and large enough to hold the largest collection of
   // entries that will be loaded at initialization time
-  size_t cap = 0x100;
-  size_t count;
+  w cap = 0x100;
+  w count;
   T **entries = (T **)xcalloc(cap, sizeof(T *));
 
-  size_t slot(T **entries, size_t cap, const K *p, size_t n) {
+  w slot(T **entries, w cap, const K *p, w n) {
     auto mask = cap - 1;
     auto i = fnv(p, n * sizeof(K)) & mask;
     while (entries[i] && !entries[i]->eq(p, n))
@@ -64,7 +64,7 @@ template <class K, class T, class R> class bank_map {
   void expand() {
     auto cap1 = cap * 2;
     auto entries1 = (T **)xcalloc(cap1, sizeof(T *));
-    for (size_t i = 0; i != cap; ++i) {
+    for (w i = 0; i != cap; ++i) {
       auto x = entries[i];
       if (x)
         entries1[slot(entries1, cap1, x->v, x->n)] = x;
@@ -83,7 +83,7 @@ public:
     entries[i] = t;
   }
 
-  R put(const K *p, size_t n) {
+  R put(const K *p, w n) {
     auto i = slot(entries, cap, p, n);
     if (entries[i])
       return T::process(entries[i]);

@@ -19,5 +19,5 @@ inline ctype_t *ctype(type t) {
 }
 
 type atype(sym *name);
-type ctype(const type *p, size_t n);
+type ctype(const type *p, w n);
 type typeof(w a);

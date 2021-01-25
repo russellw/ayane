@@ -1,4 +1,4 @@
-template <class T, size_t small = 4> struct vec {
+template <class T, w small = 4> struct vec {
   typedef T *iterator;
   typedef const T *const_iterator;
   typedef std::reverse_iterator<iterator> reverse_iterator;
@@ -54,10 +54,10 @@ template <class T, size_t small = 4> struct vec {
   }
 
   // capacity
-  void reserve(size_t m) {
+  void reserve(w m) {
     if (m <= cap)
       return;
-    cap = std::max(m, (size_t)cap * 2);
+    cap = std::max(m, (w)cap * 2);
     if (p == v) {
       p = (T *)xmalloc(cap * sizeof(T));
       memcpy(p, v, n * sizeof(T));
@@ -66,12 +66,12 @@ template <class T, size_t small = 4> struct vec {
     p = (T *)xrealloc(p, cap * sizeof(T));
   }
 
-  void resize(size_t m) {
+  void resize(w m) {
     reserve(m);
     n = m;
   }
 
-  void resize(size_t m, T a) {
+  void resize(w m, T a) {
     reserve(m);
     for (auto i = n; i < m; ++i)
       p[i] = a;
@@ -79,12 +79,12 @@ template <class T, size_t small = 4> struct vec {
   }
 
   // element access
-  T &operator[](size_t i) {
+  T &operator[](w i) {
     assert(i < n);
     return p[i];
   }
 
-  const T &operator[](size_t i) const {
+  const T &operator[](w i) const {
     assert(i < n);
     return p[i];
   }

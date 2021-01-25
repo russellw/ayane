@@ -1,4 +1,4 @@
 // allocation with error checking
-void *xmalloc(size_t n);
-void *xcalloc(size_t n, size_t size);
-void *xrealloc(void *p, size_t n);
+void *xmalloc(w n);
+void *xcalloc(w n, w size);
+void *xrealloc(void *p, w n);

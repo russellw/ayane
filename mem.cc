@@ -1,6 +1,6 @@
 #include "main.h"
 
-void *xmalloc(size_t n) {
+void *xmalloc(w n) {
   auto r = malloc(n);
   if (!r) {
     perror("malloc");
@@ -12,7 +12,7 @@ void *xmalloc(size_t n) {
   return r;
 }
 
-void *xcalloc(size_t n, size_t size) {
+void *xcalloc(w n, w size) {
   auto r = calloc(n, size);
   if (!r) {
     perror("calloc");
@@ -21,7 +21,7 @@ void *xcalloc(size_t n, size_t size) {
   return r;
 }
 
-void *xrealloc(void *p, size_t n) {
+void *xrealloc(void *p, w n) {
   auto r = realloc(p, n);
   if (!r) {
     perror("realloc");

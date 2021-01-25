@@ -5,7 +5,7 @@ bank_map<char, sym, sym *> syms;
 
 struct init {
   init() {
-    for (size_t i = 0; i != nkeywords; ++i) {
+    for (w i = 0; i != nkeywords; ++i) {
       auto S = keywords + i;
       assert(S->n <= sizeof S->v);
       syms.add(S);
@@ -14,7 +14,7 @@ struct init {
 } init1;
 } // namespace
 
-sym *intern(const char *s, size_t n) {
+sym *intern(const char *s, w n) {
   if (n > 0xffff)
     err("Symbol too long");
   return syms.put(s, n);

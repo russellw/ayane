@@ -18,9 +18,9 @@ enum {
   b_not,
 };
 
-inline size_t tag(w a) { return a & 7; }
+inline w tag(w a) { return a & 7; }
 
-inline w tag(void *p, int a) { return (size_t)p | a; }
+inline w tag(void *p, int a) { return (w)p | a; }
 
 struct int_t {
   mpz_t val;
@@ -48,13 +48,13 @@ struct cterm_t {
   uint16_t n;
   w v[0];
 
-  bool eq(const w *p, size_t n) const {
+  bool eq(const w *p, w n) const {
     if (this->n != n)
       return false;
     return !memcmp(v, p, n * sizeof(w));
   }
 
-  static cterm_t *store(const w *p, size_t n) {
+  static cterm_t *store(const w *p, w n) {
     auto r = (cterm_t *)xmalloc(offsetof(cterm_t, v) + n * sizeof(w));
     r->n = n;
     memcpy(r->v, p, n * sizeof(w));
@@ -71,12 +71,12 @@ struct fn_t {
 
 inline int_t *intp(w a) {
   assert(tag(a) == a_int);
-  return (int_t *)(a & ~(size_t)7);
+  return (int_t *)(a & ~(w)7);
 }
 
 inline rat_t *ratp(w a) {
   assert(tag(a) == a_rat || tag(a) == a_real);
-  return (rat_t *)(a & ~(size_t)7);
+  return (rat_t *)(a & ~(w)7);
 }
 
 w int1(int_t *x);
@@ -91,12 +91,12 @@ w fn(type t, sym *name);
 
 inline fn_t *fnp(w a) {
   assert(tag(a) == a_fn);
-  return (fn_t *)(a & ~(size_t)7);
+  return (fn_t *)(a & ~(w)7);
 }
 
 inline cterm_t *ctermp(w a) {
   assert(tag(a) == a_compound);
-  return (cterm_t *)(a & ~(size_t)7);
+  return (cterm_t *)(a & ~(w)7);
 }
 
 inline w aterm(int op) { return op << 3 | a_basic; }
@@ -105,11 +105,11 @@ w cterm(vec<w> &v);
 w cterm(int op, w a);
 w cterm(int op, w a, w b);
 
-inline w var(type t, size_t i) {
+inline w var(type t, w i) {
   return i << (8 * sizeof(type) + 3) | t << 3 | a_var;
 }
 
-inline size_t vari(w a) {
+inline w vari(w a) {
   assert(tag(a) == a_var);
   return a >> (8 * sizeof(type) + 3);
 }

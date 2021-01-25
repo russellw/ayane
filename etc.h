@@ -11,7 +11,7 @@ inline void fpr(FILE *F, void *p) { fprintf(F, "%p", p); }
 
 #ifdef DEBUG
 void stacktrace();
-bool assertfail(const char *file, size_t line, const char *s);
+bool assertfail(const char *file, w line, const char *s);
 #define assert(a) (a) || assertfail(__FILE__, __LINE__, #a)
 #define debug(a)                                                               \
   do {                                                                         \
@@ -25,4 +25,4 @@ bool assertfail(const char *file, size_t line, const char *s);
 #define debug(a)
 #endif
 
-size_t fnv(const void *p, size_t n);
+w fnv(const void *p, w n);

@@ -25,7 +25,7 @@ vec<char> buf;
 srcfile::srcfile(const char *filename)
     : old_filename(::filename), old_filesrc(::filesrc), old_src(::src) {
   char *s = 0;
-  size_t n = 0;
+  w n = 0;
   if (strcmp(filename, "stdin")) {
     auto f = open(filename, O_BINARY | O_RDONLY);
     struct stat st;
@@ -46,8 +46,8 @@ srcfile::srcfile(const char *filename)
 #ifdef _WIN32
     _setmode(0, O_BINARY);
 #endif
-    size_t chunk = 1 << 20;
-    size_t cap = 0;
+    w chunk = 1 << 20;
+    w cap = 0;
     for (;;) {
       if (n + chunk + 2 > cap) {
         cap = std::max(n + chunk + 2, cap * 2);
@@ -88,7 +88,7 @@ __declspec(noreturn)
     void err(const char *msg) {
   if (filename && filesrc && toksrc) {
     // line number
-    size_t line = 1;
+    w line = 1;
     for (auto s = filesrc; s != toksrc; ++s)
       if (*s == '\n')
         ++line;

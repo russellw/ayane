@@ -1,5 +1,10 @@
 #include "main.h"
 
+// The number of types is expected to be small. It is therefore possible to fit
+// a type reference into 16 bits, and desirable because this allows the type of a
+// variable to be read without an extra memory access. Compound types are
+// therefore tracked with an unusual kind of memory bank in which entries are
+// 16-bit words rather than pointers
 namespace {
 type atypes = basic_types;
 
@@ -35,7 +40,7 @@ void expand() {
   entries = entries1;
 }
 
-ctype_t *mk(const type *p, size_t n) {
+ctype_t *store(const type *p, size_t n) {
   auto r = (ctype_t *)xmalloc(offsetof(ctype_t, v) + n * sizeof(type));
   r->n = n;
   memcpy(r->v, p, n * sizeof(type));
@@ -65,7 +70,7 @@ type ctype(const type *p, size_t n) {
   }
   auto t = ctypes.n;
   entries[i] = t;
-  ctypes.push(mk(p, n));
+  ctypes.push(store(p, n));
   return t | t_compound;
 }
 

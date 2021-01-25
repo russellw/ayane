@@ -39,7 +39,7 @@ struct rat_t {
     return mpz_get_ui(mpq_numref(val)) ^ mpz_get_ui(mpq_denref(val));
   }
 
-  bool eq(rat_t *x) { return mpq_equal(val, x->val); }
+  bool eq(rat_t *x) const { return mpq_equal(val, x->val); }
 
   void clear() { mpq_clear(val); }
 };
@@ -48,7 +48,7 @@ struct cterm_t {
   uint16_t n;
   term v[0];
 
-  bool eq(const term *p, size_t n) {
+  bool eq(const term *p, size_t n) const {
     if (this->n != n)
       return false;
     return !memcmp(v, p, n * sizeof(term));

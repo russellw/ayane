@@ -45,8 +45,8 @@ public:
   }
 };
 
-template <class K, class T> class bank_map {
-  size_t cap = 0x10;
+template <class K, class T, class R> class bank_map {
+  size_t cap = 0x100;
   size_t count;
   T **entries = (T **)xcalloc(cap, sizeof(T *));
 
@@ -72,10 +72,18 @@ template <class K, class T> class bank_map {
   }
 
 public:
-  K put(const K *p, size_t n) {
+  void add(T *t) {
+    ++count;
+    assert(count <= cap * 3 / 4);
+    auto i = slot(entries, cap, t->v, t->n);
+    assert(!entries[i]);
+    entries[i] = t;
+  }
+
+  R put(const K *p, size_t n) {
     auto i = slot(entries, cap, p, n);
     if (entries[i])
-      return tag(entries[i], a_compound);
+      return T::process(entries[i]);
     if (++count >= cap * 3 / 4) {
       expand();
       i = slot(entries, cap, p, n);

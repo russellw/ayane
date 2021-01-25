@@ -3,7 +3,7 @@
 namespace {
 bank_set<int_t> ints;
 bank_set<rat_t> rats;
-bank_map<term, cterm_t> cterms;
+bank_map<term, cterm_t, term> cterms;
 } // namespace
 
 term int1(int_t *x) { return tag(ints.put(x), a_int); }

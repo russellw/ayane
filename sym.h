@@ -19,6 +19,22 @@ struct sym {
   // When symbols are allocated on the heap, the code doing the allocation is
   // responsible for allocating enough space to hold the corresponding strings
   char v[0x20 - sizeof(term) - sizeof(type) - sizeof(uint16_t)];
+
+  bool eq(const char *s, size_t n) const {
+    if (this->n != n)
+      return false;
+    return !memcmp(v, s, n);
+  }
+
+  static sym *store(const char *s, size_t n) {
+    auto r = (sym *)xmalloc(offsetof(sym, v) + n);
+    memset(r, 0, offsetof(sym, v));
+    r->n = n;
+    memcpy(r->v, s, n);
+    return r;
+  }
+
+  static sym *process(sym *S) { return S; }
 };
 
 extern sym keywords[];

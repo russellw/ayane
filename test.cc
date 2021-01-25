@@ -3,7 +3,22 @@
 #ifdef DEBUG
 namespace {
 void test_vec() {
-  vec<char> v;
+  vec<char> u;
+  assert(u.n == 0);
+
+  u.push('a');
+  assert(u.n == 1);
+  assert(u.back() == 'a');
+
+  u.push('b');
+  assert(u.n == 2);
+  assert(u.back() == 'b');
+
+  u.push('c');
+  assert(u.n == 3);
+  assert(u.back() == 'c');
+
+  vec<char, 1> v;
   assert(v.n == 0);
 
   v.push('a');
@@ -17,21 +32,6 @@ void test_vec() {
   v.push('c');
   assert(v.n == 3);
   assert(v.back() == 'c');
-
-  vec<char, 1> w;
-  assert(w.n == 0);
-
-  w.push('a');
-  assert(w.n == 1);
-  assert(w.back() == 'a');
-
-  w.push('b');
-  assert(w.n == 2);
-  assert(w.back() == 'b');
-
-  w.push('c');
-  assert(w.n == 3);
-  assert(w.back() == 'c');
 }
 
 void test_type() {

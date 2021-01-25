@@ -20,7 +20,7 @@ enum {
 
 inline w tag(w a) { return a & 7; }
 
-inline w tag(void *p, int a) { return (w)p | a; }
+inline w tag(void *p, w a) { return (w)p | a; }
 
 struct int_t {
   mpz_t val;
@@ -99,11 +99,11 @@ inline cterm_t *ctermp(w a) {
   return (cterm_t *)(a & ~(w)7);
 }
 
-inline w aterm(int op) { return op << 3 | a_basic; }
+inline w aterm(w op) { return op << 3 | a_basic; }
 
 w cterm(vec<w> &v);
-w cterm(int op, w a);
-w cterm(int op, w a, w b);
+w cterm(w op, w a);
+w cterm(w op, w a, w b);
 
 inline w var(type t, w i) {
   return i << (8 * sizeof(type) + 3) | t << 3 | a_var;

@@ -33,8 +33,8 @@ void expand() {
 }
 
 sym *mk(const char *s, size_t n) {
-  auto r = (sym *)mmalloc(offsetof(sym, s) + n);
-  r->f = 0;
+  auto r = (sym *)xmalloc(offsetof(sym, s) + n);
+  memset(r, 0, offsetof(sym, s));
   r->n = n;
   memcpy(r->s, s, n);
   return r;

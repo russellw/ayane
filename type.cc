@@ -37,10 +37,7 @@ void expand() {
 }
 
 ctype_t *mk(const type *p, size_t n) {
-  // Types have little enough information associated with them that we can reuse
-  // type objects between problems, so we never need to free them, so we can use
-  // monotonic allocation for minimal overhead
-  auto r = (ctype_t *)mmalloc(offsetof(ctype_t, v) + n * sizeof(type));
+  auto r = (ctype_t *)xmalloc(offsetof(ctype_t, v) + n * sizeof(type));
   r->n = n;
   memcpy(r->v, p, n * sizeof(type));
   return r;

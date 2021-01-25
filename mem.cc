@@ -29,20 +29,3 @@ void *xrealloc(void *p, size_t n) {
   }
   return r;
 }
-
-void *mmalloc(size_t n) {
-  n = n + 7 & ~7;
-  static char *end;
-  static char *p;
-  if (end - p < n) {
-    auto chunk = std::max(n, (size_t)10000);
-    p = (char *)xmalloc(chunk);
-    end = p + chunk;
-  }
-  auto r = p;
-#ifdef DEBUG
-  memset(r, 0xcc, n);
-#endif
-  p += n;
-  return r;
-}

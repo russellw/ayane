@@ -30,18 +30,18 @@ w fn(type t, sym *name) {
   return name->f = tag(r, a_fn);
 }
 
-w cterm(vec<w> &v) { return cterms.put(v.p, v.n); }
+w term(vec<w> &v) { return cterms.put(v.p, v.n); }
 
-w cterm(w op, w a) {
+w term(w op, w a) {
   w v[2];
-  v[0] = aterm(op);
+  v[0] = term(op);
   v[1] = a;
   return cterms.put(v, sizeof v / sizeof(w));
 }
 
-w cterm(w op, w a, w b) {
+w term(w op, w a, w b) {
   w v[3];
-  v[0] = aterm(op);
+  v[0] = term(op);
   v[1] = a;
   v[2] = b;
   return cterms.put(v, sizeof v / sizeof(w));

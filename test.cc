@@ -122,19 +122,19 @@ void test_term() {
   auto green = fn(t_bool, intern("green"));
   auto blue = fn(t_bool, intern("blue"));
 
-  auto a = cterm(b_not, red);
-  assert(a == cterm(b_not, red));
+  auto a = term(b_not, red);
+  assert(a == term(b_not, red));
 
-  a = cterm(b_and, red, green);
-  assert(a == cterm(b_and, red, green));
+  a = term(b_and, red, green);
+  assert(a == term(b_and, red, green));
 
   vec<w> v;
-  v.push(aterm(b_and));
+  v.push(term(b_and));
   v.push(red);
   v.push(green);
   v.push(blue);
-  a = cterm(v);
-  assert(a == cterm(v));
+  a = term(v);
+  assert(a == term(v));
 }
 
 void test_fn() {

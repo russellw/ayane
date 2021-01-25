@@ -97,11 +97,11 @@ inline cterm_t *ctermp(w a) {
   return (cterm_t *)(a & ~(w)7);
 }
 
-inline w aterm(w op) { return op << 3 | a_basic; }
+inline w term(w op) { return op << 3 | a_basic; }
 
-w cterm(vec<w> &v);
-w cterm(w op, w a);
-w cterm(w op, w a, w b);
+w term(vec<w> &v);
+w term(w op, w a);
+w term(w op, w a, w b);
 
 inline w var(type t, w i) {
   return i << (8 * sizeof(type) + 3) | t << 3 | a_var;

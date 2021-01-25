@@ -24,6 +24,7 @@ typedef size_t term;
 #include "mem.h"
 
 // containers
+#include "bank.h"
 #include "vec.h"
 
 // specific

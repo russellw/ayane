@@ -8,7 +8,7 @@ sym **entries = (sym **)xcalloc(cap, sizeof(sym *));
 bool eq(const sym *S, const char *s, size_t n) {
   if (S->n != n)
     return false;
-  return !memcmp(S->s, s, n);
+  return !memcmp(S->v, s, n);
 }
 
 size_t slot(sym **entries, size_t cap, const char *s, size_t n) {
@@ -25,7 +25,7 @@ void expand() {
   for (size_t i = 0; i != cap; ++i) {
     auto S = entries[i];
     if (S)
-      entries1[slot(entries1, cap1, S->s, S->n)] = S;
+      entries1[slot(entries1, cap1, S->v, S->n)] = S;
   }
   free(entries);
   cap = cap1;
@@ -33,10 +33,10 @@ void expand() {
 }
 
 sym *mk(const char *s, size_t n) {
-  auto r = (sym *)xmalloc(offsetof(sym, s) + n);
-  memset(r, 0, offsetof(sym, s));
+  auto r = (sym *)xmalloc(offsetof(sym, v) + n);
+  memset(r, 0, offsetof(sym, v));
   r->n = n;
-  memcpy(r->s, s, n);
+  memcpy(r->v, s, n);
   return r;
 }
 
@@ -44,10 +44,10 @@ struct init {
   init() {
     for (size_t i = 0; i != nkeywords; ++i) {
       auto S = keywords + i;
-      assert(S->n <= sizeof S->s);
+      assert(S->n <= sizeof S->v);
       ++count;
       assert(count <= cap * 3 / 4);
-      auto j = slot(entries, cap, S->s, S->n);
+      auto j = slot(entries, cap, S->v, S->n);
       assert(!entries[j]);
       entries[j] = S;
     }

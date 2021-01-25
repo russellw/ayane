@@ -18,7 +18,7 @@ struct sym {
 
   // When symbols are allocated on the heap, the code doing the allocation is
   // responsible for allocating enough space to hold the corresponding strings
-  char s[0x20 - sizeof(term) - sizeof(type) - sizeof(uint16_t)];
+  char v[0x20 - sizeof(term) - sizeof(type) - sizeof(uint16_t)];
 };
 
 extern sym keywords[];
@@ -39,4 +39,4 @@ sym *intern(const char *s, size_t n);
 
 inline sym *intern(const char *s) { return intern(s, strlen(s)); }
 
-inline void fpr(FILE *F, sym *S) { fwrite(S->s, 1, S->n, F); }
+inline void fpr(FILE *F, sym *S) { fwrite(S->v, 1, S->n, F); }

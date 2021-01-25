@@ -43,6 +43,12 @@ struct rat_t {
 struct cterm_t {
   uint16_t n;
   term v[0];
+
+  bool eq(const term *p, size_t n) {
+    if (this->n != n)
+      return false;
+    return !memcmp(v, p, n * sizeof(term));
+  }
 };
 
 struct fn_t {

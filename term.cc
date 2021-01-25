@@ -1,7 +1,7 @@
 #include "main.h"
 
 namespace {
-template <class T> class bank {
+template <class T> class bank_set {
   size_t cap = 0x10;
   size_t count;
   T **entries = (T **)xcalloc(cap, sizeof(T *));
@@ -48,8 +48,8 @@ public:
   }
 };
 
-bank<int_t> ints;
-bank<rat_t> rats;
+bank_set<int_t> ints;
+bank_set<rat_t> rats;
 } // namespace
 
 term int1(int_t *x) { return tag(ints.put(x), a_int); }
@@ -76,64 +76,61 @@ term fn(type t, sym *name) {
   return name->f = tag(r, a_fn);
 }
 
-namespace cterms {
-size_t cap = 0x10;
-size_t count;
-cterm_t **entries = (cterm_t **)xcalloc(cap, sizeof(cterm_t *));
+template <class T> class bank_map {
+  size_t cap = 0x10;
+  size_t count;
+  T **entries = (T **)xcalloc(cap, sizeof(T *));
 
-bool eq(const cterm_t *x, const term *p, size_t n) {
-  if (x->n != n)
-    return false;
-  return !memcmp(x->v, p, n * sizeof(term));
-}
-
-size_t slot(cterm_t **entries, size_t cap, const term *p, size_t n) {
-  auto mask = cap - 1;
-  auto i = fnv(p, n * sizeof(term)) & mask;
-  while (entries[i] && !eq(entries[i], p, n))
-    i = (i + 1) & mask;
-  return i;
-}
-
-void expand() {
-  auto cap1 = cap * 2;
-  auto entries1 = (cterm_t **)xcalloc(cap1, sizeof(cterm_t *));
-  for (size_t i = 0; i != cap; ++i) {
-    auto x = entries[i];
-    if (x)
-      entries1[slot(entries1, cap1, x->v, x->n)] = x;
+  size_t slot(T **entries, size_t cap, const term *p, size_t n) {
+    auto mask = cap - 1;
+    auto i = fnv(p, n * sizeof(term)) & mask;
+    while (entries[i] && !entries[i]->eq(p, n))
+      i = (i + 1) & mask;
+    return i;
   }
-  free(entries);
-  cap = cap1;
-  entries = entries1;
-}
 
-cterm_t *mk(const term *p, size_t n) {
-  auto r = (cterm_t *)xmalloc(offsetof(cterm_t, v) + n * sizeof(term));
-  r->n = n;
-  memcpy(r->v, p, n * sizeof(term));
-  return r;
-}
-
-term cterm(const term *p, size_t n) {
-  auto i = slot(entries, cap, p, n);
-  if (entries[i])
-    return tag(entries[i], a_compound);
-  if (++count >= cap * 3 / 4) {
-    expand();
-    i = slot(entries, cap, p, n);
+  void expand() {
+    auto cap1 = cap * 2;
+    auto entries1 = (T **)xcalloc(cap1, sizeof(T *));
+    for (size_t i = 0; i != cap; ++i) {
+      auto x = entries[i];
+      if (x)
+        entries1[slot(entries1, cap1, x->v, x->n)] = x;
+    }
+    free(entries);
+    cap = cap1;
+    entries = entries1;
   }
-  return tag(entries[i] = mk(p, n), a_compound);
-}
-} // namespace cterms
 
-term cterm(vec<term> &v) { return cterms::cterm(v.p, v.n); }
+  T *mk(const term *p, size_t n) {
+    auto r = (T *)xmalloc(offsetof(T, v) + n * sizeof(term));
+    r->n = n;
+    memcpy(r->v, p, n * sizeof(term));
+    return r;
+  }
+
+public:
+  term put(const term *p, size_t n) {
+    auto i = slot(entries, cap, p, n);
+    if (entries[i])
+      return tag(entries[i], a_compound);
+    if (++count >= cap * 3 / 4) {
+      expand();
+      i = slot(entries, cap, p, n);
+    }
+    return tag(entries[i] = mk(p, n), a_compound);
+  }
+};
+
+static bank_map<cterm_t> cterms;
+
+term cterm(vec<term> &v) { return cterms.put(v.p, v.n); }
 
 term cterm(int op, term a) {
   term v[2];
   v[0] = aterm(op);
   v[1] = a;
-  return cterms::cterm(v, sizeof v / sizeof(term));
+  return cterms.put(v, sizeof v / sizeof(term));
 }
 
 term cterm(int op, term a, term b) {
@@ -141,5 +138,5 @@ term cterm(int op, term a, term b) {
   v[0] = aterm(op);
   v[1] = a;
   v[2] = b;
-  return cterms::cterm(v, sizeof v / sizeof(term));
+  return cterms.put(v, sizeof v / sizeof(term));
 }

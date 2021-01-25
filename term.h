@@ -18,9 +18,9 @@ enum {
   b_not,
 };
 
-inline size_t tag(term a) { return a & 7; }
+inline size_t tag(w a) { return a & 7; }
 
-inline term tag(void *p, int a) { return (size_t)p | a; }
+inline w tag(void *p, int a) { return (size_t)p | a; }
 
 struct int_t {
   mpz_t val;
@@ -46,22 +46,22 @@ struct rat_t {
 
 struct cterm_t {
   uint16_t n;
-  term v[0];
+  w v[0];
 
-  bool eq(const term *p, size_t n) const {
+  bool eq(const w *p, size_t n) const {
     if (this->n != n)
       return false;
-    return !memcmp(v, p, n * sizeof(term));
+    return !memcmp(v, p, n * sizeof(w));
   }
 
-  static cterm_t *store(const term *p, size_t n) {
-    auto r = (cterm_t *)xmalloc(offsetof(cterm_t, v) + n * sizeof(term));
+  static cterm_t *store(const w *p, size_t n) {
+    auto r = (cterm_t *)xmalloc(offsetof(cterm_t, v) + n * sizeof(w));
     r->n = n;
-    memcpy(r->v, p, n * sizeof(term));
+    memcpy(r->v, p, n * sizeof(w));
     return r;
   }
 
-  static term process(cterm_t *x) { return tag(x, a_compound); }
+  static w process(cterm_t *x) { return tag(x, a_compound); }
 };
 
 struct fn_t {
@@ -69,47 +69,47 @@ struct fn_t {
   sym *name;
 };
 
-inline int_t *intp(term a) {
+inline int_t *intp(w a) {
   assert(tag(a) == a_int);
   return (int_t *)(a & ~(size_t)7);
 }
 
-inline rat_t *ratp(term a) {
+inline rat_t *ratp(w a) {
   assert(tag(a) == a_rat || tag(a) == a_real);
   return (rat_t *)(a & ~(size_t)7);
 }
 
-term int1(int_t *x);
-term rat(rat_t *x);
-term real(rat_t *x);
+w int1(int_t *x);
+w rat(rat_t *x);
+w real(rat_t *x);
 
-int_t *intp(term a);
-rat_t *ratp(term a);
+int_t *intp(w a);
+rat_t *ratp(w a);
 
-term fn(type t);
-term fn(type t, sym *name);
+w fn(type t);
+w fn(type t, sym *name);
 
-inline fn_t *fnp(term a) {
+inline fn_t *fnp(w a) {
   assert(tag(a) == a_fn);
   return (fn_t *)(a & ~(size_t)7);
 }
 
-inline cterm_t *ctermp(term a) {
+inline cterm_t *ctermp(w a) {
   assert(tag(a) == a_compound);
   return (cterm_t *)(a & ~(size_t)7);
 }
 
-inline term aterm(int op) { return op << 3 | a_basic; }
+inline w aterm(int op) { return op << 3 | a_basic; }
 
-term cterm(vec<term> &v);
-term cterm(int op, term a);
-term cterm(int op, term a, term b);
+w cterm(vec<w> &v);
+w cterm(int op, w a);
+w cterm(int op, w a, w b);
 
-inline term var(type t, size_t i) {
+inline w var(type t, size_t i) {
   return i << (8 * sizeof(type) + 3) | t << 3 | a_var;
 }
 
-inline size_t vari(term a) {
+inline size_t vari(w a) {
   assert(tag(a) == a_var);
   return a >> (8 * sizeof(type) + 3);
 }

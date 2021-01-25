@@ -128,7 +128,7 @@ void test_term() {
   a = cterm(b_and, red, green);
   assert(a == cterm(b_and, red, green));
 
-  vec<term> v;
+  vec<w> v;
   v.push(aterm(b_and));
   v.push(red);
   v.push(green);

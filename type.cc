@@ -74,7 +74,7 @@ type ctype(const type *p, size_t n) {
   return t | t_compound;
 }
 
-type typeof(term a) {
+type typeof(w a) {
   switch (tag(a)) {
   case a_var:
     return a >> 3 & (1 << 8 * sizeof(type)) - 1;

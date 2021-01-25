@@ -1,5 +1,5 @@
 struct sym {
-  term f;
+  w f;
   type t;
 
   // Number of characters (or UTF-8 bytes, if it's a Unicode string) in this
@@ -18,7 +18,7 @@ struct sym {
 
   // When symbols are allocated on the heap, the code doing the allocation is
   // responsible for allocating enough space to hold the corresponding strings
-  char v[0x20 - sizeof(term) - sizeof(type) - sizeof(uint16_t)];
+  char v[0x20 - sizeof(w) - sizeof(type) - sizeof(uint16_t)];
 
   bool eq(const char *s, size_t n) const {
     if (this->n != n)

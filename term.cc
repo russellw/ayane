@@ -3,12 +3,12 @@
 namespace {
 bank_set<int_t> ints;
 bank_set<rat_t> rats;
-bank_map<term, cterm_t, term> cterms;
+bank_map<w, cterm_t, w> cterms;
 } // namespace
 
-term int1(int_t *x) { return tag(ints.put(x), a_int); }
-term rat(rat_t *x) { return tag(rats.put(x), a_rat); }
-term real(rat_t *x) { return tag(rats.put(x), a_real); }
+w int1(int_t *x) { return tag(ints.put(x), a_int); }
+w rat(rat_t *x) { return tag(rats.put(x), a_rat); }
+w real(rat_t *x) { return tag(rats.put(x), a_real); }
 
 namespace {
 fn_t *mkfn(type t) {
@@ -19,9 +19,9 @@ fn_t *mkfn(type t) {
 }
 } // namespace
 
-term fn(type t) { return tag(mkfn(t), a_fn); }
+w fn(type t) { return tag(mkfn(t), a_fn); }
 
-term fn(type t, sym *name) {
+w fn(type t, sym *name) {
   auto a = name->f;
   if (a)
     return a;
@@ -30,19 +30,19 @@ term fn(type t, sym *name) {
   return name->f = tag(r, a_fn);
 }
 
-term cterm(vec<term> &v) { return cterms.put(v.p, v.n); }
+w cterm(vec<w> &v) { return cterms.put(v.p, v.n); }
 
-term cterm(int op, term a) {
-  term v[2];
+w cterm(int op, w a) {
+  w v[2];
   v[0] = aterm(op);
   v[1] = a;
-  return cterms.put(v, sizeof v / sizeof(term));
+  return cterms.put(v, sizeof v / sizeof(w));
 }
 
-term cterm(int op, term a, term b) {
-  term v[3];
+w cterm(int op, w a, w b) {
+  w v[3];
   v[0] = aterm(op);
   v[1] = a;
   v[2] = b;
-  return cterms.put(v, sizeof v / sizeof(term));
+  return cterms.put(v, sizeof v / sizeof(w));
 }

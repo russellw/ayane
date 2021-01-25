@@ -1,4 +1,5 @@
 template <class T> class bank_set {
+  // Must be a power of 2
   size_t cap = 0x10;
   size_t count;
   T **entries = (T **)xcalloc(cap, sizeof(T *));
@@ -46,6 +47,8 @@ public:
 };
 
 template <class K, class T, class R> class bank_map {
+  // Must be a power of 2, and large enough to hold the largest collection of
+  // entries that will be loaded at initialization time
   size_t cap = 0x100;
   size_t count;
   T **entries = (T **)xcalloc(cap, sizeof(T *));

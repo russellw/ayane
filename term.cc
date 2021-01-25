@@ -76,14 +76,14 @@ term fn(type t, sym *name) {
   return name->f = tag(r, a_fn);
 }
 
-template <class T> class bank_map {
+template <class K, class T> class bank_map {
   size_t cap = 0x10;
   size_t count;
   T **entries = (T **)xcalloc(cap, sizeof(T *));
 
-  size_t slot(T **entries, size_t cap, const term *p, size_t n) {
+  size_t slot(T **entries, size_t cap, const K *p, size_t n) {
     auto mask = cap - 1;
-    auto i = fnv(p, n * sizeof(term)) & mask;
+    auto i = fnv(p, n * sizeof(K)) & mask;
     while (entries[i] && !entries[i]->eq(p, n))
       i = (i + 1) & mask;
     return i;
@@ -102,15 +102,8 @@ template <class T> class bank_map {
     entries = entries1;
   }
 
-  T *mk(const term *p, size_t n) {
-    auto r = (T *)xmalloc(offsetof(T, v) + n * sizeof(term));
-    r->n = n;
-    memcpy(r->v, p, n * sizeof(term));
-    return r;
-  }
-
 public:
-  term put(const term *p, size_t n) {
+  K put(const K *p, size_t n) {
     auto i = slot(entries, cap, p, n);
     if (entries[i])
       return tag(entries[i], a_compound);
@@ -118,11 +111,11 @@ public:
       expand();
       i = slot(entries, cap, p, n);
     }
-    return tag(entries[i] = mk(p, n), a_compound);
+    return T::process(entries[i] = T::store(p, n));
   }
 };
 
-static bank_map<cterm_t> cterms;
+static bank_map<term, cterm_t> cterms;
 
 term cterm(vec<term> &v) { return cterms.put(v.p, v.n); }
 

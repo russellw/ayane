@@ -18,6 +18,10 @@ enum {
   b_not,
 };
 
+inline size_t tag(term a) { return a & 7; }
+
+inline term tag(void *p, int a) { return (size_t)p | a; }
+
 struct int_t {
   mpz_t val;
 
@@ -49,16 +53,21 @@ struct cterm_t {
       return false;
     return !memcmp(v, p, n * sizeof(term));
   }
+
+  static cterm_t *store(const term *p, size_t n) {
+    auto r = (cterm_t *)xmalloc(offsetof(cterm_t, v) + n * sizeof(term));
+    r->n = n;
+    memcpy(r->v, p, n * sizeof(term));
+    return r;
+  }
+
+  static term process(cterm_t *x) { return tag(x, a_compound); }
 };
 
 struct fn_t {
   type t;
   sym *name;
 };
-
-inline size_t tag(term a) { return a & 7; }
-
-inline term tag(void *p, int a) { return (size_t)p | a; }
 
 inline int_t *intp(term a) {
   assert(tag(a) == a_int);

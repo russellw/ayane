@@ -1,18 +1,18 @@
 #include "main.h"
 
 namespace {
-bank_set<int_t> ints;
-bank_set<rat_t> rats;
-bank_map<w, cterm_t, w> cterms;
+bank_set<Int> ints;
+bank_set<Rat> rats;
+bank_map<w, Compound, w> compounds;
 } // namespace
 
-w int1(int_t *x) { return tag(ints.put(x), a_int); }
-w rat(rat_t *x) { return tag(rats.put(x), a_rat); }
-w real(rat_t *x) { return tag(rats.put(x), a_real); }
+w int1(Int *x) { return tag(ints.put(x), a_int); }
+w rat(Rat *x) { return tag(rats.put(x), a_rat); }
+w real(Rat *x) { return tag(rats.put(x), a_real); }
 
 namespace {
-fn_t *mkfn(type t) {
-  auto r = (fn_t *)xmalloc(sizeof(fn_t));
+Fn *mkfn(type t) {
+  auto r = (Fn *)xmalloc(sizeof(Fn));
   r->name = 0;
   r->t = t;
   return r;
@@ -30,13 +30,13 @@ w fn(type t, sym *name) {
   return name->f = tag(r, a_fn);
 }
 
-w term(const vec<w> &v) { return cterms.put(v.p, v.n); }
+w term(const vec<w> &v) { return compounds.put(v.p, v.n); }
 
 w term(w op, w a) {
   w v[2];
   v[0] = op;
   v[1] = a;
-  return cterms.put(v, sizeof v / sizeof(w));
+  return compounds.put(v, sizeof v / sizeof(w));
 }
 
 w term(w op, w a, w b) {
@@ -44,5 +44,5 @@ w term(w op, w a, w b) {
   v[0] = op;
   v[1] = a;
   v[2] = b;
-  return cterms.put(v, sizeof v / sizeof(w));
+  return compounds.put(v, sizeof v / sizeof(w));
 }

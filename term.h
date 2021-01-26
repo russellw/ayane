@@ -21,29 +21,29 @@ enum {
 
 inline w tag(void *p, w a) { return (w)p | a; }
 
-struct int_t {
+struct Int {
   mpz_t val;
 
   unsigned hash() { return mpz_get_ui(val); }
 
-  bool eq(int_t *x) { return !mpz_cmp(val, x->val); }
+  bool eq(Int *x) { return !mpz_cmp(val, x->val); }
 
   void clear() { mpz_clear(val); }
 };
 
-struct rat_t {
+struct Rat {
   mpq_t val;
 
   unsigned hash() {
     return mpz_get_ui(mpq_numref(val)) ^ mpz_get_ui(mpq_denref(val));
   }
 
-  bool eq(rat_t *x) const { return mpq_equal(val, x->val); }
+  bool eq(Rat *x) const { return mpq_equal(val, x->val); }
 
   void clear() { mpq_clear(val); }
 };
 
-struct cterm_t {
+struct Compound {
   uint16_t n;
   w v[0];
 
@@ -53,55 +53,55 @@ struct cterm_t {
     return !memcmp(v, p, m * sizeof(w));
   }
 
-  static cterm_t *store(const w *p, w n) {
-    auto r = (cterm_t *)xmalloc(offsetof(cterm_t, v) + n * sizeof(w));
+  static Compound *store(const w *p, w n) {
+    auto r = (Compound *)xmalloc(offsetof(Compound, v) + n * sizeof(w));
     r->n = n;
     memcpy(r->v, p, n * sizeof(w));
     return r;
   }
 
-  static w process(cterm_t *x) { return tag(x, a_compound); }
+  static w process(Compound *x) { return tag(x, a_compound); }
 };
 
-struct fn_t {
+struct Fn {
   type t;
   sym *name;
 };
 
-inline int_t *intp(w a) {
+inline Int *intp(w a) {
   assert((a & 7) == a_int);
-  return (int_t *)(a & ~(w)7);
+  return (Int *)(a & ~(w)7);
 }
 
-inline rat_t *ratp(w a) {
+inline Rat *ratp(w a) {
   assert((a & 7) == a_rat || (a & 7) == a_real);
-  return (rat_t *)(a & ~(w)7);
+  return (Rat *)(a & ~(w)7);
 }
 
-w int1(int_t *x);
-w rat(rat_t *x);
-w real(rat_t *x);
+w int1(Int *x);
+w rat(Rat *x);
+w real(Rat *x);
 
-int_t *intp(w a);
-rat_t *ratp(w a);
+Int *intp(w a);
+Rat *ratp(w a);
 
 w fn(type t);
 w fn(type t, sym *name);
 
-inline fn_t *fnp(w a) {
+inline Fn *fnp(w a) {
   assert((a & 7) == a_fn);
-  return (fn_t *)(a & ~(w)7);
+  return (Fn *)(a & ~(w)7);
 }
 
-inline cterm_t *ctermp(w a) {
+inline Compound *compoundp(w a) {
   assert((a & 7) == a_compound);
   assert(!a_compound);
-  return (cterm_t *)a;
+  return (Compound *)a;
 }
 
-inline w at(w a, w i) { return ctermp(a)->v[i]; }
+inline w at(w a, w i) { return compoundp(a)->v[i]; }
 
-inline w size(w a) { return ctermp(a)->n; }
+inline w size(w a) { return compoundp(a)->n; }
 
 inline w basic(w op) { return op << 3 | a_basic; }
 
@@ -109,7 +109,7 @@ w term(const vec<w> &v);
 w term(w op, w a);
 w term(w op, w a, w b);
 
-const w other = (w)1 << (8 * sizeof(type) + 3);
+const w alt = (w)1 << (8 * sizeof(type) + 3);
 
 inline w var(type t, w i) {
   assert(!isctype(t));

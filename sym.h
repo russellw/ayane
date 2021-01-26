@@ -23,10 +23,10 @@ struct sym {
   // responsible for allocating enough space to hold the corresponding strings
   char v[0x20 - sizeof(w) - sizeof(type) - sizeof(uint16_t)];
 
-  bool eq(const char *s, w n) const {
-    if (this->n != n)
+  bool eq(const char *s, w m) const {
+    if (this->n != m)
       return false;
-    return !memcmp(v, s, n);
+    return !memcmp(v, s, m);
   }
 
   static sym *store(const char *s, w n) {

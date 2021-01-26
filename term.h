@@ -47,10 +47,10 @@ struct cterm_t {
   uint16_t n;
   w v[0];
 
-  bool eq(const w *p, w n) const {
-    if (this->n != n)
+  bool eq(const w *p, w m) const {
+    if (n != m)
       return false;
-    return !memcmp(v, p, n * sizeof(w));
+    return !memcmp(v, p, m * sizeof(w));
   }
 
   static cterm_t *store(const w *p, w n) {

@@ -9,6 +9,7 @@ template <class T, w small = 4> struct vec {
   T *p = v;
   T v[small];
 
+  // construct/copy/destroy
   vec() : n(0) {}
 
   vec(T a) : n(1) {
@@ -37,7 +38,6 @@ template <class T, w small = 4> struct vec {
     v[3] = d;
   }
 
-  // move
   vec(vec &x) : n(x.n) {
     if (x.p == x.v) {
       memcpy(v, x.v, n * sizeof(T));
@@ -52,6 +52,19 @@ template <class T, w small = 4> struct vec {
     if (p != v)
       free(p);
   }
+
+  // iterators
+  iterator begin() { return p; }
+  const_iterator begin() const { return p; }
+
+  iterator end() { return p + n; }
+  const_iterator end() const { return p + n; }
+
+  reverse_iterator rbegin() { return reverse_iterator(p + n); }
+  const_reverse_iterator rbegin() const { return reverse_iterator(p + n); }
+
+  reverse_iterator rend() { return reverse_iterator(p); }
+  const_reverse_iterator rend() const { return const_reverse_iterator(p); }
 
   // capacity
   void reserve(w m) {
@@ -99,19 +112,6 @@ template <class T, w small = 4> struct vec {
     return p[n - 1];
   }
 
-  // iterators
-  iterator begin() { return p; }
-  const_iterator begin() const { return p; }
-
-  iterator end() { return p + n; }
-  const_iterator end() const { return p + n; }
-
-  reverse_iterator rbegin() { return reverse_iterator(p + n); }
-  const_reverse_iterator rbegin() const { return reverse_iterator(p + n); }
-
-  reverse_iterator rend() { return reverse_iterator(p); }
-  const_reverse_iterator rend() const { return const_reverse_iterator(p); }
-
   // modifiers
   void push(T a) {
     reserve(n + 1);
@@ -152,6 +152,7 @@ template <class T, w small = 4> struct vec {
     n -= last - first;
   }
 
+  // compare
   bool operator==(const vec &x) {
     if (n != x.n)
       return false;

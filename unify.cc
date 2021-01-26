@@ -94,7 +94,8 @@ w subst(w a) {
 
   // Compound
   auto n = size(a);
-  vec<w> v(n);
+  vec<w> v;
+  v.resize(n);
   for (w i = 0; i != n; ++i)
     v[i] = subst(at(a, i));
   return term(v);

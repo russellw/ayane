@@ -78,6 +78,17 @@ type atype(sym *name) {
 
 type typeof(w a) {
   switch (a & 7) {
+  case a_compound: {
+    auto op = at(a, 0);
+    if ((op & 7) == a_fn) {
+      auto t = fnp(op)->t;
+      assert(isctype(t));
+      auto t1 = ctypep(t);
+      assert(size(a) == t1->n);
+      return t1->v[0];
+    }
+    unreachable;
+  }
   case a_var:
     return a >> 3 & (1 << 8 * sizeof(type)) - 1;
   case a_int:

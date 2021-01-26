@@ -34,14 +34,14 @@ w term(const vec<w> &v) { return cterms.put(v.p, v.n); }
 
 w term(w op, w a) {
   w v[2];
-  v[0] = term(op);
+  v[0] = op;
   v[1] = a;
   return cterms.put(v, sizeof v / sizeof(w));
 }
 
 w term(w op, w a, w b) {
   w v[3];
-  v[0] = term(op);
+  v[0] = op;
   v[1] = a;
   v[2] = b;
   return cterms.put(v, sizeof v / sizeof(w));

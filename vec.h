@@ -12,7 +12,7 @@ template <class T, w small = 4> struct vec {
   // construct/copy/destroy
   vec() : n(0) {}
 
-  vec(T a) : n(1) {
+  explicit vec(T a) : n(1) {
     assert(n <= small);
     v[0] = a;
   }

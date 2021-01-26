@@ -132,14 +132,14 @@ void test_term() {
   auto green = fn(t_bool, intern("green"));
   auto blue = fn(t_bool, intern("blue"));
 
-  auto a = term(b_not, red);
-  assert(a == term(b_not, red));
+  auto a = term(basic(b_not), red);
+  assert(a == term(basic(b_not), red));
 
-  a = term(b_and, red, green);
-  assert(a == term(b_and, red, green));
+  a = term(basic(b_and), red, green);
+  assert(a == term(basic(b_and), red, green));
 
   vec<w> v;
-  v.push(term(b_and));
+  v.push(basic(b_and));
   v.push(red);
   v.push(green);
   v.push(blue);

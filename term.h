@@ -103,7 +103,7 @@ inline w at(w a, w i) { return ctermp(a)->v[i]; }
 
 inline w size(w a) { return ctermp(a)->n; }
 
-inline w term(w op) { return op << 3 | a_basic; }
+inline w basic(w op) { return op << 3 | a_basic; }
 
 w term(const vec<w> &v);
 w term(w op, w a);

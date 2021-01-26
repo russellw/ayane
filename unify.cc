@@ -80,21 +80,20 @@ bool unify(w a, w b) {
 }
 
 w replace(w a) {
-  // Variable
-  if ((a & 7) == a_var)
+  switch (a & 7) {
+  case a_var:
     for (auto p : unified)
       if (p.first == a)
         return replace(p.second);
-
-  // Atom
-  if ((a & 7) != a_compound)
-    return a;
-
-  // Compound
-  auto n = size(a);
-  vec<w> v;
-  v.resize(n);
-  for (w i = 0; i != n; ++i)
-    v[i] = replace(at(a, i));
-  return term(v);
+    break;
+  case a_compound: {
+    auto n = size(a);
+    vec<w> v;
+    v.resize(n);
+    for (w i = 0; i != n; ++i)
+      v[i] = replace(at(a, i));
+    return term(v);
+  }
+  }
+  return a;
 }

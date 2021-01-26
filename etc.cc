@@ -26,7 +26,7 @@ void stacktrace() {
     SymFromAddr(process, address, 0, symbol);
     DWORD displacement;
     if (SymGetLineFromAddr64(process, address, &displacement, &location))
-      fprintf(stderr, "%s:%u: ", location.FileName, location.LineNumber);
+      fprintf(stderr, "%s:%lu: ", location.FileName, location.LineNumber);
     fprintf(stderr, "%s\n", symbol->Name);
   }
 #endif

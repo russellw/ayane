@@ -1,7 +1,3 @@
-#ifdef _MSC_VER
-#define __builtin_unreachable() __assume(false)
-#endif
-
 typedef size_t w;
 
 inline void fpr(FILE *F, char c) { fputc(c, F); }
@@ -12,19 +8,30 @@ inline void fpr(FILE *F, uint32_t a) { fprintf(F, "%" PRIu32, a); }
 inline void fpr(FILE *F, void *p) { fprintf(F, "%p", p); }
 
 #ifdef DEBUG
+
 void stacktrace();
 bool assertfail(const char *file, w line, const char *s);
 #define assert(a) (a) || assertfail(__FILE__, __LINE__, #a)
+#define unreachable assert(false)
 #define debug(a)                                                               \
   do {                                                                         \
     fprintf(stderr, "%s:%d: %s: ", __FILE__, __LINE__, #a);                    \
     fpr(stderr, a);                                                            \
     fputc('\n', stderr);                                                       \
   } while (0)
+
 #else
+
 #define stacktrace()
+#ifdef _MSC_VER
+#define assert(a) __assume(a)
+#define unreachable __assume(false)
+#else
 #define assert(a)
+#define unreachable __builtin_unreachable()
+#endif
 #define debug(a)
+
 #endif
 
 w fnv(const void *p, w n);

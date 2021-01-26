@@ -89,5 +89,6 @@ type typeof(w a) {
   case a_fn:
     return fnp(a)->t;
   }
-  __builtin_unreachable();
+  unreachable;
+  return 0;
 }

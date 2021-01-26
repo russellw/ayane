@@ -1,11 +1,12 @@
 enum {
+  a_compound,
+
   a_distinct_object,
   a_fn,
   a_int,
   a_rat,
   a_real,
   a_var,
-  a_compound,
   a_basic,
 };
 
@@ -94,7 +95,8 @@ inline fn_t *fnp(w a) {
 
 inline cterm_t *ctermp(w a) {
   assert((a & 7) == a_compound);
-  return (cterm_t *)(a & ~(w)7);
+  assert(!a_compound);
+  return (cterm_t *)a;
 }
 
 inline w at(w a, w i) { return ctermp(a)->v[i]; }

@@ -104,6 +104,7 @@ w term(w op, w a);
 w term(w op, w a, w b);
 
 inline w var(type t, w i) {
+  assert(!isctype(t));
   return i << (8 * sizeof(type) + 3) | t << 3 | a_var;
 }
 

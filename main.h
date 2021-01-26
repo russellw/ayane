@@ -16,9 +16,6 @@
 
 #include <gmp.h>
 
-typedef uint16_t type;
-typedef size_t w;
-
 // general
 #include "etc.h"
 #include "mem.h"
@@ -28,9 +25,10 @@ typedef size_t w;
 #include "vec.h"
 
 // specific
+#include "type.h"
+
 #include "sym.h"
 #include "term.h"
-#include "type.h"
 
 #include "keywords.h"
 #include "parsing.h"

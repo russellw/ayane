@@ -1,5 +1,8 @@
 struct sym {
+  // Function named by this symbol
   w f;
+
+  // Type named by this symbol
   type t;
 
   // Number of characters (or UTF-8 bytes, if it's a Unicode string) in this

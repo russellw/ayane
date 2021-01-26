@@ -1,8 +1,10 @@
-enum { t_bool, t_int, t_rat, t_real, t_individual, basic_types };
+struct sym;
 
-// compound types
+typedef uint16_t type;
 const int t_bits = 15;
 const type t_compound = 1 << t_bits;
+
+enum { t_bool, t_int, t_rat, t_real, t_individual, basic_types };
 
 struct ctype_t {
   type n;

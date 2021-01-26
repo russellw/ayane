@@ -68,7 +68,9 @@ bool unify1(w a, w b) {
   auto n = size(a);
   if (n != size(b))
     return false;
-  for (w i = 0; i != n; ++i)
+  if (at(a, 0) != at(b, 0))
+    return false;
+  for (w i = 1; i != n; ++i)
     if (!unify1(at(a, i), at(b, i)))
       return false;
   return true;

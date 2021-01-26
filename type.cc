@@ -1,25 +1,25 @@
 #include "main.h"
 
 // The number of types is expected to be small. It is therefore possible to fit
-// a type reference into 16 bits, and desirable because this allows the type of
+// a ty reference into 16 bits, and desirable because this allows the ty of
 // a variable to be read without an extra memory access. Compound types are
 // therefore tracked with an unusual kind of memory bank in which entries are
 // 16-bit words rather than pointers
 namespace {
-type atypes = basic_types;
+ty atypes = basic_types;
 
 w cap = 0x10;
-type *entries = (type *)xcalloc(cap, sizeof(type));
+ty *entries = (ty *)xcalloc(cap, sizeof(ty));
 
-bool eq(const ctype_t *t, const type *p, w n) {
+bool eq(const ctype_t *t, const ty *p, w n) {
   if (t->n != n)
     return false;
-  return !memcmp(t->v, p, n * sizeof(type));
+  return !memcmp(t->v, p, n * sizeof(ty));
 }
 
-w slot(type *entries, w cap, const type *p, w n) {
+w slot(ty *entries, w cap, const ty *p, w n) {
   auto mask = cap - 1;
-  auto i = fnv(p, n * sizeof(type)) & mask;
+  auto i = fnv(p, n * sizeof(ty)) & mask;
   while (entries[i] && !eq(ctypes[entries[i]], p, n))
     i = (i + 1) & mask;
   return i;
@@ -27,7 +27,7 @@ w slot(type *entries, w cap, const type *p, w n) {
 
 void expand() {
   auto cap1 = cap * 2;
-  auto entries1 = (type *)xcalloc(cap1, sizeof(type));
+  auto entries1 = (ty *)xcalloc(cap1, sizeof(ty));
   for (w i = 0; i != cap; ++i) {
     auto t = entries[i];
     if (t) {
@@ -40,14 +40,14 @@ void expand() {
   entries = entries1;
 }
 
-ctype_t *store(const type *p, w n) {
-  auto r = (ctype_t *)xmalloc(offsetof(ctype_t, v) + n * sizeof(type));
+ctype_t *store(const ty *p, w n) {
+  auto r = (ctype_t *)xmalloc(offsetof(ctype_t, v) + n * sizeof(ty));
   r->n = n;
-  memcpy(r->v, p, n * sizeof(type));
+  memcpy(r->v, p, n * sizeof(ty));
   return r;
 }
 
-type put(const type *p, w n) {
+ty put(const ty *p, w n) {
   auto i = slot(entries, cap, p, n);
   if (entries[i])
     return entries[i] | t_compound;
@@ -66,9 +66,9 @@ type put(const type *p, w n) {
 
 vec<ctype_t *> ctypes(0);
 
-type ctype(const vec<type> &v) { return put(v.p, v.n); }
+ty ctype(const vec<ty> &v) { return put(v.p, v.n); }
 
-type atype(sym *name) {
+ty atype(sym *name) {
   if (name->t)
     return name->t;
   if (atypes >= t_compound)
@@ -76,7 +76,7 @@ type atype(sym *name) {
   return name->t = atypes++;
 }
 
-type typeof(w a) {
+ty typeof(w a) {
   switch (a & 7) {
   case a_compound: {
     auto op = at(a, 0);
@@ -90,7 +90,7 @@ type typeof(w a) {
     unreachable;
   }
   case a_var:
-    return a >> 3 & (1 << 8 * sizeof(type)) - 1;
+    return a >> 3 & (1 << 8 * sizeof(ty)) - 1;
   case a_int:
     return t_int;
   case a_rat:

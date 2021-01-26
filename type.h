@@ -1,25 +1,25 @@
 struct sym;
 
-typedef uint16_t type;
+typedef uint16_t ty;
 const int t_bits = 15;
-const type t_compound = 1 << t_bits;
+const ty t_compound = 1 << t_bits;
 
 enum { t_bool, t_int, t_rat, t_real, t_individual, basic_types };
 
 struct ctype_t {
-  type n;
-  type v[0];
+  ty n;
+  ty v[0];
 };
 
 extern vec<ctype_t *> ctypes;
 
-inline type isctype(type t) { return t & t_compound; }
+inline ty isctype(ty t) { return t & t_compound; }
 
-inline ctype_t *ctypep(type t) {
+inline ctype_t *ctypep(ty t) {
   assert(isctype(t));
   return ctypes[t & ~t_compound];
 }
 
-type atype(sym *name);
-type ctype(const vec<type> &v);
-type typeof(w a);
+ty atype(sym *name);
+ty ctype(const vec<ty> &v);
+ty typeof(w a);

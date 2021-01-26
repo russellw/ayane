@@ -64,7 +64,7 @@ struct Compound {
 };
 
 struct Fn {
-  type t;
+  ty t;
   sym *name;
 };
 
@@ -85,8 +85,8 @@ w real(Rat *x);
 Int *intp(w a);
 Rat *ratp(w a);
 
-w fn(type t);
-w fn(type t, sym *name);
+w fn(ty t);
+w fn(ty t, sym *name);
 
 inline Fn *fnp(w a) {
   assert((a & 7) == a_fn);
@@ -109,16 +109,16 @@ w term(const vec<w> &v);
 w term(w op, w a);
 w term(w op, w a, w b);
 
-const w alt = (w)1 << (8 * sizeof(type) + 3);
+const w alt = (w)1 << (8 * sizeof(ty) + 3);
 
-inline w var(type t, w i) {
+inline w var(ty t, w i) {
   assert(!isctype(t));
   if (sizeof(w) == 4 && i >= 1 << 12)
     err("Too many variables");
-  return i << (1 + 8 * sizeof(type) + 3) | t << 3 | a_var;
+  return i << (1 + 8 * sizeof(ty) + 3) | t << 3 | a_var;
 }
 
 inline w vari(w a) {
   assert((a & 7) == a_var);
-  return a >> (1 + 8 * sizeof(type) + 3);
+  return a >> (1 + 8 * sizeof(ty) + 3);
 }

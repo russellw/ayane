@@ -2,13 +2,13 @@
 
 #ifdef DEBUG
 namespace {
-type ctype(type r, type t0) {
-  vec<type> v(r, t0);
+ty ctype(ty r, ty t0) {
+  vec<ty> v(r, t0);
   return ctype(v);
 }
 
-type ctype(type r, type t0, type t1) {
-  vec<type> v(r, t0, t1);
+ty ctype(ty r, ty t0, ty t1) {
+  vec<ty> v(r, t0, t1);
   return ctype(v);
 }
 
@@ -55,7 +55,7 @@ void test_type() {
 
   assert(bird != plane);
 
-  vec<type> v;
+  vec<ty> v;
   v.push(t_bool);
   v.push(t_int);
   v.push(t_int);

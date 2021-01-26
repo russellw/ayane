@@ -11,7 +11,7 @@ w rat(Rat *x) { return tag(rats.put(x), a_rat); }
 w real(Rat *x) { return tag(rats.put(x), a_real); }
 
 namespace {
-Fn *mkfn(type t) {
+Fn *mkfn(ty t) {
   auto r = (Fn *)xmalloc(sizeof(Fn));
   r->name = 0;
   r->t = t;
@@ -19,9 +19,9 @@ Fn *mkfn(type t) {
 }
 } // namespace
 
-w fn(type t) { return tag(mkfn(t), a_fn); }
+w fn(ty t) { return tag(mkfn(t), a_fn); }
 
-w fn(type t, sym *name) {
+w fn(ty t, sym *name) {
   auto a = name->f;
   if (a)
     return a;

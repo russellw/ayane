@@ -2,6 +2,16 @@
 
 #ifdef DEBUG
 namespace {
+type ctype(type r, type t0) {
+  vec<type> v(r, t0);
+  return ctype(v);
+}
+
+type ctype(type r, type t0, type t1) {
+  vec<type> v(r, t0, t1);
+  return ctype(v);
+}
+
 void test_vec() {
   vec<char> u;
   assert(u.n == 0);
@@ -49,10 +59,10 @@ void test_type() {
   v.push(t_bool);
   v.push(t_int);
   v.push(t_int);
-  auto t_predicate_int_int = ctype(v.p, v.n);
-  assert(t_predicate_int_int == ctype(v.p, v.n));
+  auto t_predicate_int_int = ctype(v);
+  assert(t_predicate_int_int == ctype(v));
   assert(isctype(t_predicate_int_int));
-  auto t = ctype(t_predicate_int_int);
+  auto t = ctypep(t_predicate_int_int);
   assert(t->n == 3);
   assert(t->v[0] == t_bool);
   assert(t->v[1] == t_int);
@@ -62,10 +72,10 @@ void test_type() {
   v.push(t_bool);
   v.push(t_rat);
   v.push(t_rat);
-  auto t_predicate_rat_rat = ctype(v.p, v.n);
-  assert(t_predicate_rat_rat == ctype(v.p, v.n));
+  auto t_predicate_rat_rat = ctype(v);
+  assert(t_predicate_rat_rat == ctype(v));
   assert(isctype(t_predicate_rat_rat));
-  t = ctype(t_predicate_rat_rat);
+  t = ctypep(t_predicate_rat_rat);
   assert(t->n == 3);
   assert(t->v[0] == t_bool);
   assert(t->v[1] == t_rat);
@@ -192,6 +202,91 @@ void test_rat() {
   auto y3 = ratp(a3);
   assert(!mpq_cmp_ui(y3->val, 3, 1));
 }
+
+void test_unify() {
+  // https://en.wikipedia.org/wiki/Unification_(computer_science)#Examples_of_syntactic_unification_of_first-order_terms
+  auto a = fn(t_individual, intern("a"));
+  auto b = fn(t_individual, intern("b"));
+  auto f1 = fn(ctype(t_individual, t_individual), intern("f1"));
+  auto f2 = fn(ctype(t_individual, t_individual, t_individual), intern("f2"));
+  auto g1 = fn(ctype(t_individual, t_individual), intern("g1"));
+  auto x = var(t_individual, 0);
+  auto y = var(t_individual, 1);
+  auto z = var(t_individual, 2);
+
+  // Succeeds. (tautology)
+  assert(unify(a, a));
+  assert(unified.n == 0);
+
+  // a and b do not match
+  assert(!unify(a, b));
+
+  // Succeeds. (tautology)
+  assert(unify(x, x));
+  assert(unified.n == 0);
+
+  // x is unified with the constant a
+  assert(unify(a, x));
+  assert(unified.n == 1);
+  assert(replace(x) == a);
+
+  // x and y are aliased
+  assert(unify(x, y));
+  assert(unified.n == 1);
+  assert(replace(x) == replace(y));
+
+  // Function and constant symbols match, x is unified with the constant b
+  assert(unify(term(f2, a, x), term(f2, a, b)));
+  assert(unified.n == 1);
+  assert(replace(x) == b);
+
+  // f and g1 do not match
+  assert(!unify(term(f1, a), term(g1, a)));
+
+  // x and y are aliased
+  assert(unify(term(f1, x), term(f1, y)));
+  assert(unified.n == 1);
+  assert(replace(x) == replace(y));
+
+  // f and g1 do not match
+  assert(!unify(term(f1, x), term(g1, y)));
+
+  // Fails. The f function symbols have different arity
+  assert(!unify(term(f1, x), term(f2, y, z)));
+
+  // Unifies y with the term g1(x)
+  assert(unify(term(f1, term(g1, x)), term(f1, y)));
+  assert(unified.n == 1);
+  assert(replace(y) == term(g1, x));
+
+  // Unifies x with constant a, and y with the term g1(a)
+  assert(unify(term(f2, term(g1, x), x), term(f2, y, a)));
+  assert(unified.n == 2);
+  assert(replace(x) == a);
+  assert(replace(y) == term(g1, a));
+
+  // Returns false in first-order logic and many modern Prolog dialects
+  // (enforced by the occurs check).
+  assert(!unify(x, term(f1, x)));
+
+  // Both x and y are unified with the constant a
+  assert(unify(x, y));
+  assert(unify1(y, a));
+  assert(unified.n == 2);
+  assert(replace(x) == a);
+  assert(replace(y) == a);
+
+  // As above (order of equations in set doesn't matter)
+  assert(unify(a, y));
+  assert(unify1(x, y));
+  assert(unified.n == 2);
+  assert(replace(x) == a);
+  assert(replace(y) == a);
+
+  // Fails. a and b do not match, so x can't be unified with both
+  assert(unify(x, a));
+  assert(!unify1(b, x));
+}
 } // namespace
 
 void test() {
@@ -203,6 +298,7 @@ void test() {
   test_vec();
   test_fn();
   test_term();
+  test_unify();
   test_var();
 }
 #endif

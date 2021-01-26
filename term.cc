@@ -30,7 +30,7 @@ w fn(type t, sym *name) {
   return name->f = tag(r, a_fn);
 }
 
-w term(vec<w> &v) { return cterms.put(v.p, v.n); }
+w term(const vec<w> &v) { return cterms.put(v.p, v.n); }
 
 w term(w op, w a) {
   w v[2];

@@ -15,11 +15,11 @@ extern vec<ctype_t *> ctypes;
 
 inline type isctype(type t) { return t & t_compound; }
 
-inline ctype_t *ctype(type t) {
+inline ctype_t *ctypep(type t) {
   assert(isctype(t));
   return ctypes[t & ~t_compound];
 }
 
 type atype(sym *name);
-type ctype(const type *p, w n);
+type ctype(const vec<type> &v);
 type typeof(w a);

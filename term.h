@@ -105,16 +105,20 @@ inline w size(w a) { return ctermp(a)->n; }
 
 inline w term(w op) { return op << 3 | a_basic; }
 
-w term(vec<w> &v);
+w term(const vec<w> &v);
 w term(w op, w a);
 w term(w op, w a, w b);
 
+const w other = (w)1 << (8 * sizeof(type) + 3);
+
 inline w var(type t, w i) {
   assert(!isctype(t));
-  return i << (8 * sizeof(type) + 3) | t << 3 | a_var;
+  if (sizeof(w) == 4 && i >= 1 << 12)
+    err("Too many variables");
+  return i << (1 + 8 * sizeof(type) + 3) | t << 3 | a_var;
 }
 
 inline w vari(w a) {
   assert((a & 7) == a_var);
-  return a >> (8 * sizeof(type) + 3);
+  return a >> (1 + 8 * sizeof(type) + 3);
 }

@@ -46,19 +46,8 @@ ctype_t *store(const type *p, w n) {
   memcpy(r->v, p, n * sizeof(type));
   return r;
 }
-} // namespace
 
-vec<ctype_t *> ctypes(0);
-
-type atype(sym *name) {
-  if (name->t)
-    return name->t;
-  if (atypes >= t_compound)
-    err("Too many atomic types");
-  return name->t = atypes++;
-}
-
-type ctype(const type *p, w n) {
+type put(const type *p, w n) {
   auto i = slot(entries, cap, p, n);
   if (entries[i])
     return entries[i] | t_compound;
@@ -72,6 +61,19 @@ type ctype(const type *p, w n) {
   entries[i] = t;
   ctypes.push(store(p, n));
   return t | t_compound;
+}
+} // namespace
+
+vec<ctype_t *> ctypes(0);
+
+type ctype(const vec<type> &v) { return put(v.p, v.n); }
+
+type atype(sym *name) {
+  if (name->t)
+    return name->t;
+  if (atypes >= t_compound)
+    err("Too many atomic types");
+  return name->t = atypes++;
 }
 
 type typeof(w a) {

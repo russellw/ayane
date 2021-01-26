@@ -1,8 +1,6 @@
 #include "main.h"
 
 namespace {
-vec<std::pair<w, w>> unified;
-
 bool occurs(w a, w b) {
   assert((a & 7) == a_var);
   switch (b & 7) {
@@ -24,17 +22,15 @@ bool occurs(w a, w b) {
   return false;
 }
 
-bool unify1(w a, w b, bool side);
-
-bool unify_var(w a, w b, bool side) {
+bool unify_var(w a, w b) {
   assert((a & 7) == a_var);
   assert(typeof(a) == typeof(b));
 
   for (auto p : unified) {
     if (p.first == a)
-      return unify1(p.second, b, side);
+      return unify1(p.second, b);
     if (p.first == b)
-      return unify1(a, p.second, side);
+      return unify1(a, p.second);
   }
 
   if (occurs(a, b))
@@ -43,8 +39,11 @@ bool unify_var(w a, w b, bool side) {
   unified.push(std::make_pair(a, b));
   return true;
 }
+} // namespace
 
-bool unify1(w a, w b, bool side) {
+vec<std::pair<w, w>> unified;
+
+bool unify1(w a, w b) {
   assert(typeof(a) == typeof(b));
 
   // Same term
@@ -53,9 +52,9 @@ bool unify1(w a, w b, bool side) {
 
   // Variables
   if ((a & 7) == a_var)
-    return unify_var(a, b, side);
+    return unify_var(a, b);
   if ((b & 7) == a_var)
-    return unify_var(b, a, !side);
+    return unify_var(b, a);
 
   // Atoms
   if ((a & 7) != a_compound)
@@ -68,25 +67,24 @@ bool unify1(w a, w b, bool side) {
   if (n != size(b))
     return false;
   for (w i = 0; i != n; ++i)
-    if (!unify1(at(a, i), at(b, i), side))
+    if (!unify1(at(a, i), at(b, i)))
       return false;
   return true;
 }
-} // namespace
 
 bool unify(w a, w b) {
   if (typeof(a) != typeof(b))
     return false;
   unified.n = 0;
-  return unify1(a, b, 0);
+  return unify1(a, b);
 }
 
-w subst(w a) {
+w replace(w a) {
   // Variable
   if ((a & 7) == a_var)
     for (auto p : unified)
       if (p.first == a)
-        return subst(p.second);
+        return replace(p.second);
 
   // Atom
   if ((a & 7) != a_compound)
@@ -97,6 +95,6 @@ w subst(w a) {
   vec<w> v;
   v.resize(n);
   for (w i = 0; i != n; ++i)
-    v[i] = subst(at(a, i));
+    v[i] = replace(at(a, i));
   return term(v);
 }

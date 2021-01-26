@@ -27,11 +27,12 @@
 // specific
 #include "type.h"
 
+#include "parsing.h"
 #include "sym.h"
 #include "term.h"
+#include "unify.h"
 
 #include "keywords.h"
-#include "parsing.h"
 
 // unit tests
 #include "test.h"

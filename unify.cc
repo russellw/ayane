@@ -44,11 +44,13 @@ bool unify_var(w a, w b) {
 vec<std::pair<w, w>> unified;
 
 bool unify1(w a, w b) {
-  assert(typeof(a) == typeof(b));
-
   // Same term
   if (a == b)
     return true;
+
+  // Type mismatch
+  if (typeof(a) != typeof(b))
+    return false;
 
   // Variables
   if ((a & 7) == a_var)
@@ -73,8 +75,6 @@ bool unify1(w a, w b) {
 }
 
 bool unify(w a, w b) {
-  if (typeof(a) != typeof(b))
-    return false;
   unified.n = 0;
   return unify1(a, b);
 }

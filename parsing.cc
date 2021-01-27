@@ -22,7 +22,7 @@ int tok;
 sym *toksym;
 vec<char> buf;
 
-srcfile::srcfile(const char *filename)
+File::File(const char *filename)
     : old_filename(::filename), old_filesrc(::filesrc), old_src(::src) {
   char *s = 0;
   w n = 0;
@@ -74,7 +74,7 @@ srcfile::srcfile(const char *filename)
   toksrc = 0;
 }
 
-srcfile::~srcfile() {
+File::~File() {
   free((void *)filesrc);
 
   ::filename = old_filename;

@@ -11,7 +11,7 @@ extern int tok;
 extern sym *toksym;
 extern vec<char> buf;
 
-struct srcfile {
+struct File {
   // remember previous file
   // for nested includes
   // and so that after parsing is done
@@ -20,8 +20,8 @@ struct srcfile {
   const char *old_filesrc;
   const char *old_src;
 
-  srcfile(const char *filename);
-  ~srcfile();
+  File(const char *filename);
+  ~File();
 };
 
 // error

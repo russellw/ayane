@@ -9,21 +9,9 @@
 #define O_BINARY 0
 #endif
 
-// current file
-const char *file;
-// beginning of source text
-const char *src0;
-// current position in source text
-const char *src;
-
-// current token
-const char *tok0;
-int tok;
 vec<char> buf;
-sym *tokSym;
 
-File::File(const char *file)
-    : old_file(::file), old_src0(::src0), old_src(::src) {
+Parser::Parser(const char *file) : file(file) {
   char *s = 0;
   w n = 0;
   if (strcmp(file, "stdin")) {
@@ -69,18 +57,11 @@ File::File(const char *file)
     s[n] = '\n';
     s[n + 1] = 0;
   }
-  ::file = file;
   src0 = src = s;
   tok0 = 0;
 }
 
-File::~File() {
-  free((void *)src0);
-
-  ::file = old_file;
-  ::src0 = old_src0;
-  ::src = old_src;
-}
+Parser::~Parser() { free((void *)src0); }
 
 const char *szs[] = {
 #define _(s) #s,
@@ -96,7 +77,7 @@ int status;
 #ifdef _MSC_VER
 __declspec(noreturn)
 #endif
-    void err(const char *msg) {
+    void Parser::err(const char *msg) {
   if (file && src0 && tok0) {
     // line number
     w line = 1;

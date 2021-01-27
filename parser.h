@@ -1,27 +1,20 @@
-// current file
-extern const char *file;
-// beginning of source text
-extern const char *src0;
-// current position in source text
-extern const char *src;
+struct Parser {
+  const char *file;
+  const char *src0;
+  const char *src;
 
-// current token
-extern const char *tok0;
-extern int tok;
-extern vec<char> buf;
-extern sym *tokSym;
+  // current token
+  const char *tok0;
+  int tok;
+  sym *tokSym;
 
-struct File {
-  // remember previous file
-  // for nested includes
-  // and so that after parsing is done
-  // error reporting will know we are no longer in a file
-  const char *old_file;
-  const char *old_src0;
-  const char *old_src;
+  Parser(const char *file);
+  ~Parser();
 
-  File(const char *file);
-  ~File();
+#ifdef _MSC_VER
+  __declspec(noreturn)
+#endif
+      void err(const char *s);
 };
 
 // SZS status codes
@@ -34,14 +27,10 @@ enum {
 
 extern const char *szs[];
 
+extern vec<char> buf;
+
 // metadata
 extern bool conjecture;
 #ifdef DEBUG
 extern int status;
 #endif
-
-// error
-#ifdef _MSC_VER
-__declspec(noreturn)
-#endif
-    void err(const char *s);

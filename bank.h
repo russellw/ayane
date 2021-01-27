@@ -1,4 +1,4 @@
-template <class T> class bankSet {
+template <class T> class BankSet {
   // Must be a power of 2
   w cap = 0x10;
   w count;
@@ -46,7 +46,7 @@ public:
   }
 };
 
-template <class K, class T, class R> class bankMap {
+template <class K, class T, class R> class BankMap {
   // Must be a power of 2, and large enough to hold the largest collection of
   // entries that will be loaded at initialization time
   w cap = 0x100;

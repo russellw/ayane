@@ -1,9 +1,9 @@
 #include "main.h"
 
 namespace {
-bankSet<Int> ints;
-bankSet<Rat> rats;
-bankMap<w, Compound, w> compounds;
+BankSet<Int> ints;
+BankSet<Rat> rats;
+BankMap<w, Compound, w> compounds;
 } // namespace
 
 w int1(Int *x) { return tag(ints.put(x), a_int); }

@@ -167,7 +167,7 @@ int main(int argc, const char **argv) {
     files.push("stdin");
   }
 
-  for (auto file : files)
-    puts(file);
+  for (auto filename : files)
+    read_dimacs(filename);
   return 0;
 }

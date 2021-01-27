@@ -36,7 +36,9 @@ extern const char *szs[];
 
 // metadata
 extern bool conjecture;
+#ifdef DEBUG
 extern int status;
+#endif
 
 // error
 #ifdef _MSC_VER

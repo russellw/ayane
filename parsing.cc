@@ -89,7 +89,9 @@ const char *szs[] = {
 };
 
 bool conjecture;
+#ifdef DEBUG
 int status;
+#endif
 
 #ifdef _MSC_VER
 __declspec(noreturn)

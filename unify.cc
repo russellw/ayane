@@ -28,9 +28,9 @@ bool unify_var(w a, w b) {
 
   for (auto p : unified) {
     if (p.first == a)
-      return unify1(p.second, b);
+      return unify(p.second, b);
     if (p.first == b)
-      return unify1(a, p.second);
+      return unify(a, p.second);
   }
 
   if (occurs(a, b))
@@ -43,7 +43,7 @@ bool unify_var(w a, w b) {
 
 vec<std::pair<w, w>> unified;
 
-bool unify1(w a, w b) {
+bool unify(w a, w b) {
   // Same term
   if (a == b)
     return true;
@@ -71,14 +71,9 @@ bool unify1(w a, w b) {
   if (at(a, 0) != at(b, 0))
     return false;
   for (w i = 1; i != n; ++i)
-    if (!unify1(at(a, i), at(b, i)))
+    if (!unify(at(a, i), at(b, i)))
       return false;
   return true;
-}
-
-bool unify(w a, w b) {
-  unified.n = 0;
-  return unify1(a, b);
 }
 
 w replace(w a) {

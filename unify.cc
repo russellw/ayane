@@ -1,5 +1,47 @@
 #include "main.h"
 
+vec<std::pair<w, w>> unified;
+
+bool match(w a, w b) {
+  // Equal
+  if (a == b)
+    return true;
+
+  // Type mismatch
+  if (typeof(a) != typeof(b))
+    return false;
+
+  // Variable
+  if ((a & 7) == a_var) {
+    // Existing mapping
+    for (auto p : unified) {
+      if (p.first == a)
+        return p.second == b;
+    }
+
+    // New mapping
+    unified.push(std::make_pair(a, b));
+    return true;
+  }
+
+  // Atoms
+  if ((a & 7) != a_compound)
+    return false;
+  if ((b & 7) != a_compound)
+    return false;
+
+  // Compounds
+  auto n = size(a);
+  if (n != size(b))
+    return false;
+  if (at(a, 0) != at(b, 0))
+    return false;
+  for (w i = 1; i != n; ++i)
+    if (!match(at(a, i), at(b, i)))
+      return false;
+  return true;
+}
+
 namespace {
 bool occurs(w a, w b) {
   assert((a & 7) == a_var);
@@ -26,6 +68,7 @@ bool unify_var(w a, w b) {
   assert((a & 7) == a_var);
   assert(typeof(a) == typeof(b));
 
+  // Existing mappings
   for (auto p : unified) {
     if (p.first == a)
       return unify(p.second, b);
@@ -33,18 +76,18 @@ bool unify_var(w a, w b) {
       return unify(a, p.second);
   }
 
+  // Occurs check
   if (occurs(a, b))
     return false;
 
+  // New mapping
   unified.push(std::make_pair(a, b));
   return true;
 }
 } // namespace
 
-vec<std::pair<w, w>> unified;
-
 bool unify(w a, w b) {
-  // Same term
+  // Equal
   if (a == b)
     return true;
 

@@ -12,6 +12,11 @@ ty type(ty r, ty t0, ty t1) {
   return type(v);
 }
 
+bool match0(w a, w b) {
+  unified.n = 0;
+  return match(a, b);
+}
+
 void test_vec() {
   vec<char> u;
   assert(u.n == 0);
@@ -240,7 +245,7 @@ void test_unify() {
   assert(unified.n == 1);
   assert(replace(x) == b);
 
-  // f and g1 do not match
+  // f and g do not match
   assert(!unify0(term(f1, a), term(g1, a)));
 
   // x and y are aliased
@@ -248,7 +253,7 @@ void test_unify() {
   assert(unified.n == 1);
   assert(replace(x) == replace(y));
 
-  // f and g1 do not match
+  // f and g do not match
   assert(!unify0(term(f1, x), term(g1, y)));
 
   // Fails. The f function symbols have different arity
@@ -287,6 +292,88 @@ void test_unify() {
   assert(unify0(x, a));
   assert(!unify(b, x));
 }
+
+void test_match() {
+  // Subset of unify where only the first argument can be treated as a variable
+  // to be matched against the second argument. Applied to the same test cases
+  // as unify, gives the same results in some cases, but different results in
+  // others. In particular, has no notion of an occurs check; in actual use, it
+  // is assumed that the arguments will have disjoint variables
+  auto a = fn(t_individual, intern("a"));
+  auto b = fn(t_individual, intern("b"));
+  auto f1 = fn(type(t_individual, t_individual), intern("f1"));
+  auto f2 = fn(type(t_individual, t_individual, t_individual), intern("f2"));
+  auto g1 = fn(type(t_individual, t_individual), intern("g1"));
+  auto x = var(t_individual, 0);
+  auto y = var(t_individual, 1);
+  auto z = var(t_individual, 2);
+
+  // Succeeds. (tautology)
+  assert(match0(a, a));
+  assert(unified.n == 0);
+
+  // a and b do not match
+  assert(!match0(a, b));
+
+  // Succeeds. (tautology)
+  assert(match0(x, x));
+  assert(unified.n == 0);
+
+  // x is not matched with the constant a, because the variable is on the
+  // right-hand side
+  assert(!match0(a, x));
+
+  // x and y are aliased
+  assert(match0(x, y));
+  assert(unified.n == 1);
+  assert(replace(x) == replace(y));
+
+  // Function and constant symbols match, x is unified with the constant b
+  assert(match0(term(f2, a, x), term(f2, a, b)));
+  assert(unified.n == 1);
+  assert(replace(x) == b);
+
+  // f and g do not match
+  assert(!match0(term(f1, a), term(g1, a)));
+
+  // x and y are aliased
+  assert(match0(term(f1, x), term(f1, y)));
+  assert(unified.n == 1);
+  assert(replace(x) == replace(y));
+
+  // f and g do not match
+  assert(!match0(term(f1, x), term(g1, y)));
+
+  // Fails. The f function symbols have different arity
+  assert(!match0(term(f1, x), term(f2, y, z)));
+
+  // Does not match y with the term g1(x), because the variable is on the
+  // right-hand side
+  assert(!match0(term(f1, term(g1, x)), term(f1, y)));
+
+  // Does not match, because the variable is on the right-hand side
+  assert(!match0(term(f2, term(g1, x), x), term(f2, y, a)));
+
+  // Returns false in first-order logic and many modern Prolog dialects
+  // (enforced by the occurs check) but returns true here because match has no
+  // notion of an occurs check
+  assert(match0(x, term(f1, x)));
+  assert(unified.n == 1);
+
+  // Both x and y are unified with the constant a
+  assert(match0(x, y));
+  assert(match(y, a));
+  assert(unified.n == 2);
+  assert(replace(x) == a);
+  assert(replace(y) == a);
+
+  // Fails this time, because the variable is on the right-hand side
+  assert(!match0(a, y));
+
+  // Fails. a and b do not match, so x can't be unified with both
+  assert(match0(x, a));
+  assert(!match(b, x));
+}
 } // namespace
 
 void test() {
@@ -299,6 +386,7 @@ void test() {
   test_fn();
   test_term();
   test_unify();
+  test_match();
   test_var();
 }
 #endif

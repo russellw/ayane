@@ -14,7 +14,7 @@ ayane_SOURCES =\
 	sym.cc\
 	sym.h\
 	vec.h
-AM_CXXFLAGS = -fno-exceptions -fno-rtti -std=c++11
+AM_CXXFLAGS = -fno-rtti -std=c++11
 EXTRA_DIST =\
 	LICENSE\
 	README.md

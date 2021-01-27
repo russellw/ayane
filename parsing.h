@@ -1,7 +1,7 @@
 // current file
-extern const char *filename;
+extern const char *file;
 // beginning of source text
-extern const char *filesrc;
+extern const char *src0;
 // current position in source text
 extern const char *src;
 
@@ -17,10 +17,10 @@ struct File {
   // and so that after parsing is done
   // error reporting will know we are no longer in a file
   const char *old_filename;
-  const char *old_filesrc;
+  const char *old_src0;
   const char *old_src;
 
-  File(const char *filename);
+  File(const char *file);
   ~File();
 };
 

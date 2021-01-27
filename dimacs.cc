@@ -66,8 +66,8 @@ w num() {
 }
 } // namespace
 
-void read_dimacs(const char *filename) {
-  File F(filename);
+void readDimacs(const char *file) {
+  File F(file);
   lex();
   if (tok == 'p') {
     while (isspace(*src))

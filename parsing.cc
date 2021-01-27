@@ -10,9 +10,9 @@
 #endif
 
 // current file
-const char *filename;
+const char *file;
 // beginning of source text
-const char *filesrc;
+const char *src0;
 // current position in source text
 const char *src;
 
@@ -22,15 +22,15 @@ int tok;
 sym *toksym;
 vec<char> buf;
 
-File::File(const char *filename)
-    : old_filename(::filename), old_filesrc(::filesrc), old_src(::src) {
+File::File(const char *file)
+    : old_filename(::file), old_src0(::src0), old_src(::src) {
   char *s = 0;
   w n = 0;
-  if (strcmp(filename, "stdin")) {
-    auto f = open(filename, O_BINARY | O_RDONLY);
+  if (strcmp(file, "stdin")) {
+    auto f = open(file, O_BINARY | O_RDONLY);
     struct stat st;
     if (f < 0 || fstat(f, &st)) {
-      perror(filename);
+      perror(file);
       exit(1);
     }
 
@@ -69,16 +69,16 @@ File::File(const char *filename)
     s[n] = '\n';
     s[n + 1] = 0;
   }
-  ::filename = filename;
-  filesrc = src = s;
+  ::file = file;
+  src0 = src = s;
   toksrc = 0;
 }
 
 File::~File() {
-  free((void *)filesrc);
+  free((void *)src0);
 
-  ::filename = old_filename;
-  ::filesrc = old_filesrc;
+  ::file = old_filename;
+  ::src0 = old_src0;
   ::src = old_src;
 }
 
@@ -97,16 +97,16 @@ int status;
 __declspec(noreturn)
 #endif
     void err(const char *msg) {
-  if (filename && filesrc && toksrc) {
+  if (file && src0 && toksrc) {
     // line number
     w line = 1;
-    for (auto s = filesrc; s != toksrc; ++s)
+    for (auto s = src0; s != toksrc; ++s)
       if (*s == '\n')
         ++line;
 
     // beginning of line
     auto s0 = toksrc;
-    while (!(s0 == filesrc || s0[-1] == '\n'))
+    while (!(s0 == src0 || s0[-1] == '\n'))
       --s0;
 
     // print context
@@ -116,7 +116,7 @@ __declspec(noreturn)
     for (auto s1 = s0; s1 != toksrc; ++s1)
       fputc(*s1 == '\t' ? '\t' : ' ', stderr);
     fprintf(stderr, "^\n");
-    fprintf(stderr, "%s:%zu: ", filename, line);
+    fprintf(stderr, "%s:%zu: ", file, line);
   }
   fprintf(stderr, "%s\n", msg);
   exit(1);

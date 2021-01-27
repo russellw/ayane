@@ -17,13 +17,13 @@ const char *src0;
 const char *src;
 
 // current token
-const char *toksrc;
+const char *tok0;
 int tok;
-sym *toksym;
 vec<char> buf;
+sym *toksym;
 
 File::File(const char *file)
-    : old_filename(::file), old_src0(::src0), old_src(::src) {
+    : old_file(::file), old_src0(::src0), old_src(::src) {
   char *s = 0;
   w n = 0;
   if (strcmp(file, "stdin")) {
@@ -71,13 +71,13 @@ File::File(const char *file)
   }
   ::file = file;
   src0 = src = s;
-  toksrc = 0;
+  tok0 = 0;
 }
 
 File::~File() {
   free((void *)src0);
 
-  ::file = old_filename;
+  ::file = old_file;
   ::src0 = old_src0;
   ::src = old_src;
 }
@@ -97,15 +97,15 @@ int status;
 __declspec(noreturn)
 #endif
     void err(const char *msg) {
-  if (file && src0 && toksrc) {
+  if (file && src0 && tok0) {
     // line number
     w line = 1;
-    for (auto s = src0; s != toksrc; ++s)
+    for (auto s = src0; s != tok0; ++s)
       if (*s == '\n')
         ++line;
 
     // beginning of line
-    auto s0 = toksrc;
+    auto s0 = tok0;
     while (!(s0 == src0 || s0[-1] == '\n'))
       --s0;
 
@@ -113,7 +113,7 @@ __declspec(noreturn)
     for (auto s1 = s0; *s1 >= ' '; ++s1)
       fputc(*s1, stderr);
     fputc('\n', stderr);
-    for (auto s1 = s0; s1 != toksrc; ++s1)
+    for (auto s1 = s0; s1 != tok0; ++s1)
       fputc(*s1 == '\t' ? '\t' : ' ', stderr);
     fprintf(stderr, "^\n");
     fprintf(stderr, "%s:%zu: ", file, line);

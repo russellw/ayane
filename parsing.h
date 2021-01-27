@@ -6,17 +6,17 @@ extern const char *src0;
 extern const char *src;
 
 // current token
-extern const char *toksrc;
+extern const char *tok0;
 extern int tok;
-extern sym *toksym;
 extern vec<char> buf;
+extern sym *toksym;
 
 struct File {
   // remember previous file
   // for nested includes
   // and so that after parsing is done
   // error reporting will know we are no longer in a file
-  const char *old_filename;
+  const char *old_file;
   const char *old_src0;
   const char *old_src;
 

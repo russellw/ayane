@@ -1,7 +1,7 @@
 #include "main.h"
 
 namespace {
-bank_map<char, sym, sym *> syms;
+bankMap<char, sym, sym *> syms;
 
 struct init {
   init() {

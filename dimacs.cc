@@ -67,7 +67,7 @@ w num() {
 } // namespace
 
 void read_dimacs(const char *filename) {
-  File file(filename);
+  File F(filename);
   lex();
   if (tok == 'p') {
     while (isspace(*src))

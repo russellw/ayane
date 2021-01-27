@@ -16,6 +16,6 @@ struct init {
 
 sym *intern(const char *s, w n) {
   if (n > 0xffff)
-    err("Symbol too long");
+    throw "Symbol too long";
   return syms.put(s, n);
 }

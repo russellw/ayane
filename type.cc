@@ -53,7 +53,7 @@ ty put(const ty *p, w n) {
     return entries[i] | t_compound;
   if (tcompounds.n >= cap * 3 / 4) {
     if (tcompounds.n >= t_compound)
-      err("Too many compound types");
+      throw "Too many compound types";
     expand();
     i = slot(entries, cap, p, n);
   }
@@ -72,7 +72,7 @@ ty type(sym *name) {
   if (name->t)
     return name->t;
   if (atypes >= t_compound)
-    err("Too many atomic types");
+    throw "Too many atomic types";
   return name->t = atypes++;
 }
 

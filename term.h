@@ -114,7 +114,7 @@ const w alt = (w)1 << (8 * sizeof(ty) + 3);
 inline w var(ty t, w i) {
   assert(!istcompound(t));
   if (sizeof(w) == 4 && i >= 1 << 12)
-    err("Too many variables");
+    throw "Too many variables";
   return i << (1 + 8 * sizeof(ty) + 3) | t << 3 | a_var;
 }
 

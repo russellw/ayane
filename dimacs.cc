@@ -74,16 +74,16 @@ void readDimacs(const char *file) {
       ++src;
 
     if (!(src[0] == 'c' && src[1] == 'n' && src[2] == 'f'))
-      err("expected 'cnf'");
+      throw "Expected 'cnf'";
     src += 3;
     lex();
 
     if (tok != k_num)
-      err("expected count");
+      throw "Expected count";
     lex();
 
     if (tok != k_num)
-      err("expected count");
+      throw "Expected count";
     lex();
   }
   for (;;)
@@ -103,6 +103,6 @@ void readDimacs(const char *file) {
         clause();
       return;
     default:
-      err("syntax error");
+      throw "Syntax error";
     }
 }

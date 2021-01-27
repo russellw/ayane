@@ -28,7 +28,6 @@
 #include "type.h"
 
 #include "clause.h"
-#include "parsing.h"
 #include "sym.h"
 #include "term.h"
 #include "unify.h"
@@ -36,6 +35,8 @@
 #include "keywords.h"
 
 // parsers
+#include "parser.h"
+
 #include "dimacs.h"
 
 // unit tests

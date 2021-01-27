@@ -9,7 +9,7 @@ extern const char *src;
 extern const char *tok0;
 extern int tok;
 extern vec<char> buf;
-extern sym *toksym;
+extern sym *tokSym;
 
 struct File {
   // remember previous file

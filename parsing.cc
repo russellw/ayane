@@ -20,7 +20,7 @@ const char *src;
 const char *tok0;
 int tok;
 vec<char> buf;
-sym *toksym;
+sym *tokSym;
 
 File::File(const char *file)
     : old_file(::file), old_src0(::src0), old_src(::src) {

@@ -47,7 +47,7 @@ loop:
     do
       ++s;
     while (isdigit(*s));
-    toksym = intern(src, s - src);
+    tokSym = intern(src, s - src);
     src = s;
     tok = k_num;
     return;
@@ -60,7 +60,7 @@ loop:
 }
 
 w num() {
-  auto a = fn(t_bool, toksym);
+  auto a = fn(t_bool, tokSym);
   lex();
   return a;
 }

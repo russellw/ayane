@@ -47,11 +47,11 @@ void test_vec() {
 void test_type() {
   auto bird = atype(intern("bird"));
   assert(bird == atype(intern("bird")));
-  assert(!isctype(bird));
+  assert(!istcompound(bird));
 
   auto plane = atype(intern("plane"));
   assert(plane == atype(intern("plane")));
-  assert(!isctype(plane));
+  assert(!istcompound(plane));
 
   assert(bird != plane);
 
@@ -61,8 +61,8 @@ void test_type() {
   v.push(t_int);
   auto t_predicate_int_int = ctype(v);
   assert(t_predicate_int_int == ctype(v));
-  assert(isctype(t_predicate_int_int));
-  auto t = ctypep(t_predicate_int_int);
+  assert(istcompound(t_predicate_int_int));
+  auto t = tcompoundp(t_predicate_int_int);
   assert(t->n == 3);
   assert(t->v[0] == t_bool);
   assert(t->v[1] == t_int);
@@ -74,8 +74,8 @@ void test_type() {
   v.push(t_rat);
   auto t_predicate_rat_rat = ctype(v);
   assert(t_predicate_rat_rat == ctype(v));
-  assert(isctype(t_predicate_rat_rat));
-  t = ctypep(t_predicate_rat_rat);
+  assert(istcompound(t_predicate_rat_rat));
+  t = tcompoundp(t_predicate_rat_rat);
   assert(t->n == 3);
   assert(t->v[0] == t_bool);
   assert(t->v[1] == t_rat);

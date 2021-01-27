@@ -11,7 +11,7 @@ ty atypes = basic_types;
 w cap = 0x10;
 ty *entries = (ty *)xcalloc(cap, sizeof(ty));
 
-bool eq(const ctype_t *t, const ty *p, w n) {
+bool eq(const TCompound *t, const ty *p, w n) {
   if (t->n != n)
     return false;
   return !memcmp(t->v, p, n * sizeof(ty));
@@ -20,7 +20,7 @@ bool eq(const ctype_t *t, const ty *p, w n) {
 w slot(ty *entries, w cap, const ty *p, w n) {
   auto mask = cap - 1;
   auto i = fnv(p, n * sizeof(ty)) & mask;
-  while (entries[i] && !eq(ctypes[entries[i]], p, n))
+  while (entries[i] && !eq(tcompounds[entries[i]], p, n))
     i = (i + 1) & mask;
   return i;
 }
@@ -31,7 +31,7 @@ void expand() {
   for (w i = 0; i != cap; ++i) {
     auto t = entries[i];
     if (t) {
-      auto t1 = ctypes[t];
+      auto t1 = tcompounds[t];
       entries1[slot(entries1, cap1, t1->v, t1->n)] = t;
     }
   }
@@ -40,8 +40,8 @@ void expand() {
   entries = entries1;
 }
 
-ctype_t *store(const ty *p, w n) {
-  auto r = (ctype_t *)xmalloc(offsetof(ctype_t, v) + n * sizeof(ty));
+TCompound *store(const ty *p, w n) {
+  auto r = (TCompound *)xmalloc(offsetof(TCompound, v) + n * sizeof(ty));
   r->n = n;
   memcpy(r->v, p, n * sizeof(ty));
   return r;
@@ -51,20 +51,20 @@ ty put(const ty *p, w n) {
   auto i = slot(entries, cap, p, n);
   if (entries[i])
     return entries[i] | t_compound;
-  if (ctypes.n >= cap * 3 / 4) {
-    if (ctypes.n >= t_compound)
+  if (tcompounds.n >= cap * 3 / 4) {
+    if (tcompounds.n >= t_compound)
       err("Too many compound types");
     expand();
     i = slot(entries, cap, p, n);
   }
-  auto t = ctypes.n;
+  auto t = tcompounds.n;
   entries[i] = t;
-  ctypes.push(store(p, n));
+  tcompounds.push(store(p, n));
   return t | t_compound;
 }
 } // namespace
 
-vec<ctype_t *> ctypes(0);
+vec<TCompound *> tcompounds(0);
 
 ty ctype(const vec<ty> &v) { return put(v.p, v.n); }
 
@@ -82,8 +82,8 @@ ty typeof(w a) {
     auto op = at(a, 0);
     if ((op & 7) == a_fn) {
       auto t = fnp(op)->t;
-      assert(isctype(t));
-      auto t1 = ctypep(t);
+      assert(istcompound(t));
+      auto t1 = tcompoundp(t);
       assert(size(a) == t1->n);
       return t1->v[0];
     }

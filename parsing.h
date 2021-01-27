@@ -24,6 +24,20 @@ struct File {
   ~File();
 };
 
+// SZS status codes
+enum {
+#define _(s) s,
+#include "szs.h"
+#undef _
+  n_szs
+};
+
+extern const char *szs[];
+
+// metadata
+extern bool conjecture;
+extern int status;
+
 // error
 #ifdef _MSC_VER
 __declspec(noreturn)

@@ -82,6 +82,15 @@ File::~File() {
   ::src = old_src;
 }
 
+const char *szs[] = {
+#define _(s) #s,
+#include "szs.h"
+#undef _
+};
+
+bool conjecture;
+int status;
+
 #ifdef _MSC_VER
 __declspec(noreturn)
 #endif

@@ -14,6 +14,11 @@
 #include <iterator>
 #include <utility>
 
+#ifdef DEBUG
+#include <regex>
+#include <string>
+#endif
+
 #include <gmp.h>
 
 // general
@@ -27,12 +32,16 @@
 // specific
 #include "type.h"
 
+#include "clause.h"
 #include "parsing.h"
 #include "sym.h"
 #include "term.h"
 #include "unify.h"
 
 #include "keywords.h"
+
+// parsers
+#include "dimacs.h"
 
 // unit tests
 #include "test.h"

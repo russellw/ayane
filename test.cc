@@ -2,14 +2,14 @@
 
 #ifdef DEBUG
 namespace {
-ty ctype(ty r, ty t0) {
+ty type(ty r, ty t0) {
   vec<ty> v(r, t0);
-  return ctype(v);
+  return type(v);
 }
 
-ty ctype(ty r, ty t0, ty t1) {
+ty type(ty r, ty t0, ty t1) {
   vec<ty> v(r, t0, t1);
-  return ctype(v);
+  return type(v);
 }
 
 void test_vec() {
@@ -45,12 +45,12 @@ void test_vec() {
 }
 
 void test_type() {
-  auto bird = atype(intern("bird"));
-  assert(bird == atype(intern("bird")));
+  auto bird = type(intern("bird"));
+  assert(bird == type(intern("bird")));
   assert(!istcompound(bird));
 
-  auto plane = atype(intern("plane"));
-  assert(plane == atype(intern("plane")));
+  auto plane = type(intern("plane"));
+  assert(plane == type(intern("plane")));
   assert(!istcompound(plane));
 
   assert(bird != plane);
@@ -59,8 +59,8 @@ void test_type() {
   v.push(t_bool);
   v.push(t_int);
   v.push(t_int);
-  auto t_predicate_int_int = ctype(v);
-  assert(t_predicate_int_int == ctype(v));
+  auto t_predicate_int_int = type(v);
+  assert(t_predicate_int_int == type(v));
   assert(istcompound(t_predicate_int_int));
   auto t = tcompoundp(t_predicate_int_int);
   assert(t->n == 3);
@@ -72,8 +72,8 @@ void test_type() {
   v.push(t_bool);
   v.push(t_rat);
   v.push(t_rat);
-  auto t_predicate_rat_rat = ctype(v);
-  assert(t_predicate_rat_rat == ctype(v));
+  auto t_predicate_rat_rat = type(v);
+  assert(t_predicate_rat_rat == type(v));
   assert(istcompound(t_predicate_rat_rat));
   t = tcompoundp(t_predicate_rat_rat);
   assert(t->n == 3);
@@ -207,9 +207,9 @@ void test_unify() {
   // https://en.wikipedia.org/wiki/Unification_(computer_science)#Examples_of_syntactic_unification_of_first-order_terms
   auto a = fn(t_individual, intern("a"));
   auto b = fn(t_individual, intern("b"));
-  auto f1 = fn(ctype(t_individual, t_individual), intern("f1"));
-  auto f2 = fn(ctype(t_individual, t_individual, t_individual), intern("f2"));
-  auto g1 = fn(ctype(t_individual, t_individual), intern("g1"));
+  auto f1 = fn(type(t_individual, t_individual), intern("f1"));
+  auto f2 = fn(type(t_individual, t_individual, t_individual), intern("f2"));
+  auto g1 = fn(type(t_individual, t_individual), intern("g1"));
   auto x = var(t_individual, 0);
   auto y = var(t_individual, 1);
   auto z = var(t_individual, 2);

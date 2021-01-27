@@ -19,6 +19,6 @@ inline TCompound *tcompoundp(ty t) {
   return tcompounds[t & ~t_compound];
 }
 
-ty atype(sym *name);
-ty ctype(const vec<ty> &v);
+ty type(sym *name);
+ty type(const vec<ty> &v);
 ty typeof(w a);

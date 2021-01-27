@@ -66,9 +66,9 @@ ty put(const ty *p, w n) {
 
 vec<TCompound *> tcompounds(0);
 
-ty ctype(const vec<ty> &v) { return put(v.p, v.n); }
+ty type(const vec<ty> &v) { return put(v.p, v.n); }
 
-ty atype(sym *name) {
+ty type(sym *name) {
   if (name->t)
     return name->t;
   if (atypes >= t_compound)

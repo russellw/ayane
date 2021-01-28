@@ -9,7 +9,7 @@ enum {
 struct DimacsParser : Parser {
   void lex() {
   loop:
-    tokStart = text;
+    auto s = tokStart = text;
     switch (*text) {
     case ' ':
     case '\f':
@@ -17,12 +17,12 @@ struct DimacsParser : Parser {
     case '\r':
     case '\t':
     case '\v':
-      text = tokStart + 1;
+      text = s + 1;
       goto loop;
     case 'c': {
-      text = strchr(tokStart, '\n');
+      text = strchr(s, '\n');
 #ifdef DEBUG
-      std::string line(tokStart, text);
+      std::string line(s, text);
       std::smatch m;
       if (!status &&
           std::regex_match(line, m, std::regex(R"(c .* (SAT|UNSAT) .*)")))
@@ -31,8 +31,8 @@ struct DimacsParser : Parser {
       goto loop;
     }
     case '0':
-      if (!xisdigit(tokStart[1])) {
-        text = tokStart + 1;
+      if (!xisdigit(s[1])) {
+        text = s + 1;
         tok = o_zero;
         return;
       }
@@ -44,8 +44,7 @@ struct DimacsParser : Parser {
     case '6':
     case '7':
     case '8':
-    case '9': {
-      auto s = tokStart;
+    case '9':
       do
         ++s;
       while (xisdigit(*s));
@@ -53,12 +52,12 @@ struct DimacsParser : Parser {
       tokSym = intern(tokStart, s - tokStart);
       tok = o_num;
       return;
-    }
     case 0:
       tok = 0;
       return;
     }
-    tok = *text++;
+    text = s + 1;
+    tok = *s;
   }
 
   w num() {

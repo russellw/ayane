@@ -2,8 +2,8 @@
 
 namespace {
 enum {
-  k_num = 1,
-  k_zero,
+  o_num = 1,
+  o_zero,
 };
 
 struct DimacsParser : Parser {
@@ -33,7 +33,7 @@ struct DimacsParser : Parser {
     case '0':
       if (!('0' <= s[1] && s[1] <= '9')) {
         src = s + 1;
-        tok = k_zero;
+        tok = o_zero;
         return;
       }
     case '1':
@@ -50,7 +50,7 @@ struct DimacsParser : Parser {
       while (isdigit(*s));
       tokSym = intern(src, s - src);
       src = s;
-      tok = k_num;
+      tok = o_num;
       return;
     case 0:
       tok = 0;
@@ -78,11 +78,11 @@ struct DimacsParser : Parser {
         src += 3;
         lex();
 
-        if (tok != k_num)
+        if (tok != o_num)
           throw "Expected count";
         lex();
 
-        if (tok != k_num)
+        if (tok != o_num)
           throw "Expected count";
         lex();
       }
@@ -91,10 +91,10 @@ struct DimacsParser : Parser {
         case '-':
           neg.push(num());
           break;
-        case k_num:
+        case o_num:
           pos.push(num());
           break;
-        case k_zero:
+        case o_zero:
           clause();
           lex();
           break;

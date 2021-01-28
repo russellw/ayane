@@ -57,11 +57,11 @@ Parser::Parser(const char *file) : file(file) {
     s[n] = '\n';
     s[n + 1] = 0;
   }
-  src0 = src = s;
-  tok0 = 0;
+  textStart = text = s;
+  tokStart = 0;
 }
 
-Parser::~Parser() { free((void *)src0); }
+Parser::~Parser() { free((void *)textStart); }
 
 const char *szs[] = {
 #define _(s) #s,
@@ -78,23 +78,23 @@ int status;
 __declspec(noreturn)
 #endif
     void Parser::err(const char *msg) {
-  if (file && src0 && tok0) {
+  if (file && textStart && tokStart) {
     // line number
     w line = 1;
-    for (auto s = src0; s != tok0; ++s)
+    for (auto s = textStart; s != tokStart; ++s)
       if (*s == '\n')
         ++line;
 
     // beginning of line
-    auto s0 = tok0;
-    while (!(s0 == src0 || s0[-1] == '\n'))
+    auto s0 = tokStart;
+    while (!(s0 == textStart || s0[-1] == '\n'))
       --s0;
 
     // print context
     for (auto s1 = s0; *s1 >= ' '; ++s1)
       fputc(*s1, stderr);
     fputc('\n', stderr);
-    for (auto s1 = s0; s1 != tok0; ++s1)
+    for (auto s1 = s0; s1 != tokStart; ++s1)
       fputc(*s1 == '\t' ? '\t' : ' ', stderr);
     fprintf(stderr, "^\n");
     fprintf(stderr, "%s:%zu: ", file, line);

@@ -9,20 +9,20 @@ enum {
 struct DimacsParser : Parser {
   void lex() {
   loop:
-    auto s = src;
-    switch (*src) {
+    auto s = text;
+    switch (*text) {
     case ' ':
     case '\f':
     case '\n':
     case '\r':
     case '\t':
     case '\v':
-      src = s + 1;
+      text = s + 1;
       goto loop;
     case 'c': {
-      src = strchr(s, '\n');
+      text = strchr(s, '\n');
 #ifdef DEBUG
-      std::string line(s, src);
+      std::string line(s, text);
       std::smatch m;
       if (!status &&
           std::regex_match(line, m, std::regex(R"(c .* (SAT|UNSAT) .*)")))
@@ -32,7 +32,7 @@ struct DimacsParser : Parser {
     }
     case '0':
       if (!('0' <= s[1] && s[1] <= '9')) {
-        src = s + 1;
+        text = s + 1;
         tok = o_zero;
         return;
       }
@@ -48,15 +48,15 @@ struct DimacsParser : Parser {
       do
         ++s;
       while (isdigit(*s));
-      tokSym = intern(src, s - src);
-      src = s;
+      tokSym = intern(text, s - text);
+      text = s;
       tok = o_num;
       return;
     case 0:
       tok = 0;
       return;
     }
-    src = s + 1;
+    text = s + 1;
     tok = *s;
   }
 
@@ -70,12 +70,12 @@ struct DimacsParser : Parser {
     try {
       lex();
       if (tok == 'p') {
-        while (isspace(*src))
-          ++src;
+        while (isspace(*text))
+          ++text;
 
-        if (!(src[0] == 'c' && src[1] == 'n' && src[2] == 'f'))
+        if (!(text[0] == 'c' && text[1] == 'n' && text[2] == 'f'))
           throw "Expected 'cnf'";
-        src += 3;
+        text += 3;
         lex();
 
         if (tok != o_num)

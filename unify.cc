@@ -64,7 +64,7 @@ bool occurs(w a, w b) {
   return false;
 }
 
-bool unify_var(w a, w b) {
+bool unifyVar(w a, w b) {
   assert((a & 7) == a_var);
   assert(typeof(a) == typeof(b));
 
@@ -97,9 +97,9 @@ bool unify(w a, w b) {
 
   // Variables
   if ((a & 7) == a_var)
-    return unify_var(a, b);
+    return unifyVar(a, b);
   if ((b & 7) == a_var)
-    return unify_var(b, a);
+    return unifyVar(b, a);
 
   // Atoms
   if ((a & 7) != a_compound)

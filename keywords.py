@@ -17,7 +17,7 @@ def write_lines(filename, lines):
 
 
 lines = read_lines("keywords.txt")
-old = lines
+old = lines.copy()
 lines.sort()
 if lines != old:
     write_lines("keywords.txt", lines)

@@ -17,6 +17,30 @@ enum {
   b_all,
   b_and,
   b_not,
+  b_dive,
+  b_add,
+  b_sub,
+  b_mul,
+  b_div,
+  b_eq,
+  b_lt,
+  b_or,
+  b_eqv,
+  b_divt,
+  b_divf,
+  b_remt,
+  b_remf,
+  b_reme,
+  b_floor,
+  b_ceil,
+  b_trunc,
+  b_round,
+  b_isint,
+  b_israt,
+  b_toint,
+  b_torat,
+  b_toreal,
+  b_exists,
 };
 
 inline w tag(void *p, w a) { return (w)p | a; }
@@ -122,3 +146,5 @@ inline w vari(w a) {
   assert((a & 7) == a_var);
   return a >> (1 + 8 * sizeof(ty) + 3);
 }
+
+w imp(w a, w b);

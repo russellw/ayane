@@ -7,6 +7,7 @@
 
 #include <algorithm>
 #include <iterator>
+#include <unordered_set>
 #include <utility>
 
 #ifdef DEBUG
@@ -16,15 +17,15 @@
 
 #include <gmp.h>
 
-// general
+// General
 #include "etc.h"
 #include "mem.h"
 
-// containers
+// Containers
 #include "bank.h"
 #include "vec.h"
 
-// specific
+// Specific
 #include "type.h"
 
 #include "clause.h"
@@ -34,10 +35,11 @@
 
 #include "keywords.h"
 
-// parsers
+// Parsers
 #include "parser.h"
 
 #include "dimacs.h"
+#include "tptp.h"
 
-// unit tests
+// Unit tests
 #include "test.h"

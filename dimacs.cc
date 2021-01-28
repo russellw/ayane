@@ -7,6 +7,7 @@ enum {
 };
 
 struct DimacsParser : Parser {
+  // Tokenizer
   void lex() {
   loop:
     auto s = tokStart = text;
@@ -31,7 +32,7 @@ struct DimacsParser : Parser {
       goto loop;
     }
     case '0':
-      if (!xisdigit(s[1])) {
+      if (!isDigit(s[1])) {
         text = s + 1;
         tok = o_zero;
         return;
@@ -47,7 +48,7 @@ struct DimacsParser : Parser {
     case '9':
       do
         ++s;
-      while (xisdigit(*s));
+      while (isDigit(*s));
       text = s;
       tokSym = intern(tokStart, s - tokStart);
       tok = o_num;
@@ -60,12 +61,14 @@ struct DimacsParser : Parser {
     tok = *s;
   }
 
+  // Terms
   w num() {
     auto a = fn(t_bool, tokSym);
     lex();
     return a;
   }
 
+  // Top level
   DimacsParser(const char *file) : Parser(file) {
     try {
       lex();

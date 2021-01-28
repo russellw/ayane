@@ -46,3 +46,5 @@ w term(w op, w a, w b) {
   v[2] = b;
   return compounds.put(v, sizeof v / sizeof(w));
 }
+
+w imp(w a, w b) { return term(basic(b_or), term(basic(b_not), a), b); }

@@ -15,6 +15,7 @@ Parser::Parser(const char *file) : file(file) {
   char *s = 0;
   w n = 0;
   if (strcmp(file, "stdin")) {
+    // Read from file
     auto f = open(file, O_BINARY | O_RDONLY);
     struct stat st;
     if (f < 0 || fstat(f, &st)) {
@@ -22,8 +23,13 @@ Parser::Parser(const char *file) : file(file) {
       exit(1);
     }
 
+    // Check size of file
     n = st.st_size;
+
+    // Allow space for extra newline if required, and null terminator
     s = (char *)xmalloc(n + 2);
+
+    // Read all the data
     if (read(f, s, n) != n) {
       perror("read");
       exit(1);
@@ -31,34 +37,48 @@ Parser::Parser(const char *file) : file(file) {
 
     close(f);
   } else {
+    // Read from stdin
 #ifdef _WIN32
     _setmode(0, O_BINARY);
 #endif
     w chunk = 1 << 20;
     w cap = 0;
+
+    // stdin doesn't tell us in advance how much data there will be, so keep
+    // reading chunks until done
     for (;;) {
+      // Expand buffer as necessary, allowing space for extra newline if
+      // required, and null terminator
       if (n + chunk + 2 > cap) {
         cap = std::max(n + chunk + 2, cap * 2);
         s = (char *)xrealloc(s, cap);
       }
 
+      // Read another chunk
       auto r = read(0, s + n, chunk);
       if (r < 0) {
         perror("read");
         exit(1);
       }
       n += r;
+
+      // No more data to read
       if (r != chunk)
         break;
     }
   }
+
+  // Newline and null terminators
   s[n] = 0;
   if (n && s[n - 1] != '\n') {
     s[n] = '\n';
     s[n + 1] = 0;
   }
-  textStart = text = s;
-  tokStart = 0;
+
+  // Start at the beginning
+  textStart = s;
+  text = s;
+  tokStart = s;
 }
 
 Parser::~Parser() { free((void *)textStart); }
@@ -78,27 +98,28 @@ int status;
 __declspec(noreturn)
 #endif
     void Parser::err(const char *msg) {
-  if (file && textStart && tokStart) {
-    // line number
-    w line = 1;
-    for (auto s = textStart; s != tokStart; ++s)
-      if (*s == '\n')
-        ++line;
+  // Line number
+  w line = 1;
+  for (auto s = textStart; s != tokStart; ++s)
+    if (*s == '\n')
+      ++line;
 
-    // beginning of line
-    auto s0 = tokStart;
-    while (!(s0 == textStart || s0[-1] == '\n'))
-      --s0;
+  // Start of line
+  auto lineStart = tokStart;
+  while (!(lineStart == textStart || lineStart[-1] == '\n'))
+    --lineStart;
 
-    // print context
-    for (auto s1 = s0; *s1 >= ' '; ++s1)
-      fputc(*s1, stderr);
-    fputc('\n', stderr);
-    for (auto s1 = s0; s1 != tokStart; ++s1)
-      fputc(*s1 == '\t' ? '\t' : ' ', stderr);
-    fprintf(stderr, "^\n");
-    fprintf(stderr, "%s:%zu: ", file, line);
-  }
-  fprintf(stderr, "%s\n", msg);
+  // Print context
+  for (auto s = lineStart; *s >= ' '; ++s)
+    fputc(*s, stderr);
+  fputc('\n', stderr);
+
+  // Print caret
+  for (auto s = lineStart; s != tokStart; ++s)
+    fputc(*s == '\t' ? '\t' : ' ', stderr);
+  fprintf(stderr, "^\n");
+
+  // Print message and exit
+  fprintf(stderr, "%s:%zu: %s\n", file, line, msg);
   exit(1);
 }

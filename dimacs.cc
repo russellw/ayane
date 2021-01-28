@@ -67,43 +67,47 @@ struct DimacsParser : Parser {
   }
 
   DimacsParser(const char *file) : Parser(file) {
-    lex();
-    if (tok == 'p') {
-      while (isspace(*src))
-        ++src;
-
-      if (!(src[0] == 'c' && src[1] == 'n' && src[2] == 'f'))
-        throw "Expected 'cnf'";
-      src += 3;
+    try {
       lex();
+      if (tok == 'p') {
+        while (isspace(*src))
+          ++src;
 
-      if (tok != k_num)
-        throw "Expected count";
-      lex();
-
-      if (tok != k_num)
-        throw "Expected count";
-      lex();
-    }
-    for (;;)
-      switch (tok) {
-      case '-':
-        neg.push(num());
-        break;
-      case k_num:
-        pos.push(num());
-        break;
-      case k_zero:
-        clause();
+        if (!(src[0] == 'c' && src[1] == 'n' && src[2] == 'f'))
+          throw "Expected 'cnf'";
+        src += 3;
         lex();
-        break;
-      case 0:
-        if (neg.n | pos.n)
-          clause();
-        return;
-      default:
-        throw "Syntax error";
+
+        if (tok != k_num)
+          throw "Expected count";
+        lex();
+
+        if (tok != k_num)
+          throw "Expected count";
+        lex();
       }
+      for (;;)
+        switch (tok) {
+        case '-':
+          neg.push(num());
+          break;
+        case k_num:
+          pos.push(num());
+          break;
+        case k_zero:
+          clause();
+          lex();
+          break;
+        case 0:
+          if (neg.n | pos.n)
+            clause();
+          return;
+        default:
+          throw "Syntax error";
+        }
+    } catch (const char *e) {
+      err(e);
+    }
   }
 };
 } // namespace

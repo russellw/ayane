@@ -4,22 +4,7 @@
 #ifdef _WIN32
 #include <io.h>
 #include <windows.h>
-
-namespace {
-LONG WINAPI handler(_EXCEPTION_POINTERS *ExceptionInfo) {
-  if (ExceptionInfo->ExceptionRecord->ExceptionCode ==
-      EXCEPTION_STACK_OVERFLOW) {
-    WriteFile(GetStdHandle(STD_ERROR_HANDLE), "Stack overflow\n", 15, 0, 0);
-    ExitProcess(1);
-  }
-  fprintf(stderr, "Exception code %lx\n",
-          ExceptionInfo->ExceptionRecord->ExceptionCode);
-  stacktrace();
-  ExitProcess(1);
-}
-
-VOID CALLBACK timeout(PVOID a, BOOLEAN b) { ExitProcess(1); }
-} // namespace
+static VOID CALLBACK timeout(PVOID a, BOOLEAN b) { ExitProcess(1); }
 #else
 #include <unistd.h>
 #endif
@@ -153,9 +138,6 @@ int main(int argc, const char **argv) {
     perror("new");
     exit(1);
   });
-#ifdef _WIN32
-  AddVectoredExceptionHandler(0, handler);
-#endif
   test();
 
   parse(argc - 1, argv + 1);

@@ -57,6 +57,64 @@ struct TptpParser : Parser {
     tokSym = intern(buf.p, buf.n);
   }
 
+  void sign() {
+    switch (*s) {
+    case '+':
+    case '-':
+      ++text;
+      break;
+    }
+  }
+
+  void digits() {
+    auto s = text;
+    while (isDigit(*s))
+      ++s;
+    text = s;
+  }
+
+  void exp() {
+    assert(*text == 'E' || *text == 'e');
+    ++text;
+    sign();
+    digits();
+  }
+
+  void num() {
+    if (*text == '+')
+      tokStart = text;
+    sign();
+    if (!isDigit(*s)) {
+      tokStart = s;
+      throw "Expected digit";
+    }
+    digits();
+    tok = o_int;
+    switch (*text) {
+    case 'E':
+    case 'e':
+      exp();
+      tok = o_real;
+      break;
+    case '.':
+      ++text;
+      digits();
+      switch (*text) {
+      case 'E':
+      case 'e':
+        exp();
+        break;
+      }
+      tok = o_real;
+      break;
+    case '/':
+      ++text;
+      digits();
+      tok = o_rat;
+      break;
+    }
+  }
+
   void lex() {
   loop:
     auto s = tokStart = text;
@@ -174,34 +232,10 @@ struct TptpParser : Parser {
     case '7':
     case '8':
     case '9':
-      do
-        ++s;
-      while (isDigit(*s));
-      tok = o_int;
-      switch (*s) {
-      case '.':
-        do
-          ++s;
-        while (isDigit(*s));
-        tok = o_real;
-        break;
-      case '/':
-        do
-          ++s;
-        while (isDigit(*s));
-        tok = o_rat;
-        break;
-      }
-      text = s;
-      return;
     case '+':
     case '-':
-      if (isDigit(s[1])) {
-        tok = o_term;
-        parse_number();
-        return;
-      }
-      break;
+      num();
+      return;
     case '"':
       tok = o_term;
       quote();

@@ -68,7 +68,7 @@ Parser::Parser(const char *file) : file(file) {
     }
   }
 
-  // Newline and null terminators
+  // Newline and null terminator
   s[n] = 0;
   if (n && s[n - 1] != '\n') {
     s[n] = '\n';

@@ -35,7 +35,8 @@ struct Select : std::unordered_set<sym *> {
 
 struct TptpParser : Parser {
   Select select;
-  vec<std::pair<sym *, w>> boundVars, freeVars;
+  bool cnfMode;
+  vec<std::pair<sym *, w>> vars;
 
   // Tokenizer
   void word() {
@@ -461,17 +462,19 @@ struct TptpParser : Parser {
       return term(v);
     }
     case o_var: {
-      for (auto it = boundVars.rbegin(); it != boundVars.rend(); ++it)
+      if (cnfMode) {
+        for (auto p : vars)
+          if (p.first == name)
+            return p.second;
+        auto x = var(t_individual, vars.n);
+        vars.push(std::make_pair(name, x));
+        return x;
+      }
+      for (auto it = vars.rbegin(); it != vars.rend(); ++it)
         if (it->first == name)
           return it->second;
-      for (auto p : freeVars)
-        if (p.first == name)
-          return p.second;
-      if (boundVars.n)
+      if (vars.n)
         err("Unknown variable", ts);
-      auto x = var(t_individual, free.n);
-      free.push(std::make_pair(name, x));
-      return x;
     }
     case o_dollarword: {
       vec<w> v;
@@ -561,24 +564,24 @@ struct TptpParser : Parser {
   w quant(w op) {
     lex();
     expect('[');
-    auto old = boundVars.n;
+    auto old = vars.n;
     vec<w> v(op, 0);
     do {
       if (tok != o_var)
         throw "Expected variable";
       auto name = tokSym;
       lex();
-      auto t = t_individual;
+      ty t = t_individual;
       if (eat(':'))
         t = read_type();
-      auto x = var(t, boundVars.n);
-      boundVars.push(std::make_pair(name, x));
+      auto x = var(t, vars.n);
+      vars.push(std::make_pair(name, x));
       v.push(x);
     } while (eat(','));
     expect(']');
     expect(':');
     v[1] = unitary_formula();
-    boundVars.n = old;
+    vars.n = old;
     return term(v);
   }
 
@@ -669,37 +672,6 @@ struct TptpParser : Parser {
 
   // top level
 
-  void annotated_formula() {
-    lex();
-    expect('(');
-
-    // name
-    auto name = formula_name();
-    expect(',');
-
-    // role
-    if (tok != o_word)
-      throw "Expected role";
-    auto role = tokSym;
-    if (role == keywords + k_conjecture && conjecture)
-      throw "Multiple conjectures not supported";
-    lex();
-    expect(',');
-
-    // formula
-    if (role == keywords + k_type)
-      typing();
-    else {
-      auto a = logic_formula();
-      if (role == keywords + k_conjecture) {
-        get_free_vars(a);
-        a = term(basic(b_not), term(basic(b_all), a, free_vars));
-        conjecture = true;
-      }
-      cnf(a);
-    }
-  }
-
   TptpParser(const char *file, const Select &select)
       : Parser(file), select(select) {
     try {
@@ -707,12 +679,71 @@ struct TptpParser : Parser {
       while (tok) {
         if (tok != o_word)
           throw "Expected formula";
+        vars.n = 0;
         switch (keyword(tokSym)) {
-        case k_cnf:
-        case k_fof:
-        case k_tff:
-          annotated_formula();
+        case k_cnf: {
+          lex();
+          expect('(');
+
+          // Name
+          auto name = formula_name();
+          expect(',');
+
+          // Role
+          formula_name();
+          expect(',');
+
+          // Content
+          cnfMode = true;
+          neg.n = pos.n = 0;
+          auto parens = eat('(');
+          do {
+            auto not = eat('~');
+            auto a = infix_unary();
+            if ((a & 7) == a_compound && at(a, 0) == basic(b_not)) {
+              not = !not;
+              a = at(a, 1);
+            }
+            (not? neg : pos).push(a);
+          } while (eat('|'));
+          if (parens)
+            expect(')');
+          if (select.count(name))
+            clause();
           break;
+        }
+        case k_fof:
+        case k_tff: {
+          lex();
+          expect('(');
+
+          // Name
+          auto name = formula_name();
+          expect(',');
+
+          // Role
+          if (tok != o_word)
+            throw "Expected role";
+          auto role = tokSym;
+          if (role == keywords + k_conjecture && conjecture)
+            throw "Multiple conjectures not supported";
+          lex();
+          expect(',');
+
+          // Content
+          if (role == keywords + k_type)
+            typing();
+          else {
+            cnfMode = false;
+            auto a = logic_formula();
+            assert(!vars.n);
+            if (role == keywords + k_conjecture) {
+              a = term(basic(b_not), a);
+              conjecture = true;
+            }
+          }
+          break;
+        }
         case k_include: {
           auto tptp = getenv("TPTP");
           if (!tptp)
@@ -766,7 +797,6 @@ struct TptpParser : Parser {
 } // namespace
 
 void readTptp(const char *file) {
-  isWord['$'] = 1;
   memset(isWord + '0', 1, 10);
   memset(isWord + 'A', 1, 26);
   isWord['_'] = 1;

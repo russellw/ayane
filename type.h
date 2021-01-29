@@ -3,7 +3,17 @@ struct sym;
 typedef uint16_t ty;
 const ty t_compound = 1 << 15;
 
-enum { t_bool, t_int, t_rat, t_real, t_individual, basic_types };
+enum {
+  t_none,
+
+  t_bool,
+  t_int,
+  t_rat,
+  t_real,
+  t_individual,
+
+  basic_types
+};
 
 struct TCompound {
   ty n;

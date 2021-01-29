@@ -39,6 +39,7 @@ struct TptpParser : Parser {
   vec<std::pair<sym *, w>> vars;
 
   // Tokenizer
+
   void word() {
     auto s = text;
     while (isWord[*s])
@@ -145,7 +146,7 @@ struct TptpParser : Parser {
             break;
           }
         if (!status)
-          throw m[1].c_str();
+          throw "Unknown status";
       }
 #endif
       goto loop;
@@ -302,8 +303,6 @@ struct TptpParser : Parser {
     tok = *s;
   }
 
-  // parser
-
   bool eat(char o) {
     if (tok == o) {
       lex();
@@ -326,99 +325,61 @@ struct TptpParser : Parser {
     throw buf.v;
   }
 
-  // types
+  // Types
 
-  ty read_type() {
-    switch (tok) {
+  ty atomicType() {
+    auto k = tok;
+    auto name = tokSym;
+    auto ts = tokStart;
+    lex();
+    switch (k) {
+    case '(': {
+      auto t = atomicType();
+      expect(')');
+      return t;
+    }
+    case '!':
+    case '[':
+      throw Inappropriate();
     case o_dollarword:
-      switch (keyword(tokSym)) {
+      switch (keyword(name)) {
       case k_o:
-        lex();
         return t_bool;
       case k_int:
-        lex();
         return t_int;
       case k_rat:
-        lex();
         return t_rat;
       case k_real:
-        lex();
         return t_real;
       case k_i:
-        lex();
         return t_individual;
       }
-      throw "Unknown word";
-    case o_word: {
-      auto name = tokSym;
-      if (name->val && name->is_term)
-        throw "Expected type";
-      lex();
-      if (name->val)
-        return (type *)name->val;
-      auto ty = make_type(name);
-      name->val = ty;
-      name->is_term = false;
-      return ty;
+      err("Unknown word", ts);
+    case o_word:
+      return type(name);
+    default:
+      throw new ParseException(file, reader.getLineNumber(), "type expected");
     }
-    case '(': {
-      lex();
-      vec<type *> v;
+  }
+
+  ty type1() {
+    if (eat('(')) {
+      vec<ty> v(0);
       do
-        v.push(read_type());
+        v.push(atomicType());
       while (eat('*'));
       expect(')');
       expect('>');
-      return make_type(read_type(), v);
+      v[0] = atomicType();
+      return type(v);
     }
-    }
-    throw "Expected type";
+    var t = atomicType();
+    if (eat('>'))
+      return type(atomicType(), t);
+    return t;
   }
 
-  void typing() {
-    if (eat('(')) {
-      typing();
-      expect(')');
-      return;
-    }
-
-    // name
-    if (tok != o_word)
-      throw "Expected role";
-    auto name = tokSym;
-    auto s = src1;
-    lex();
-    expect(':');
-
-    // type: $tType
-    if (tok == o_dollarword && tokSym == keywords + k_tType) {
-      if (name->val) {
-        if (name->is_term) {
-          src1 = s;
-          throw "already a term";
-        }
-      } else {
-        name->val = make_type(name);
-        name->is_term = false;
-      }
-      lex();
-      return;
-    }
-
-    // constant: type
-    auto ty = read_type();
-    if (!name->val) {
-      name->val = constant(ty, name);
-      name->is_term = true;
-    }
-    auto a = (term *)name->val;
-    if (a->ty_ != ty) {
-      src1 = s;
-      throw "already has another type";
-    }
-  }
-
-  // terms
+  // Terms
 
   void args(vec<w> &v) {
     expect('(');
@@ -688,7 +649,7 @@ struct TptpParser : Parser {
           formula_name();
           expect(',');
 
-          // Content
+          // Literals
           cnfMode = true;
           neg.n = pos.n = 0;
           auto parens = eat('(');
@@ -719,23 +680,45 @@ struct TptpParser : Parser {
           // Role
           if (tok != o_word)
             throw "Expected role";
-          auto role = tokSym;
-          if (role == keywords + k_conjecture && conjecture)
+          auto role = keyword(tokSym);
+          if (role == k_conjecture && conjecture)
             throw "Multiple conjectures not supported";
           lex();
           expect(',');
 
-          // Content
-          if (role == keywords + k_type)
-            typing();
-          else {
-            cnfMode = false;
-            auto a = logic_formula();
-            assert(!vars.n);
-            if (role == keywords + k_conjecture) {
-              a = term(basic(b_not), a);
-              conjecture = true;
+          // Type
+          if (role == k_type) {
+            auto parens = 0;
+            while (eat('('))
+              ++parens;
+            auto funcName = formula_name();
+            expect(':');
+            if (tok == o_word && tokSym == keywords + tType) {
+              lex();
+              if (tok == '>')
+                throw Inappropriate();
+            } else {
+              auto t = type1();
+              auto a = problem.funcs.get(funcName);
+              if (a == null) {
+                a = new Func(type, funcName);
+                problem.funcs.put(funcName, a);
+              } else if (!Types.typeof(a).equals(type))
+                throw new ParseException(file, reader.getLineNumber(),
+                                         "type mismatch");
             }
+            while (parens-- > 0)
+              expect(')');
+            break;
+          }
+
+          // Formula
+          cnfMode = false;
+          auto a = logic_formula();
+          assert(!vars.n);
+          if (role == k_conjecture) {
+            a = term(basic(b_not), a);
+            conjecture = true;
           }
           break;
         }

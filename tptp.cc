@@ -94,15 +94,16 @@ struct TptpParser : Parser {
       tokStart = text;
       err("Expected digit");
     }
-    digits();
     tok = o_int;
+    digits();
     switch (*text) {
     case 'E':
     case 'e':
-      exp();
       tok = o_real;
+      exp();
       break;
     case '.':
+      tok = o_real;
       ++text;
       digits();
       switch (*text) {
@@ -111,12 +112,11 @@ struct TptpParser : Parser {
         exp();
         break;
       }
-      tok = o_real;
       break;
     case '/':
+      tok = o_rat;
       ++text;
       digits();
-      tok = o_rat;
       break;
     }
   }

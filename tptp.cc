@@ -20,21 +20,21 @@ enum {
 
 char isWord[0x100];
 
-struct selection : std::unordered_set<w> {
+struct Select : std::unordered_set<sym *> {
   bool all;
 
-  selection(const selection &x) : std::unordered_set<w>(x), all(x.all) {}
-  selection(bool all) : all(all) {}
+  Select(const Select &x) : std::unordered_set<sym *>(x), all(x.all) {}
+  explicit Select(bool all) : all(all) {}
 
-  w count(w a) const {
+  w count(sym *name) const {
     if (all)
       return 1;
-    return std::unordered_set<w>::count(a);
+    return std::unordered_set<sym *>::count(name);
   }
 };
 
 struct TptpParser : Parser {
-  selection select;
+  Select select;
   vec<std::pair<sym *, w>> boundVars, freeVars;
 
   // Tokenizer
@@ -698,15 +698,6 @@ struct TptpParser : Parser {
       }
       cnf(a);
     }
-
-    // annotations
-    if (eat(','))
-      while (tok != ')')
-        ignore();
-
-    // end
-    expect(')');
-    expect('.');
   }
 
   void include() {
@@ -716,22 +707,23 @@ struct TptpParser : Parser {
     lex();
     expect('(');
 
-    // file
+    // File
     if (tok != o_word)
-      throw "file expected";
+      throw "Expected name";
     auto n = strlen(tptp);
-    vec<char> filename1(n + tokSym->n + 2);
-    memcpy(filename1.p, tptp, n);
-    filename1[n] = '/';
-    memcpy(filename1.p + n + 1, tokSym->s, tokSym->n);
-    filename1[n + 1 + tokSym->n] = 0;
+    vec<char> file1;
+    file1.resize(n + tokSym->n + 2);
+    memcpy(file1.p, tptp, n);
+    file1[n] = '/';
+    memcpy(file1.p + n + 1, tokSym->s, tokSym->n);
+    file1[n + 1 + tokSym->n] = 0;
     lex();
 
-    // select
+    // Select
     auto old_select = select;
     if (eat(',')) {
       expect('[');
-      select = selection(false);
+      select = Select(false);
       do {
         auto name = formula_name();
         if (old_select.count(name))
@@ -740,30 +732,11 @@ struct TptpParser : Parser {
       expect(']');
     }
 
-    // save current token
-    auto old_src1 = src1;
-    auto old_tok = tok;
-    auto old_tokString = tokSym;
-    auto old_tok_term = tok_term;
-
-    // read
-    read_tptp1(filename1.p);
-
-    // restore current token
-    src1 = old_src1;
-    tok = old_tok;
-    tokSym = old_tokString;
-    tok_term = old_tok_term;
-
-    // restore select
-    select = old_select;
-
-    // end
-    expect(')');
-    expect('.');
+    // Read
+    read_tptp1(file1.p);
   }
 
-  TptpParser(const char *file) : Parser(file) {
+  TptpParser(const char *file, const Select &select) : Parser(file) {
     try {
       lex();
       while (tok) {
@@ -781,6 +754,12 @@ struct TptpParser : Parser {
         default:
           throw "Unknown language";
         }
+        if (tok == ',')
+          do
+            ignore();
+          while (tok != ')');
+        expect(')');
+        expect('.');
       }
     } catch (const char *e) {
       err(e);
@@ -795,5 +774,5 @@ void readTptp(const char *file) {
   memset(isWord + 'A', 1, 26);
   isWord['_'] = 1;
   memset(isWord + 'a', 1, 26);
-  TptpParser parser(file);
+  TptpParser parser(file, Select(true));
 }

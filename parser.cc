@@ -123,3 +123,10 @@ __declspec(noreturn)
   fprintf(stderr, "%s:%zu: %s\n", file, line, msg);
   exit(1);
 }
+
+#ifdef _MSC_VER
+__declspec(noreturn)
+#endif
+    void Parser::err(const char *msg) {
+  err(msg, tokStart);
+}

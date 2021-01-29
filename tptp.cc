@@ -358,7 +358,7 @@ struct TptpParser : Parser {
     case o_word:
       return type(name);
     default:
-      throw new ParseException(file, reader.getLineNumber(), "type expected");
+      err("Expected type", ts);
     }
   }
 
@@ -373,7 +373,7 @@ struct TptpParser : Parser {
       v[0] = atomicType();
       return type(v);
     }
-    var t = atomicType();
+    auto t = atomicType();
     if (eat('>'))
       return type(atomicType(), t);
     return t;
@@ -529,7 +529,7 @@ struct TptpParser : Parser {
       lex();
       ty t = t_individual;
       if (eat(':'))
-        t = read_type();
+        t = atomicType();
       auto x = var(t, vars.n);
       vars.push(std::make_pair(name, x));
       v.push(x);
@@ -633,12 +633,10 @@ struct TptpParser : Parser {
     try {
       lex();
       while (tok) {
-        if (tok != o_word)
-          throw "Expected formula";
+        auto ts = tokStart;
         vars.n = 0;
-        switch (keyword(tokSym)) {
+        switch (keyword(formula_name())) {
         case k_cnf: {
-          lex();
           expect('(');
 
           // Name
@@ -670,7 +668,6 @@ struct TptpParser : Parser {
         }
         case k_fof:
         case k_tff: {
-          lex();
           expect('(');
 
           // Name
@@ -693,19 +690,18 @@ struct TptpParser : Parser {
               ++parens;
             auto funcName = formula_name();
             expect(':');
-            if (tok == o_word && tokSym == keywords + tType) {
+            ts = tokStart;
+            if (tok == o_word && tokSym == keywords + k_tType) {
               lex();
               if (tok == '>')
                 throw Inappropriate();
             } else {
               auto t = type1();
-              auto a = problem.funcs.get(funcName);
-              if (a == null) {
-                a = new Func(type, funcName);
-                problem.funcs.put(funcName, a);
-              } else if (!Types.typeof(a).equals(type))
-                throw new ParseException(file, reader.getLineNumber(),
-                                         "type mismatch");
+              if (funcName->f) {
+                if (t != typeof(funcName->f))
+                  err("Type mismatch", ts);
+              } else
+                funcName->f = fn(t, funcName);
             }
             while (parens-- > 0)
               expect(')');
@@ -726,7 +722,6 @@ struct TptpParser : Parser {
           auto tptp = getenv("TPTP");
           if (!tptp)
             throw "TPTP environment variable not set";
-          lex();
           expect('(');
 
           // File
@@ -758,7 +753,7 @@ struct TptpParser : Parser {
           break;
         }
         default:
-          throw "Unknown language";
+          err("Unknown language", ts);
         }
         if (tok == ',')
           do

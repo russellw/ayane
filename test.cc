@@ -2,13 +2,8 @@
 
 #ifdef DEBUG
 namespace {
-ty type(ty r, ty t0) {
-  vec<ty> v(r, t0);
-  return type(v);
-}
-
-ty type(ty r, ty t0, ty t1) {
-  vec<ty> v(r, t0, t1);
+ty type(ty r, ty t1, ty t2) {
+  vec<ty> v(r, t1, t2);
   return type(v);
 }
 

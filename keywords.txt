@@ -36,6 +36,7 @@ remainder_t
 round
 sum
 t
+tType
 tff
 to_int
 to_rat

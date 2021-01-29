@@ -68,6 +68,13 @@ vec<TCompound *> tcompounds(0);
 
 ty type(const vec<ty> &v) { return put(v.p, v.n); }
 
+ty type(ty r, ty t1) {
+  ty v[2];
+  v[0] = r;
+  v[1] = t1;
+  return put(v, sizeof v / sizeof(ty));
+}
+
 ty type(sym *name) {
   if (name->t)
     return name->t;

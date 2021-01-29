@@ -38,6 +38,7 @@ enum {
   k_round,
   k_sum,
   k_t,
+  k_tType,
   k_tff,
   k_to_int,
   k_to_rat,

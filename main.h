@@ -22,6 +22,7 @@
 #include "mem.h"
 
 // Containers
+#include "ary.h"
 #include "bank.h"
 #include "vec.h"
 

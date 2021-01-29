@@ -9,7 +9,7 @@
 #define O_BINARY 0
 #endif
 
-vec<char> buf;
+ary<char, 0x10000> buf;
 
 Parser::Parser(const char *file) : file(file) {
   char *s = 0;

@@ -60,7 +60,7 @@ struct TptpParser : Parser {
       buf.push(*s++);
     }
     text = s + 1;
-    tokSym = intern(buf.p, buf.n);
+    tokSym = intern(buf.v, buf.n);
   }
 
   void sign() {

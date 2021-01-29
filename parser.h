@@ -32,7 +32,7 @@ enum {
 
 extern const char *szs[];
 
-extern vec<char> buf;
+extern ary<char, 0x10000> buf;
 
 inline bool isDigit(char c) { return '0' <= c && c <= '9'; }
 

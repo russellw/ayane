@@ -462,19 +462,14 @@ struct TptpParser : Parser {
       return term(v);
     }
     case o_var: {
-      if (cnfMode) {
-        for (auto p : vars)
-          if (p.first == name)
-            return p.second;
-        auto x = var(t_individual, vars.n);
-        vars.push(std::make_pair(name, x));
-        return x;
-      }
       for (auto it = vars.rbegin(); it != vars.rend(); ++it)
         if (it->first == name)
           return it->second;
-      if (vars.n)
+      if (!cnfMode)
         err("Unknown variable", ts);
+      auto x = var(t_individual, vars.n);
+      vars.push(std::make_pair(name, x));
+      return x;
     }
     case o_dollarword: {
       vec<w> v;

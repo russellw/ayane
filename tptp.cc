@@ -56,7 +56,7 @@ struct TptpParser : Parser {
       if (*s == '\\')
         ++s;
       if (*s < ' ')
-        throw "Unclosed quote";
+        err("Unclosed quote");
       buf.push(*s++);
     }
     text = s + 1;
@@ -92,7 +92,7 @@ struct TptpParser : Parser {
     sign();
     if (!isDigit(*text)) {
       tokStart = text;
-      throw "Expected digit";
+      err("Expected digit");
     }
     digits();
     tok = o_int;
@@ -146,7 +146,7 @@ struct TptpParser : Parser {
             break;
           }
         if (!status)
-          throw "Unknown status";
+          err("Unknown status");
       }
 #endif
       goto loop;
@@ -154,11 +154,11 @@ struct TptpParser : Parser {
     case '/':
       if (s[1] != '*') {
         text = s + 1;
-        throw "Expected '*'";
+        err("Expected '*'");
       }
       for (s += 2; !(s[0] == '*' && s[1] == '/'); ++s)
         if (!*s)
-          throw "Unclosed comment";
+          err("Unclosed comment");
       text = s + 2;
       goto loop;
     case '$':
@@ -280,7 +280,7 @@ struct TptpParser : Parser {
           return;
         }
         tokStart = s + 2;
-        throw "Expected '>'";
+        err("Expected '>'");
       }
       break;
     case '~':
@@ -315,14 +315,14 @@ struct TptpParser : Parser {
     if (eat(o))
       return;
     sprintf(buf.v, "Expected '%c'", o);
-    throw buf.v;
+    err(buf.v);
   }
 
   void expect(char o, const char *s) {
     if (eat(o))
       return;
     sprintf(buf.v, "Expected %s", s);
-    throw buf.v;
+    err(buf.v);
   }
 
   // Types
@@ -395,7 +395,7 @@ struct TptpParser : Parser {
     if (v.n - old == arity)
       return;
     sprintf(buf.v, "Expected %zu arguments", arity);
-    throw buf.v;
+    err(buf.v);
   }
 
   w defined_functor(w op, w arity) {
@@ -524,7 +524,7 @@ struct TptpParser : Parser {
     vec<w> v(op, 0);
     do {
       if (tok != o_var)
-        throw "Expected variable";
+        err("Expected variable");
       auto name = tokSym;
       lex();
       ty t = t_individual;
@@ -600,7 +600,7 @@ struct TptpParser : Parser {
   void ignore() {
     switch (tok) {
     case 0:
-      throw "Unexpected end of file";
+      err("Unexpected end of file");
     case '(':
       lex();
       while (!eat(')'))
@@ -623,7 +623,7 @@ struct TptpParser : Parser {
       return name;
     }
     }
-    throw "Expected formula name";
+    err("Expected formula name");
   }
 
   // top level
@@ -676,10 +676,10 @@ struct TptpParser : Parser {
 
           // Role
           if (tok != o_word)
-            throw "Expected role";
+            err("Expected role");
           auto role = keyword(tokSym);
           if (role == k_conjecture && conjecture)
-            throw "Multiple conjectures not supported";
+            err("Multiple conjectures not supported");
           lex();
           expect(',');
 
@@ -721,20 +721,18 @@ struct TptpParser : Parser {
         case k_include: {
           auto tptp = getenv("TPTP");
           if (!tptp)
-            throw "TPTP environment variable not set";
+            err("TPTP environment variable not set");
           expect('(');
 
           // File
-          if (tok != o_word)
-            throw "Expected name";
+          auto fname = formula_name();
           auto n = strlen(tptp);
           vec<char> file1;
-          file1.resize(n + tokSym->n + 2);
+          file1.resize(n + fname->n + 2);
           memcpy(file1.p, tptp, n);
           file1[n] = '/';
-          memcpy(file1.p + n + 1, tokSym->v, tokSym->n);
-          file1[n + 1 + tokSym->n] = 0;
-          lex();
+          memcpy(file1.p + n + 1, fname->v, fname->n);
+          file1[n + 1 + fname->n] = 0;
 
           // Select and read
           if (eat(',')) {

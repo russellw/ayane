@@ -700,43 +700,8 @@ struct TptpParser : Parser {
     }
   }
 
-  void include() {
-    auto tptp = getenv("TPTP");
-    if (!tptp)
-      throw "TPTP environment variable not set";
-    lex();
-    expect('(');
-
-    // File
-    if (tok != o_word)
-      throw "Expected name";
-    auto n = strlen(tptp);
-    vec<char> file1;
-    file1.resize(n + tokSym->n + 2);
-    memcpy(file1.p, tptp, n);
-    file1[n] = '/';
-    memcpy(file1.p + n + 1, tokSym->s, tokSym->n);
-    file1[n + 1 + tokSym->n] = 0;
-    lex();
-
-    // Select
-    auto old_select = select;
-    if (eat(',')) {
-      expect('[');
-      select = Select(false);
-      do {
-        auto name = formula_name();
-        if (old_select.count(name))
-          select.insert(name);
-      } while (eat(','));
-      expect(']');
-    }
-
-    // Read
-    read_tptp1(file1.p);
-  }
-
-  TptpParser(const char *file, const Select &select) : Parser(file) {
+  TptpParser(const char *file, const Select &select)
+      : Parser(file), select(select) {
     try {
       lex();
       while (tok) {
@@ -748,9 +713,41 @@ struct TptpParser : Parser {
         case k_tff:
           annotated_formula();
           break;
-        case k_include:
-          include();
+        case k_include: {
+          auto tptp = getenv("TPTP");
+          if (!tptp)
+            throw "TPTP environment variable not set";
+          lex();
+          expect('(');
+
+          // File
+          if (tok != o_word)
+            throw "Expected name";
+          auto n = strlen(tptp);
+          vec<char> file1;
+          file1.resize(n + tokSym->n + 2);
+          memcpy(file1.p, tptp, n);
+          file1[n] = '/';
+          memcpy(file1.p + n + 1, tokSym->v, tokSym->n);
+          file1[n + 1 + tokSym->n] = 0;
+          lex();
+
+          // Select and read
+          if (eat(',')) {
+            expect('[');
+            Select select1(false);
+            do {
+              auto name = formula_name();
+              if (select.count(name))
+                select1.insert(name);
+            } while (eat(','));
+            expect(']');
+            TptpParser parser(file1.p, select1);
+          } else {
+            TptpParser parser(file1.p, select);
+          }
           break;
+        }
         default:
           throw "Unknown language";
         }

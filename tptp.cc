@@ -5,6 +5,10 @@ enum {
   o_dollarword = 1,
   o_eqv,
   o_imp,
+  o_int,
+  o_rat,
+  o_real,
+  o_distinctobj,
   o_impr,
   o_nand,
   o_ne,
@@ -31,7 +35,7 @@ struct selection : std::unordered_set<w> {
 
 struct TptpParser : Parser {
   selection select;
-  vec<std::pair<sym *, w>> bound, free;
+  vec<std::pair<sym *, w>> boundVars, freeVars;
 
   // Tokenizer
   void word() {
@@ -58,7 +62,7 @@ struct TptpParser : Parser {
   }
 
   void sign() {
-    switch (*s) {
+    switch (*text) {
     case '+':
     case '-':
       ++text;
@@ -84,8 +88,8 @@ struct TptpParser : Parser {
     if (*text == '+')
       tokStart = text;
     sign();
-    if (!isDigit(*s)) {
-      tokStart = s;
+    if (!isDigit(*text)) {
+      tokStart = text;
       throw "Expected digit";
     }
     digits();
@@ -237,10 +241,8 @@ struct TptpParser : Parser {
       num();
       return;
     case '"':
-      tok = o_term;
+      tok = o_distinctobj;
       quote();
-      tok_term = atom(t_distinct_object, sizeof(type *) + sizeof(symbol *));
-      tok_term->name = tokSym;
       return;
     case '!':
       switch (s[1]) {
@@ -435,75 +437,59 @@ struct TptpParser : Parser {
   }
 
   w defined_functor(w op, w arity) {
-    lex();
     vec<w> v(op);
     args(v, arity);
     return term(v);
   }
 
   w atomic_term() {
+    auto name = tokSym;
+    auto o = tok;
+    auto ts = tokStart;
+    lex();
     switch (tok) {
+    case o_distinctobj:
+      return tag(name, a_distinctobj);
     case o_word: {
-      auto name = tokSym;
-      if (name->val && !name->is_term)
-        throw "Expected term";
-      lex();
-
-      if (!name->val) {
-        name->val = constant(&Ind, name);
-        name->is_term = true;
-      }
-
+      auto f = name->f;
+      if (!f)
+        name->f = f = fn(0, name);
       if (tok != '(')
-        return (term *)name->val;
-
-      vec<w> v(...);
+        return f;
+      vec<w> v(f);
       args(v);
-      return term(t_call, (term *)name->val, v);
+      return term(v);
     }
     case o_var: {
-      auto name = tokSym;
-      if (name->val && !name->is_term)
-        throw "Expected term";
-      lex();
-
-      if (!name->val) {
-        name->val = var(&Ind);
-        name->is_term = true;
-      }
-
-      return (w)name->val;
-    }
-    case o_term: {
-      auto a = tok_term;
-      lex();
-      return a;
+      for (auto it = boundVars.rbegin(); it != boundVars.rend(); ++it)
+        if (it->first == name)
+          return it->second;
+      for (auto p : freeVars)
+        if (p.first == name)
+          return p.second;
+      if (boundVars.n)
+        err("Unknown variable", ts);
+      auto x = var(t_individual, free.n);
+      free.push(std::make_pair(name, x));
+      return x;
     }
     case o_dollarword: {
       vec<w> v;
-      switch (keyword(tokSym)) {
+      switch (keyword(name)) {
       case k_false:
-        lex();
         return basic(b_false);
       case k_true:
-        lex();
         return basic(b_true);
       case k_less:
         return defined_functor(basic(b_lt), 2);
       case k_lesseq:
-        lex();
-        args(v, 2);
-        return term(basic(b_or), term(basic(b_lt), v[0], v[1]),
-                    term(basic(b_eq), v[0], v[1]));
+        return defined_functor(basic(b_le), 2);
       case k_greater:
-        lex();
         args(v, 2);
         return term(basic(b_lt), v[1], v[0]);
       case k_greatereq:
-        lex();
         args(v, 2);
-        return term(basic(b_or), term(basic(b_lt), v[1], v[0]),
-                    term(basic(b_eq), v[1], v[0]));
+        return term(basic(b_le), v[1], v[0]);
       case k_uminus:
         return defined_functor(basic(b_minus), 1);
       case k_sum:
@@ -545,7 +531,6 @@ struct TptpParser : Parser {
       case k_to_real:
         return defined_functor(basic(b_toreal), 1);
       case k_distinct: {
-        lex();
         args(v);
         vec<w> clauses(basic(b_and));
         for (auto i = v.begin(); i != v.end(); ++i)
@@ -554,10 +539,10 @@ struct TptpParser : Parser {
         return term(clauses);
       }
       }
-      throw "Unknown word";
+      err("Unknown word", ts);
     }
     }
-    throw "Syntax error";
+    err("Syntax error", ts);
   }
 
   w infix_unary() {
@@ -576,7 +561,7 @@ struct TptpParser : Parser {
   w quant(w op) {
     lex();
     expect('[');
-    auto old = bound.n;
+    auto old = boundVars.n;
     vec<w> v(op, 0);
     do {
       if (tok != o_var)
@@ -586,14 +571,14 @@ struct TptpParser : Parser {
       auto t = t_individual;
       if (eat(':'))
         t = read_type();
-      auto x = var(t, bound.n);
-      bound.push(std::make_pair(name, x));
+      auto x = var(t, boundVars.n);
+      boundVars.push(std::make_pair(name, x));
       v.push(x);
     } while (eat(','));
     expect(']');
     expect(':');
     v[1] = unitary_formula();
-    bound.n = old;
+    boundVars.n = old;
     return term(v);
   }
 
@@ -609,9 +594,9 @@ struct TptpParser : Parser {
       return a;
     }
     case '!':
-      return quantified(basic(b_all));
+      return quant(basic(b_all));
     case '?':
-      return quantified(basic(b_exists));
+      return quant(basic(b_exists));
     }
     return infix_unary();
   }
@@ -666,21 +651,23 @@ struct TptpParser : Parser {
     lex();
   }
 
-  w formula_name() {
+  sym *formula_name() {
     switch (tok) {
-    case o_word:
-      return atomic_term();
-    case o_term:
-      auto a = tok_term;
+    case o_word: {
+      auto name = tokSym;
       lex();
-      return a;
+      return name;
+    }
+    case o_int: {
+      auto name = intern(tokStart, text - tokStart);
+      lex();
+      return name;
+    }
     }
     throw "Expected formula name";
   }
 
   // top level
-
-  void read_tptp1(const char *file);
 
   void annotated_formula() {
     lex();
@@ -692,10 +679,10 @@ struct TptpParser : Parser {
 
     // role
     if (tok != o_word)
-      throw "role expected";
+      throw "Expected role";
     auto role = tokSym;
     if (role == keywords + k_conjecture && conjecture)
-      throw "multiple conjectures not supported";
+      throw "Multiple conjectures not supported";
     lex();
     expect(',');
 

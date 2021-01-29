@@ -1,7 +1,7 @@
 enum {
   a_compound,
 
-  a_distinct_object,
+  a_distinctobj,
   a_fn,
   a_int,
   a_rat,
@@ -24,6 +24,7 @@ enum {
   b_div,
   b_eq,
   b_lt,
+  b_le,
   b_or,
   b_eqv,
   b_divt,
@@ -36,6 +37,7 @@ enum {
   b_trunc,
   b_round,
   b_isint,
+  b_minus,
   b_israt,
   b_toint,
   b_torat,

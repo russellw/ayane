@@ -14,7 +14,14 @@ struct Parser {
 #ifdef _MSC_VER
   __declspec(noreturn)
 #endif
-      void err(const char *s);
+      void err(const char *msg, const char *ts);
+
+#ifdef _MSC_VER
+  __declspec(noreturn)
+#endif
+      void err(const char *msg) {
+    err(msg, tokStart);
+  }
 };
 
 // SZS status codes

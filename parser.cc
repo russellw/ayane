@@ -97,15 +97,15 @@ int status;
 #ifdef _MSC_VER
 __declspec(noreturn)
 #endif
-    void Parser::err(const char *msg) {
+    void Parser::err(const char *msg, const char *ts) {
   // Line number
   w line = 1;
-  for (auto s = textStart; s != tokStart; ++s)
+  for (auto s = textStart; s != ts; ++s)
     if (*s == '\n')
       ++line;
 
   // Start of line
-  auto lineStart = tokStart;
+  auto lineStart = ts;
   while (!(lineStart == textStart || lineStart[-1] == '\n'))
     --lineStart;
 
@@ -115,7 +115,7 @@ __declspec(noreturn)
   fputc('\n', stderr);
 
   // Print caret
-  for (auto s = lineStart; s != tokStart; ++s)
+  for (auto s = lineStart; s != ts; ++s)
     fputc(*s == '\t' ? '\t' : ' ', stderr);
   fprintf(stderr, "^\n");
 

@@ -444,6 +444,7 @@ struct TptpParser : Parser {
       mpq_init(x.val);
       if (mpq_set_str(x.val, buf, 10))
         err("Invalid number");
+      mpq_canonicalize(x.val);
       auto a = rat(&x);
       lex();
       return a;

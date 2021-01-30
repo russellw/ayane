@@ -36,4 +36,6 @@ bool assertfail(const char *file, w line, const char *s);
 
 #endif
 
+extern char buf[0x10000];
+
 w fnv(const void *p, w n);

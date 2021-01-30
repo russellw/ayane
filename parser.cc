@@ -9,8 +9,6 @@
 #define O_BINARY 0
 #endif
 
-ary<char, 0x10000> buf;
-
 Parser::Parser(const char *file) : file(file) {
   char *s = 0;
   w n = 0;

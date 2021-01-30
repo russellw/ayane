@@ -15,7 +15,6 @@ void stacktrace() {
   static void *stack[FramesToCapture];
   auto nframes = CaptureStackBackTrace(1, FramesToCapture, stack, 0);
   const int MaxNameLen = 256;
-  static char buf[sizeof(SYMBOL_INFO) + (MaxNameLen - 1) * sizeof(TCHAR)];
   auto symbol = (SYMBOL_INFO *)buf;
   symbol->MaxNameLen = MaxNameLen;
   symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
@@ -40,6 +39,8 @@ bool assertfail(const char *file, w line, const char *s) {
   return false;
 }
 #endif
+
+char buf[0x10000];
 
 w fnv(const void *p, w n) {
   // Fowler-Noll-Vo-1a

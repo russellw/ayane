@@ -173,9 +173,9 @@ Language getLanguage(const char *file) {
 #ifdef DEBUG
 #ifdef _WIN32
 void print(w n, const char *caption) {
-  static char buf[32];
   auto s = buf + sizeof buf - 1;
-  w i = 0;
+  *s = 0;
+  int i = 0;
   do {
     // Extract a digit
     *--s = '0' + n % 10;

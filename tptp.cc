@@ -54,16 +54,18 @@ struct TptpParser : Parser {
   void quote() {
     auto s = text;
     auto q = *s++;
-    buf.n = 0;
+    w i = 0;
     while (*s != q) {
       if (*s == '\\')
         ++s;
       if (*s < ' ')
         err("Unclosed quote");
-      buf.push(*s++);
+      if (i >= sizeof buf)
+        err("Symbol too long");
+      buf[i++] = *s++;
     }
     text = s + 1;
-    tokSym = intern(buf.v, buf.n);
+    tokSym = intern(buf, i);
   }
 
   void sign() {
@@ -327,15 +329,15 @@ struct TptpParser : Parser {
   void expect(char o) {
     if (eat(o))
       return;
-    sprintf(buf.v, "Expected '%c'", o);
-    err(buf.v);
+    sprintf(buf, "Expected '%c'", o);
+    err(buf);
   }
 
   void expect(char o, const char *s) {
     if (eat(o))
       return;
-    sprintf(buf.v, "Expected %s", s);
-    err(buf.v);
+    sprintf(buf, "Expected %s", s);
+    err(buf);
   }
 
   // Types
@@ -407,8 +409,8 @@ struct TptpParser : Parser {
     args(v);
     if (v.n - old == arity)
       return;
-    sprintf(buf.v, "Expected %zu arguments", arity);
-    err(buf.v);
+    sprintf(buf, "Expected %zu arguments", arity);
+    err(buf);
   }
 
   w definedFunctor(w op, w arity) {
@@ -421,12 +423,12 @@ struct TptpParser : Parser {
     switch (tok) {
     case o_int: {
       auto n = text - tokStart;
-      if (n + 1 > sizeof buf.v)
+      if (n + 1 > sizeof buf)
         err("Number too long");
-      memcpy(buf.v, tokStart, n);
-      buf.v[n] = 0;
+      memcpy(buf, tokStart, n);
+      buf[n] = 0;
       Int x;
-      if (mpz_init_set_str(x.val, buf.v, 10))
+      if (mpz_init_set_str(x.val, buf, 10))
         err("Invalid number");
       auto a = int1(&x);
       lex();
@@ -434,13 +436,13 @@ struct TptpParser : Parser {
     }
     case o_rat: {
       auto n = text - tokStart;
-      if (n + 1 > sizeof buf.v)
+      if (n + 1 > sizeof buf)
         err("Number too long");
-      memcpy(buf.v, tokStart, n);
-      buf.v[n] = 0;
+      memcpy(buf, tokStart, n);
+      buf[n] = 0;
       Rat x;
       mpq_init(x.val);
-      if (mpq_set_str(x.val, buf.v, 10))
+      if (mpq_set_str(x.val, buf, 10))
         err("Invalid number");
       auto a = rat(&x);
       lex();

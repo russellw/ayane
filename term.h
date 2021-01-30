@@ -1,7 +1,7 @@
 enum {
   a_compound,
 
-  a_distinctobj,
+  a_distinctObj,
   a_fn,
   a_int,
   a_rat,

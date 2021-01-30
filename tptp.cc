@@ -2,17 +2,17 @@
 
 namespace {
 enum {
-  o_dollarword = 1,
+  o_distinctObj = 1,
+  o_dollarWord,
   o_eqv,
   o_imp,
-  o_int,
-  o_rat,
-  o_real,
-  o_distinctobj,
   o_impr,
+  o_int,
   o_nand,
   o_ne,
   o_nor,
+  o_rat,
+  o_real,
   o_var,
   o_word,
   o_xor,
@@ -163,7 +163,7 @@ struct TptpParser : Parser {
       goto loop;
     case '$':
       text = s + 1;
-      tok = o_dollarword;
+      tok = o_dollarWord;
       word();
       return;
     case 'a':
@@ -243,7 +243,7 @@ struct TptpParser : Parser {
       num();
       return;
     case '"':
-      tok = o_distinctobj;
+      tok = o_distinctObj;
       quote();
       return;
     case '!':
@@ -341,7 +341,7 @@ struct TptpParser : Parser {
     case '!':
     case '[':
       throw Inappropriate();
-    case o_dollarword:
+    case o_dollarWord:
       switch (keyword(name)) {
       case k_o:
         return t_bool;
@@ -410,8 +410,8 @@ struct TptpParser : Parser {
     auto ts = tokStart;
     lex();
     switch (tok) {
-    case o_distinctobj:
-      return tag(name, a_distinctobj);
+    case o_distinctObj:
+      return tag(name, a_distinctObj);
     case o_word: {
       auto f = name->f;
       if (!f)
@@ -432,7 +432,7 @@ struct TptpParser : Parser {
       vars.push(std::make_pair(name, x));
       return x;
     }
-    case o_dollarword: {
+    case o_dollarWord: {
       vec<w> v;
       switch (keyword(name)) {
       case k_false:

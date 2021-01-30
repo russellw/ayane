@@ -662,8 +662,13 @@ struct TptpParser : Parser {
           } while (eat('|'));
           if (parens)
             expect(')');
-          if (select.count(S))
-            clause();
+
+          // Select
+          if (!select.count(S))
+            break;
+
+          // Clause
+          clause();
           break;
         }
         case k_fof:
@@ -712,11 +717,15 @@ struct TptpParser : Parser {
           cnfMode = false;
           auto a = logicFormula();
           assert(!vars.n);
-          if (select.count(S)) {
-            if (role == k_conjecture) {
-              a = term(basic(b_not), a);
-              conjecture = true;
-            }
+
+          // Select
+          if (!select.count(S))
+            break;
+
+          // CNF
+          if (role == k_conjecture) {
+            a = term(basic(b_not), a);
+            conjecture = true;
           }
           break;
         }

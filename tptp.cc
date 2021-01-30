@@ -19,6 +19,9 @@ enum {
 };
 
 char isWord[0x100];
+#ifdef DEBUG
+int header;
+#endif
 
 struct Select : std::unordered_set<sym *> {
   bool all;
@@ -136,17 +139,27 @@ struct TptpParser : Parser {
     case '%': {
       text = strchr(s, '\n');
 #ifdef DEBUG
-      std::string line(s, text);
-      std::smatch m;
-      if (!status &&
-          std::regex_match(line, m, std::regex(R"(% Status\s*:\s*(\w+))"))) {
-        for (w i = 1; i != n_szs; ++i)
-          if (m[1] == szs[i]) {
-            status = i;
-            break;
-          }
-        if (!status)
-          err("Unknown status");
+      if (!status) {
+        std::string s1(s, text);
+        std::smatch m;
+        if (std::regex_match(s1, m, std::regex(R"(% Status\s*:\s*(\w+))"))) {
+          for (w i = 1; i != n_szs; ++i)
+            if (m[1] == szs[i]) {
+              status = i;
+              break;
+            }
+          if (!status)
+            err("Unknown status");
+        }
+      }
+      if (header) {
+        if (s[1] == '-' && s[2] == '-')
+          --header;
+        while (s != text)
+          putchar(*s++);
+        putchar('\n');
+        if (s[1] == '\n')
+          putchar('\n');
       }
 #endif
       goto loop;
@@ -783,5 +796,8 @@ void readTptp(const char *file) {
   memset(isWord + 'A', 1, 26);
   isWord['_'] = 1;
   memset(isWord + 'a', 1, 26);
+#ifdef DEBUG
+  header = 2;
+#endif
   TptpParser parser(file, Select(true));
 }

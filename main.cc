@@ -171,7 +171,7 @@ int main(int argc, const char **argv) {
       readTptp(file);
     }
 #ifdef DEBUG
-    printf("%zu seconds\n", (w)(time(0) - start));
+    printf("%% %zu seconds\n", (w)(time(0) - start));
 #endif
     if (files.n > 1)
       putchar('\n');

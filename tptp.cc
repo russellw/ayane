@@ -640,7 +640,7 @@ struct TptpParser : Parser {
           expect('(');
 
           // Name
-          auto S = name();
+          auto formulaName = name();
           expect(',');
 
           // Role
@@ -664,7 +664,7 @@ struct TptpParser : Parser {
             expect(')');
 
           // Select
-          if (!select.count(S))
+          if (!select.count(formulaName))
             break;
 
           // Clause
@@ -676,7 +676,7 @@ struct TptpParser : Parser {
           expect('(');
 
           // Name
-          auto S = name();
+          auto formulaName = name();
           expect(',');
 
           // Role
@@ -719,7 +719,7 @@ struct TptpParser : Parser {
           assert(!vars.n);
 
           // Select
-          if (!select.count(S))
+          if (!select.count(formulaName))
             break;
 
           // CNF
@@ -736,23 +736,23 @@ struct TptpParser : Parser {
           expect('(');
 
           // File
-          auto fname = name();
+          auto S = name();
           auto n = strlen(tptp);
           vec<char> file1;
-          file1.resize(n + fname->n + 2);
+          file1.resize(n + S->n + 2);
           memcpy(file1.p, tptp, n);
           file1[n] = '/';
-          memcpy(file1.p + n + 1, fname->v, fname->n);
-          file1[n + 1 + fname->n] = 0;
+          memcpy(file1.p + n + 1, S->v, S->n);
+          file1[n + 1 + S->n] = 0;
 
           // Select and read
           if (eat(',')) {
             expect('[');
             Select select1(false);
             do {
-              auto S = name();
-              if (select.count(S))
-                select1.insert(S);
+              auto formulaName = name();
+              if (select.count(formulaName))
+                select1.insert(formulaName);
             } while (eat(','));
             expect(']');
             TptpParser parser(file1.p, select1);

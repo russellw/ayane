@@ -1,7 +1,7 @@
 #ifdef _MSC_VER
-#define noret __declspec(noreturn)
+#define noret __declspec(noreturn) void
 #else
-#define noret
+#define noret void
 #endif
 
 typedef size_t w;

@@ -92,7 +92,7 @@ bool conjecture;
 int status;
 #endif
 
-noret void Parser::err(const char *msg, const char *ts) {
+noret Parser::err(const char *msg, const char *ts) {
   // Line number
   w line = 1;
   for (auto s = textStart; s != ts; ++s)
@@ -119,4 +119,4 @@ noret void Parser::err(const char *msg, const char *ts) {
   exit(1);
 }
 
-noret void Parser::err(const char *msg) { err(msg, tokStart); }
+noret Parser::err(const char *msg) { err(msg, tokStart); }

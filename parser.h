@@ -11,8 +11,8 @@ struct Parser {
   Parser(const char *file);
   ~Parser();
 
-  noret void err(const char *msg, const char *ts);
-  noret void err(const char *msg);
+  noret err(const char *msg, const char *ts);
+  noret err(const char *msg);
 };
 
 // SZS status codes

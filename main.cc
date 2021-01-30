@@ -147,7 +147,9 @@ int main(int argc, const char **argv) {
     perror("new");
     exit(1);
   });
+#ifdef DEBUG
   test();
+#endif
 
   parse(argc - 1, argv + 1);
   if (!files.n) {
@@ -158,12 +160,21 @@ int main(int argc, const char **argv) {
     files.push("stdin");
   }
 
-  for (auto file : files)
+  for (auto file : files) {
+#ifdef DEBUG
+    auto start = time(0);
+#endif
     switch (getLanguage(file)) {
     case dimacs:
       readDimacs(file);
     case tptp:
       readTptp(file);
     }
+#ifdef DEBUG
+    printf("%zu seconds\n", (w)(time(0) - start));
+#endif
+    if (files.n > 1)
+      putchar('\n');
+  }
   return 0;
 }

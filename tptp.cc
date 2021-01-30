@@ -409,7 +409,7 @@ struct TptpParser : Parser {
     auto o = tok;
     auto ts = tokStart;
     lex();
-    switch (tok) {
+    switch (o) {
     case o_distinctObj:
       return tag(S, a_distinctObj);
     case o_word: {
@@ -652,13 +652,13 @@ struct TptpParser : Parser {
           neg.n = pos.n = 0;
           auto parens = eat('(');
           do {
-            auto not = eat('~');
+            auto no = eat('~');
             auto a = infixUnary();
             if ((a & 7) == a_compound && at(a, 0) == basic(b_not)) {
-              not = !not;
+              no = !no;
               a = at(a, 1);
             }
-            (not? neg : pos).push(a);
+            (no ? neg : pos).push(a);
           } while (eat('|'));
           if (parens)
             expect(')');
@@ -712,9 +712,11 @@ struct TptpParser : Parser {
           cnfMode = false;
           auto a = logicFormula();
           assert(!vars.n);
-          if (role == k_conjecture) {
-            a = term(basic(b_not), a);
-            conjecture = true;
+          if (select.count(S)) {
+            if (role == k_conjecture) {
+              a = term(basic(b_not), a);
+              conjecture = true;
+            }
           }
           break;
         }

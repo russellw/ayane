@@ -63,7 +63,7 @@ struct TptpParser : Parser {
       buf.push(*s++);
     }
     text = s + 1;
-    tokSym = intern(buf.p, buf.n);
+    tokSym = intern(buf.v, buf.n);
   }
 
   void sign() {
@@ -327,15 +327,15 @@ struct TptpParser : Parser {
   void expect(char o) {
     if (eat(o))
       return;
-    sprintf(buf.p, "Expected '%c'", o);
-    err(buf.p);
+    sprintf(buf.v, "Expected '%c'", o);
+    err(buf.v);
   }
 
   void expect(char o, const char *s) {
     if (eat(o))
       return;
-    sprintf(buf.p, "Expected %s", s);
-    err(buf.p);
+    sprintf(buf.v, "Expected %s", s);
+    err(buf.v);
   }
 
   // Types
@@ -407,8 +407,8 @@ struct TptpParser : Parser {
     args(v);
     if (v.n - old == arity)
       return;
-    sprintf(buf.p, "Expected %zu arguments", arity);
-    err(buf.p);
+    sprintf(buf.v, "Expected %zu arguments", arity);
+    err(buf.v);
   }
 
   w definedFunctor(w op, w arity) {
@@ -418,17 +418,45 @@ struct TptpParser : Parser {
   }
 
   w atomicTerm() {
-    auto S = tokSym;
-    auto o = tok;
-    auto ts = tokStart;
-    lex();
-    switch (o) {
-    case o_distinctObj:
-      return tag(S, a_distinctObj);
+    switch (tok) {
+    case o_int: {
+      auto n = text - tokStart;
+      if (n + 1 > sizeof buf.v)
+        err("Number too long");
+      memcpy(buf.v, tokStart, n);
+      buf.v[n] = 0;
+      Int x;
+      if (mpz_init_set_str(x.val, buf.v, 10))
+        err("Invalid number");
+      auto a = int1(&x);
+      lex();
+      return a;
+    }
+    case o_rat: {
+      auto n = text - tokStart;
+      if (n + 1 > sizeof buf.v)
+        err("Number too long");
+      memcpy(buf.v, tokStart, n);
+      buf.v[n] = 0;
+      Rat x;
+      mpq_init(x.val);
+      if (mpq_set_str(x.val, buf.v, 10))
+        err("Invalid number");
+      auto a = rat(&x);
+      lex();
+      return a;
+    }
+    case o_distinctObj: {
+      auto a = tag(tokSym, a_distinctObj);
+      lex();
+      return a;
+    }
     case o_word: {
+      auto S = tokSym;
       auto f = S->f;
       if (!f)
         S->f = f = fn(0, S);
+      lex();
       if (tok != '(')
         return f;
       vec<w> v(f);
@@ -436,6 +464,9 @@ struct TptpParser : Parser {
       return term(v);
     }
     case o_var: {
+      auto S = tokSym;
+      auto ts = tokStart;
+      lex();
       for (auto i = vars.rbegin(); i != vars.rend(); ++i)
         if (i->first == S)
           return i->second;
@@ -446,6 +477,9 @@ struct TptpParser : Parser {
       return x;
     }
     case o_dollarWord: {
+      auto S = tokSym;
+      auto ts = tokStart;
+      lex();
       vec<w> v;
       switch (keyword(S)) {
       case k_false:
@@ -514,7 +548,7 @@ struct TptpParser : Parser {
       err("Unknown word", ts);
     }
     }
-    err("Syntax error", ts);
+    err("Syntax error");
   }
 
   w infixUnary() {

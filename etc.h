@@ -5,6 +5,8 @@ inline void fpr(FILE *F, const char *s) { fputs(s, F); }
 inline void fpr(FILE *F, double a) { fprintf(F, "%f", a); }
 inline void fpr(FILE *F, uint64_t a) { fprintf(F, "%" PRIu64, a); }
 inline void fpr(FILE *F, uint32_t a) { fprintf(F, "%" PRIu32, a); }
+inline void fpr(FILE *F, int64_t a) { fprintf(F, "%" PRIi64, a); }
+inline void fpr(FILE *F, int32_t a) { fprintf(F, "%" PRIi32, a); }
 inline void fpr(FILE *F, void *p) { fprintf(F, "%p", p); }
 
 #ifdef DEBUG

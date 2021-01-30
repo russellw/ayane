@@ -3,7 +3,7 @@
 #ifdef DEBUG
 #ifdef _WIN32
 #include <windows.h>
-// windows.h must be first
+// The following must be after windows.h
 #include <dbghelp.h>
 #endif
 

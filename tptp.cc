@@ -796,6 +796,7 @@ void readTptp(const char *file) {
   memset(isWord + 'A', 1, 26);
   isWord['_'] = 1;
   memset(isWord + 'a', 1, 26);
+  conjecture = 0;
 #ifdef DEBUG
   header = 2;
 #endif

@@ -4,7 +4,7 @@
 #ifdef _WIN32
 #include <io.h>
 #include <windows.h>
-// windows.h must be first
+// The following must be after windows.h
 #include <psapi.h>
 static VOID CALLBACK timeout(PVOID a, BOOLEAN b) { ExitProcess(1); }
 #else
@@ -21,6 +21,24 @@ enum Language {
 };
 
 namespace {
+struct LineParser : Parser {
+  LineParser(const char *file, vec<const char *> &v) : Parser(file) {
+    auto s = text;
+    while (*s) {
+      auto t = strchr(s, '\n');
+      auto s1 = t + 1;
+      if (t != s && t[-1] == '\r')
+        --t;
+      auto n = t - s;
+      auto p = (char *)xmalloc(n + 1);
+      memcpy(p, s, n);
+      p[n] = 0;
+      v.push(p);
+      s = s1;
+    }
+  }
+};
+
 void help() {
   printf("Usage: ayane [options] [files]\n"
          "\n"
@@ -85,6 +103,12 @@ void parse(int argc, const char **argv) {
     if (!strcmp(s, "-"))
       s = "stdin";
     if (*s != '-') {
+      if (!strcmp(ext(s), "lst")) {
+        vec<const char *> v;
+        LineParser parser(s, v);
+        parse(v.n, v.p);
+        continue;
+      }
       files.push(s);
       continue;
     }
@@ -207,7 +231,8 @@ int main(int argc, const char **argv) {
     files.push("stdin");
   }
 
-  for (auto file : files) {
+  for (w i = 0; i != files.n; ++i) {
+    auto file = files[i];
 #ifdef DEBUG
     auto start = time(0);
 #endif
@@ -225,7 +250,7 @@ int main(int argc, const char **argv) {
 #endif
     printf("%zu seconds\n", (w)(time(0) - start));
 #endif
-    if (files.n > 1)
+    if (i + 1 < files.n)
       putchar('\n');
   }
   return 0;

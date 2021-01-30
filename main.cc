@@ -12,9 +12,10 @@ static VOID CALLBACK timeout(PVOID a, BOOLEAN b) { ExitProcess(1); }
 #define version "3"
 
 enum language {
+  unknown,
+
   dimacs,
   tptp,
-  unknown,
 };
 
 namespace {
@@ -48,7 +49,7 @@ const char *opt(int argc, const char **argv, int &i) {
   auto r = strpbrk(s, "=:");
   if (r)
     return r + 1;
-  if (*s == '-' && '0' <= s[2] && s[2] <= '9')
+  if (*s == '-' && isDigit(s[2]))
     return s + 2;
   if (++i == argc) {
     fprintf(stderr, "%s: Expected arg\n", s);
@@ -73,7 +74,7 @@ double optdouble(int argc, const char **argv, int &i) {
   return a;
 }
 
-language lang = unknown;
+language lang;
 vec<const char *> files;
 
 void parse(int argc, const char **argv) {

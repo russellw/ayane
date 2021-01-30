@@ -362,7 +362,7 @@ struct TptpParser : Parser {
     }
   }
 
-  ty type1() {
+  ty topLevelType() {
     if (eat('(')) {
       vec<ty> v(0);
       do
@@ -384,7 +384,7 @@ struct TptpParser : Parser {
   void args(vec<w> &v) {
     expect('(');
     do
-      v.push(atomic_term());
+      v.push(atomicTerm());
     while (eat(','));
     expect(')');
   }
@@ -398,13 +398,13 @@ struct TptpParser : Parser {
     err(buf.v);
   }
 
-  w defined_functor(w op, w arity) {
+  w definedFunctor(w op, w arity) {
     vec<w> v(op);
     args(v, arity);
     return term(v);
   }
 
-  w atomic_term() {
+  w atomicTerm() {
     auto name = tokSym;
     auto o = tok;
     auto ts = tokStart;
@@ -440,9 +440,9 @@ struct TptpParser : Parser {
       case k_true:
         return basic(b_true);
       case k_less:
-        return defined_functor(basic(b_lt), 2);
+        return definedFunctor(basic(b_lt), 2);
       case k_lesseq:
-        return defined_functor(basic(b_le), 2);
+        return definedFunctor(basic(b_le), 2);
       case k_greater:
         args(v, 2);
         return term(basic(b_lt), v[1], v[0]);
@@ -450,45 +450,45 @@ struct TptpParser : Parser {
         args(v, 2);
         return term(basic(b_le), v[1], v[0]);
       case k_uminus:
-        return defined_functor(basic(b_minus), 1);
+        return definedFunctor(basic(b_minus), 1);
       case k_sum:
-        return defined_functor(basic(b_add), 2);
+        return definedFunctor(basic(b_add), 2);
       case k_difference:
-        return defined_functor(basic(b_sub), 2);
+        return definedFunctor(basic(b_sub), 2);
       case k_product:
-        return defined_functor(basic(b_mul), 2);
+        return definedFunctor(basic(b_mul), 2);
       case k_quotient:
-        return defined_functor(basic(b_div), 2);
+        return definedFunctor(basic(b_div), 2);
       case k_quotient_e:
-        return defined_functor(basic(b_dive), 2);
+        return definedFunctor(basic(b_dive), 2);
       case k_quotient_t:
-        return defined_functor(basic(b_divt), 2);
+        return definedFunctor(basic(b_divt), 2);
       case k_quotient_f:
-        return defined_functor(basic(b_divf), 2);
+        return definedFunctor(basic(b_divf), 2);
       case k_remainder_e:
-        return defined_functor(basic(b_reme), 2);
+        return definedFunctor(basic(b_reme), 2);
       case k_remainder_t:
-        return defined_functor(basic(b_remt), 2);
+        return definedFunctor(basic(b_remt), 2);
       case k_remainder_f:
-        return defined_functor(basic(b_remf), 2);
+        return definedFunctor(basic(b_remf), 2);
       case k_floor:
-        return defined_functor(basic(b_floor), 1);
+        return definedFunctor(basic(b_floor), 1);
       case k_ceiling:
-        return defined_functor(basic(b_ceil), 1);
+        return definedFunctor(basic(b_ceil), 1);
       case k_truncate:
-        return defined_functor(basic(b_trunc), 1);
+        return definedFunctor(basic(b_trunc), 1);
       case k_round:
-        return defined_functor(basic(b_round), 1);
+        return definedFunctor(basic(b_round), 1);
       case k_is_int:
-        return defined_functor(basic(b_isint), 1);
+        return definedFunctor(basic(b_isint), 1);
       case k_is_rat:
-        return defined_functor(basic(b_israt), 1);
+        return definedFunctor(basic(b_israt), 1);
       case k_to_int:
-        return defined_functor(basic(b_toint), 1);
+        return definedFunctor(basic(b_toint), 1);
       case k_to_rat:
-        return defined_functor(basic(b_torat), 1);
+        return definedFunctor(basic(b_torat), 1);
       case k_to_real:
-        return defined_functor(basic(b_toreal), 1);
+        return definedFunctor(basic(b_toreal), 1);
       case k_distinct: {
         args(v);
         vec<w> clauses(basic(b_and));
@@ -504,20 +504,20 @@ struct TptpParser : Parser {
     err("Syntax error", ts);
   }
 
-  w infix_unary() {
-    auto a = atomic_term();
+  w infixUnary() {
+    auto a = atomicTerm();
     switch (tok) {
     case '=':
       lex();
-      return term(basic(b_eq), a, atomic_term());
+      return term(basic(b_eq), a, atomicTerm());
     case o_ne:
       lex();
-      return term(basic(b_not), term(basic(b_eq), a, atomic_term()));
+      return term(basic(b_not), term(basic(b_eq), a, atomicTerm()));
     }
     return a;
   }
 
-  w quant(w op) {
+  w quantifiedFormula(w op) {
     lex();
     expect('[');
     auto old = vars.n;
@@ -536,40 +536,40 @@ struct TptpParser : Parser {
     } while (eat(','));
     expect(']');
     expect(':');
-    v[1] = unitary_formula();
+    v[1] = unitaryFormula();
     vars.n = old;
     return term(v);
   }
 
-  w unitary_formula() {
+  w unitaryFormula() {
     switch (tok) {
     case '~':
       lex();
-      return term(basic(b_not), unitary_formula());
+      return term(basic(b_not), unitaryFormula());
     case '(': {
       lex();
-      auto a = logic_formula();
+      auto a = logicFormula();
       expect(')');
       return a;
     }
     case '!':
-      return quant(basic(b_all));
+      return quantifiedFormula(basic(b_all));
     case '?':
-      return quant(basic(b_exists));
+      return quantifiedFormula(basic(b_exists));
     }
-    return infix_unary();
+    return infixUnary();
   }
 
   w associativeLogicFormula(w op, w a) {
     vec<w> v(op, a);
     auto o = tok;
     while (eat(o))
-      v.push(unitary_formula());
+      v.push(unitaryFormula());
     return term(v);
   }
 
-  w logic_formula() {
-    auto a = unitary_formula();
+  w logicFormula() {
+    auto a = unitaryFormula();
     switch (tok) {
     case '&':
       return associativeLogicFormula(basic(b_and), a);
@@ -577,25 +577,27 @@ struct TptpParser : Parser {
       return associativeLogicFormula(basic(b_or), a);
     case o_eqv:
       lex();
-      return term(basic(b_eqv), a, unitary_formula());
+      return term(basic(b_eqv), a, unitaryFormula());
     case o_imp:
       lex();
-      return imp(a, unitary_formula());
+      return imp(a, unitaryFormula());
     case o_impr:
       lex();
-      return imp(unitary_formula(), a);
+      return imp(unitaryFormula(), a);
     case o_nand:
       lex();
-      return term(basic(b_not), term(basic(b_and), a, unitary_formula()));
+      return term(basic(b_not), term(basic(b_and), a, unitaryFormula()));
     case o_nor:
       lex();
-      return term(basic(b_not), term(basic(b_or), a, unitary_formula()));
+      return term(basic(b_not), term(basic(b_or), a, unitaryFormula()));
     case o_xor:
       lex();
-      return term(basic(b_not), term(basic(b_eqv), a, unitary_formula()));
+      return term(basic(b_not), term(basic(b_eqv), a, unitaryFormula()));
     }
     return a;
   }
+
+  // Top level
 
   void ignore() {
     switch (tok) {
@@ -626,8 +628,6 @@ struct TptpParser : Parser {
     err("Expected formula name");
   }
 
-  // top level
-
   TptpParser(const char *file, const Select &select)
       : Parser(file), select(select) {
     try {
@@ -653,7 +653,7 @@ struct TptpParser : Parser {
           auto parens = eat('(');
           do {
             auto not = eat('~');
-            auto a = infix_unary();
+            auto a = infixUnary();
             if ((a & 7) == a_compound && at(a, 0) == basic(b_not)) {
               not = !not;
               a = at(a, 1);
@@ -696,7 +696,7 @@ struct TptpParser : Parser {
               if (tok == '>')
                 throw Inappropriate();
             } else {
-              auto t = type1();
+              auto t = topLevelType();
               if (funcName->f) {
                 if (t != typeof(funcName->f))
                   err("Type mismatch", ts);
@@ -710,7 +710,7 @@ struct TptpParser : Parser {
 
           // Formula
           cnfMode = false;
-          auto a = logic_formula();
+          auto a = logicFormula();
           assert(!vars.n);
           if (role == k_conjecture) {
             a = term(basic(b_not), a);

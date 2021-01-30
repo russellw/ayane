@@ -21,6 +21,13 @@ enum Language {
 };
 
 namespace {
+char *xstrdup(const char *s, w n) {
+  auto r = (char *)xmalloc(n + 1);
+  memcpy(r, s, n);
+  r[n] = 0;
+  return r;
+}
+
 struct LineParser : Parser {
   LineParser(const char *file, vec<const char *> &v) : Parser(file) {
     auto s = text;
@@ -29,11 +36,7 @@ struct LineParser : Parser {
       auto s1 = t + 1;
       if (t != s && t[-1] == '\r')
         --t;
-      auto n = t - s;
-      auto p = (char *)xmalloc(n + 1);
-      memcpy(p, s, n);
-      p[n] = 0;
-      v.push(p);
+      v.push(xstrdup(s, t - s));
       s = s1;
     }
   }

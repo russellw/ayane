@@ -4,6 +4,8 @@
 #ifdef _WIN32
 #include <io.h>
 #include <windows.h>
+// windows.h must be first
+#include <psapi.h>
 static VOID CALLBACK timeout(PVOID a, BOOLEAN b) { ExitProcess(1); }
 #else
 #include <unistd.h>
@@ -140,6 +142,51 @@ Language getLanguage(const char *file) {
   }
   return tptp;
 }
+
+#ifdef DEBUG
+#ifdef _WIN32
+void print(w n, const char *caption) {
+  static char buf[32];
+  auto s = buf + sizeof buf - 1;
+  w i = 0;
+  do {
+    // Extract a digit
+    *--s = '0' + n % 10;
+    n /= 10;
+
+    // Track how many digits we have extracted
+    ++i;
+
+    // So that we can punctuate them in groups of 3
+    if (i % 3 == 0 && n)
+      *--s = ',';
+  } while (n);
+  int used = buf + sizeof buf - s;
+  int spaces = 15 - used;
+  for (i = 0; i < spaces; ++i)
+    putchar(' ');
+  printf("%s  %s\n", s, caption);
+}
+
+#define printItem(x) print(pmc.x, #x)
+
+void printMem() {
+  PROCESS_MEMORY_COUNTERS_EX pmc;
+  GetProcessMemoryInfo(GetCurrentProcess(), (PPROCESS_MEMORY_COUNTERS)&pmc,
+                       sizeof pmc);
+  printItem(PageFaultCount);
+  printItem(PeakWorkingSetSize);
+  printItem(WorkingSetSize);
+  printItem(QuotaPeakPagedPoolUsage);
+  printItem(QuotaPagedPoolUsage);
+  printItem(QuotaPeakNonPagedPoolUsage);
+  printItem(QuotaNonPagedPoolUsage);
+  printItem(PagefileUsage);
+  printItem(PeakPagefileUsage);
+  printItem(PrivateUsage);
+}
+#endif
+#endif
 } // namespace
 
 int main(int argc, const char **argv) {
@@ -171,7 +218,12 @@ int main(int argc, const char **argv) {
       readTptp(file);
     }
 #ifdef DEBUG
-    printf("%% %zu seconds\n", (w)(time(0) - start));
+#ifdef _WIN32
+    putchar('\n');
+    printMem();
+    putchar('\n');
+#endif
+    printf("%zu seconds\n", (w)(time(0) - start));
 #endif
     if (files.n > 1)
       putchar('\n');

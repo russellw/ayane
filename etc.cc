@@ -36,7 +36,7 @@ bool assertfail(const char *file, w line, const char *s) {
   fprintf(stderr, "%s:%zu: assert failed: %s\n", file, line, s);
   stacktrace();
   exit(1);
-  // keep the compiler happy about the use of || in the assert macro
+  // Keep the compiler happy about the use of || in the assert macro
   return false;
 }
 #endif

@@ -26,10 +26,10 @@ struct Select : std::unordered_set<sym *> {
   Select(const Select &x) : std::unordered_set<sym *>(x), all(x.all) {}
   explicit Select(bool all) : all(all) {}
 
-  w count(sym *name) const {
+  w count(sym *S) const {
     if (all)
       return 1;
-    return std::unordered_set<sym *>::count(name);
+    return std::unordered_set<sym *>::count(S);
   }
 };
 
@@ -329,7 +329,7 @@ struct TptpParser : Parser {
 
   ty atomicType() {
     auto k = tok;
-    auto name = tokSym;
+    auto S = tokSym;
     auto ts = tokStart;
     lex();
     switch (k) {
@@ -342,7 +342,7 @@ struct TptpParser : Parser {
     case '[':
       throw Inappropriate();
     case o_dollarWord:
-      switch (keyword(name)) {
+      switch (keyword(S)) {
       case k_o:
         return t_bool;
       case k_int:
@@ -356,7 +356,7 @@ struct TptpParser : Parser {
       }
       err("Unknown word", ts);
     case o_word:
-      return type(name);
+      return type(S);
     default:
       err("Expected type", ts);
     }
@@ -405,17 +405,17 @@ struct TptpParser : Parser {
   }
 
   w atomicTerm() {
-    auto name = tokSym;
+    auto S = tokSym;
     auto o = tok;
     auto ts = tokStart;
     lex();
     switch (tok) {
     case o_distinctObj:
-      return tag(name, a_distinctObj);
+      return tag(S, a_distinctObj);
     case o_word: {
-      auto f = name->f;
+      auto f = S->f;
       if (!f)
-        name->f = f = fn(0, name);
+        S->f = f = fn(0, S);
       if (tok != '(')
         return f;
       vec<w> v(f);
@@ -423,18 +423,18 @@ struct TptpParser : Parser {
       return term(v);
     }
     case o_var: {
-      for (auto it = vars.rbegin(); it != vars.rend(); ++it)
-        if (it->first == name)
-          return it->second;
+      for (auto i = vars.rbegin(); i != vars.rend(); ++i)
+        if (i->first == S)
+          return i->second;
       if (!cnfMode)
         err("Unknown variable", ts);
       auto x = var(t_individual, vars.n);
-      vars.push(std::make_pair(name, x));
+      vars.push(std::make_pair(S, x));
       return x;
     }
     case o_dollarWord: {
       vec<w> v;
-      switch (keyword(name)) {
+      switch (keyword(S)) {
       case k_false:
         return basic(b_false);
       case k_true:
@@ -525,13 +525,13 @@ struct TptpParser : Parser {
     do {
       if (tok != o_var)
         err("Expected variable");
-      auto name = tokSym;
+      auto S = tokSym;
       lex();
       ty t = t_individual;
       if (eat(':'))
         t = atomicType();
       auto x = var(t, vars.n);
-      vars.push(std::make_pair(name, x));
+      vars.push(std::make_pair(S, x));
       v.push(x);
     } while (eat(','));
     expect(']');
@@ -599,6 +599,22 @@ struct TptpParser : Parser {
 
   // Top level
 
+  sym *name() {
+    switch (tok) {
+    case o_word: {
+      auto S = tokSym;
+      lex();
+      return S;
+    }
+    case o_int: {
+      auto S = intern(tokStart, text - tokStart);
+      lex();
+      return S;
+    }
+    }
+    err("Expected name");
+  }
+
   void ignore() {
     switch (tok) {
     case 0:
@@ -612,22 +628,6 @@ struct TptpParser : Parser {
     lex();
   }
 
-  sym *formula_name() {
-    switch (tok) {
-    case o_word: {
-      auto name = tokSym;
-      lex();
-      return name;
-    }
-    case o_int: {
-      auto name = intern(tokStart, text - tokStart);
-      lex();
-      return name;
-    }
-    }
-    err("Expected formula name");
-  }
-
   TptpParser(const char *file, const Select &select)
       : Parser(file), select(select) {
     try {
@@ -635,16 +635,16 @@ struct TptpParser : Parser {
       while (tok) {
         auto ts = tokStart;
         vars.n = 0;
-        switch (keyword(formula_name())) {
+        switch (keyword(name())) {
         case k_cnf: {
           expect('(');
 
           // Name
-          auto name = formula_name();
+          auto S = name();
           expect(',');
 
           // Role
-          formula_name();
+          name();
           expect(',');
 
           // Literals
@@ -662,7 +662,7 @@ struct TptpParser : Parser {
           } while (eat('|'));
           if (parens)
             expect(')');
-          if (select.count(name))
+          if (select.count(S))
             clause();
           break;
         }
@@ -671,7 +671,7 @@ struct TptpParser : Parser {
           expect('(');
 
           // Name
-          auto name = formula_name();
+          auto S = name();
           expect(',');
 
           // Role
@@ -688,7 +688,7 @@ struct TptpParser : Parser {
             auto parens = 0;
             while (eat('('))
               ++parens;
-            auto funcName = formula_name();
+            auto funcName = name();
             expect(':');
             ts = tokStart;
             if (tok == o_word && tokSym == keywords + k_tType) {
@@ -721,11 +721,11 @@ struct TptpParser : Parser {
         case k_include: {
           auto tptp = getenv("TPTP");
           if (!tptp)
-            err("TPTP environment variable not set");
+            err("TPTP environment variable not set", ts);
           expect('(');
 
           // File
-          auto fname = formula_name();
+          auto fname = name();
           auto n = strlen(tptp);
           vec<char> file1;
           file1.resize(n + fname->n + 2);
@@ -739,9 +739,9 @@ struct TptpParser : Parser {
             expect('[');
             Select select1(false);
             do {
-              auto name = formula_name();
-              if (select.count(name))
-                select1.insert(name);
+              auto S = name();
+              if (select.count(S))
+                select1.insert(S);
             } while (eat(','));
             expect(']');
             TptpParser parser(file1.p, select1);

@@ -11,7 +11,7 @@ static VOID CALLBACK timeout(PVOID a, BOOLEAN b) { ExitProcess(1); }
 
 #define version "3"
 
-enum language {
+enum Language {
   unknown,
 
   dimacs,
@@ -36,13 +36,11 @@ void help() {
          "-t seconds  Time limit\n");
 }
 
-#if 0
 const char *ext(const char *file) {
-  // don't care about a.b/c
+  // Don't care about a.b/c
   auto s = strrchr(file, '.');
   return s ? s + 1 : "";
 }
-#endif
 
 const char *opt(int argc, const char **argv, int &i) {
   auto s = argv[i];
@@ -74,14 +72,14 @@ double optdouble(int argc, const char **argv, int &i) {
   return a;
 }
 
-language lang;
+Language language;
 vec<const char *> files;
 
 void parse(int argc, const char **argv) {
   for (int i = 0; i != argc; ++i) {
     auto s = argv[i];
 
-    // file
+    // File
     if (!strcmp(s, "-"))
       s = "stdin";
     if (*s != '-') {
@@ -89,7 +87,7 @@ void parse(int argc, const char **argv) {
       continue;
     }
 
-    // option
+    // Option
     while (*s == '-')
       ++s;
     switch (keyword(intern(s))) {
@@ -106,7 +104,7 @@ void parse(int argc, const char **argv) {
              sizeof(void *) * 8);
       exit(0);
     case k_dimacs:
-      lang = dimacs;
+      language = dimacs;
       break;
     case k_h:
     case k_help:
@@ -124,13 +122,23 @@ void parse(int argc, const char **argv) {
       break;
     }
     case k_tptp:
-      lang = tptp;
+      language = tptp;
       break;
     default:
       fprintf(stderr, "%s: Unknown option\n", argv[i]);
       exit(1);
     }
   }
+}
+
+Language getLanguage(const char *file) {
+  if (language)
+    return language;
+  switch (keyword(intern(ext(file)))) {
+  case k_cnf:
+    return dimacs;
+  }
+  return tptp;
 }
 } // namespace
 
@@ -151,6 +159,11 @@ int main(int argc, const char **argv) {
   }
 
   for (auto file : files)
-    readDimacs(file);
+    switch (getLanguage(file)) {
+    case dimacs:
+      readDimacs(file);
+    case tptp:
+      readTptp(file);
+    }
   return 0;
 }

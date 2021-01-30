@@ -1,7 +1,6 @@
 // AUTO GENERATED FILE - DO NOT MODIFY
 enum {
   k_V,
-  k_ax,
   k_ceiling,
   k_cnf,
   k_conjecture,
@@ -24,7 +23,6 @@ enum {
   k_lesseq,
   k_lst,
   k_o,
-  k_p,
   k_product,
   k_quotient,
   k_quotient_e,

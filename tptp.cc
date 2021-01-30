@@ -60,7 +60,7 @@ struct TptpParser : Parser {
       buf.push(*s++);
     }
     text = s + 1;
-    tokSym = intern(buf.v, buf.n);
+    tokSym = intern(buf.p, buf.n);
   }
 
   void sign() {
@@ -314,15 +314,15 @@ struct TptpParser : Parser {
   void expect(char o) {
     if (eat(o))
       return;
-    sprintf(buf.v, "Expected '%c'", o);
-    err(buf.v);
+    sprintf(buf.p, "Expected '%c'", o);
+    err(buf.p);
   }
 
   void expect(char o, const char *s) {
     if (eat(o))
       return;
-    sprintf(buf.v, "Expected %s", s);
-    err(buf.v);
+    sprintf(buf.p, "Expected %s", s);
+    err(buf.p);
   }
 
   // Types
@@ -394,8 +394,8 @@ struct TptpParser : Parser {
     args(v);
     if (v.n - old == arity)
       return;
-    sprintf(buf.v, "Expected %zu arguments", arity);
-    err(buf.v);
+    sprintf(buf.p, "Expected %zu arguments", arity);
+    err(buf.p);
   }
 
   w definedFunctor(w op, w arity) {

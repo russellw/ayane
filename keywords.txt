@@ -1,5 +1,4 @@
 V
-ax
 ceiling
 cnf
 conjecture
@@ -22,7 +21,6 @@ less
 lesseq
 lst
 o
-p
 product
 quotient
 quotient_e

@@ -83,9 +83,10 @@ void test_type() {
 }
 
 void test_sym() {
-  assert(keyword(intern("ax")) == k_ax);
   assert(keyword(intern("cnf")) == k_cnf);
-  assert(keyword(intern("p")) == k_p);
+  assert(keyword(intern("fof")) == k_fof);
+  assert(keyword(intern("tff")) == k_tff);
+  assert(intern("") == intern("", 0));
   assert(intern("xyz") == intern("xyz", 3));
 }
 

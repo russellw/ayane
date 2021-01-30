@@ -2,7 +2,6 @@
 #include "main.h"
 sym keywords[] = {
     {0, 0, 1, "V"},
-    {0, 0, 2, "ax"},
     {0, 0, 7, "ceiling"},
     {0, 0, 3, "cnf"},
     {0, 0, 10, "conjecture"},
@@ -25,7 +24,6 @@ sym keywords[] = {
     {0, 0, 6, "lesseq"},
     {0, 0, 3, "lst"},
     {0, 0, 1, "o"},
-    {0, 0, 1, "p"},
     {0, 0, 7, "product"},
     {0, 0, 8, "quotient"},
     {0, 0, 10, "quotient_e"},

@@ -92,10 +92,7 @@ bool conjecture;
 int status;
 #endif
 
-#ifdef _MSC_VER
-__declspec(noreturn)
-#endif
-    void Parser::err(const char *msg, const char *ts) {
+noret void Parser::err(const char *msg, const char *ts) {
   // Line number
   w line = 1;
   for (auto s = textStart; s != ts; ++s)
@@ -122,9 +119,4 @@ __declspec(noreturn)
   exit(1);
 }
 
-#ifdef _MSC_VER
-__declspec(noreturn)
-#endif
-    void Parser::err(const char *msg) {
-  err(msg, tokStart);
-}
+noret void Parser::err(const char *msg) { err(msg, tokStart); }

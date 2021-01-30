@@ -1,3 +1,9 @@
+#ifdef _MSC_VER
+#define noret __declspec(noreturn)
+#else
+#define noret
+#endif
+
 typedef size_t w;
 
 inline void fpr(FILE *F, char c) { fputc(c, F); }

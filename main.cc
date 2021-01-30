@@ -244,6 +244,8 @@ int main(int argc, const char **argv) {
       readDimacs(file);
     case tptp:
       readTptp(file);
+    default:
+      unreachable;
     }
 #ifdef DEBUG
 #ifdef _WIN32

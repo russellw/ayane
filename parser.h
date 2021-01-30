@@ -11,15 +11,8 @@ struct Parser {
   Parser(const char *file);
   ~Parser();
 
-#ifdef _MSC_VER
-  __declspec(noreturn)
-#endif
-      void err(const char *msg, const char *ts);
-
-#ifdef _MSC_VER
-  __declspec(noreturn)
-#endif
-      void err(const char *msg);
+  noret void err(const char *msg, const char *ts);
+  noret void err(const char *msg);
 };
 
 // SZS status codes

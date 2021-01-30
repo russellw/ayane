@@ -36,6 +36,12 @@ struct Select : std::unordered_set<sym *> {
   }
 };
 
+void strmemcpy(char *dest, const char *src, const char *end) {
+  auto n = end - src;
+  memcpy(dest, src, n);
+  dest[n] = 0;
+}
+
 struct TptpParser : Parser {
   Select select;
   bool cnfMode;
@@ -92,13 +98,13 @@ struct TptpParser : Parser {
   }
 
   void num() {
-    if (*text == '+')
-      tokStart = text;
     sign();
-    if (!isDigit(*text)) {
-      tokStart = text;
-      err("Expected digit");
-    }
+    // GMP doesn't handle unary +, so need to omit it from token
+    if (*tokStart == '+')
+      ++tokStart;
+    // Sign without digits should give a clear error message
+    if (!isDigit(*text))
+      err("Expected digit", text);
     tok = o_int;
     digits();
     switch (*text) {
@@ -124,6 +130,8 @@ struct TptpParser : Parser {
       digits();
       break;
     }
+    if (text - tokStart > sizeof buf - 1)
+      err("Number too long");
   }
 
   void lex() {
@@ -396,6 +404,113 @@ struct TptpParser : Parser {
 
   // Terms
 
+  w parseInt() {
+    strmemcpy(buf, tokStart, text);
+    Int x;
+    if (mpz_init_set_str(x.val, buf, 10))
+      err("Invalid number");
+    lex();
+    return int1(&x);
+  }
+
+  w parseRat() {
+    strmemcpy(buf, tokStart, text);
+    Rat x;
+    mpq_init(x.val);
+    if (mpq_set_str(x.val, buf, 10))
+      err("Invalid number");
+    mpq_canonicalize(x.val);
+    lex();
+    return rat(&x);
+  }
+
+  w parseReal() {
+    auto p = tokStart;
+
+    // Sign
+    auto sign = false;
+    if (*p == '-') {
+      ++p;
+      sign = true;
+    }
+
+    // Integer part
+    auto q = p;
+    while (isDigit(*q))
+      ++q;
+    strmemcpy(buf, p, q);
+    mpz_t integer;
+    mpz_init_set_str(integer, buf, 10);
+    p = q;
+
+    // Decimal part
+    mpz_t mantissa;
+    mpz_init(mantissa);
+    w scale = 0;
+    if (*p == '.') {
+      ++p;
+      q = p;
+      while (isDigit(*q))
+        ++q;
+      strmemcpy(buf, p, q);
+      mpz_set_str(mantissa, buf, 10);
+      scale = q - p;
+      p = q;
+    }
+    mpz_t powScale;
+    mpz_init(powScale);
+    mpz_ui_pow_ui(powScale, 10, scale);
+
+    // Mantissa += integer * 10^scale
+    mpz_addmul(mantissa, integer, powScale);
+
+    // Sign
+    if (sign)
+      mpz_neg(mantissa, mantissa);
+
+    // Result = scaled mantissa
+    Rat x;
+    mpq_init(x.val);
+    mpq_set_num(x.val, mantissa);
+    mpq_set_den(x.val, powScale);
+
+    // Exponent
+    auto exponentSign = false;
+    w exponent = 0;
+    if (*p == 'e' || *p == 'E') {
+      ++p;
+      switch (*p) {
+      case '-':
+        exponentSign = true;
+      case '+':
+        ++p;
+        break;
+      }
+      errno = 0;
+      exponent = strtoul(p, 0, 10);
+      if (errno)
+        err(strerror(errno));
+    }
+    mpz_t powExponent;
+    mpz_init(powExponent);
+    mpz_ui_pow_ui(powExponent, 10, exponent);
+    if (exponentSign)
+      mpz_mul(mpq_denref(x.val), mpq_denref(x.val), powExponent);
+    else
+      mpz_mul(mpq_numref(x.val), mpq_numref(x.val), powExponent);
+
+    // Cleanup
+    mpz_clear(integer);
+    mpz_clear(mantissa);
+    mpz_clear(powScale);
+    mpz_clear(powExponent);
+
+    // Result
+    lex();
+    mpq_canonicalize(x.val);
+    return real(&x);
+  }
+
   void args(vec<w> &v) {
     expect('(');
     do
@@ -421,34 +536,12 @@ struct TptpParser : Parser {
 
   w atomicTerm() {
     switch (tok) {
-    case o_int: {
-      auto n = text - tokStart;
-      if (n + 1 > sizeof buf)
-        err("Number too long");
-      memcpy(buf, tokStart, n);
-      buf[n] = 0;
-      Int x;
-      if (mpz_init_set_str(x.val, buf, 10))
-        err("Invalid number");
-      auto a = int1(&x);
-      lex();
-      return a;
-    }
-    case o_rat: {
-      auto n = text - tokStart;
-      if (n + 1 > sizeof buf)
-        err("Number too long");
-      memcpy(buf, tokStart, n);
-      buf[n] = 0;
-      Rat x;
-      mpq_init(x.val);
-      if (mpq_set_str(x.val, buf, 10))
-        err("Invalid number");
-      mpq_canonicalize(x.val);
-      auto a = rat(&x);
-      lex();
-      return a;
-    }
+    case o_real:
+      return parseReal();
+    case o_int:
+      return parseInt();
+    case o_rat:
+      return parseRat();
     case o_distinctObj: {
       auto a = tag(tokSym, a_distinctObj);
       lex();
@@ -786,8 +879,8 @@ struct TptpParser : Parser {
           expect('(');
 
           // File
-          auto S = name();
           auto n = strlen(tptp);
+          auto S = name();
           vec<char> file1;
           file1.resize(n + S->n + 2);
           memcpy(file1.p, tptp, n);

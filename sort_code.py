@@ -12,33 +12,73 @@ parser.add_argument("files", nargs="+")
 args = parser.parse_args()
 
 
-def read_lines(filename):
-    with open(filename) as f:
-        return [s.rstrip("\n") for s in f]
+def err(i, s):
+    raise ValueError(f"{filename}:{i}: {s}")
 
 
-def write_lines(filename, lines):
-    with open(filename, "w") as f:
-        for s in lines:
-            f.write(s + "\n")
-
-
-def flatten(xss):
+def flatten(chunks):
     r = []
-    for xs in xss:
-        for x in xs:
-            r.append(x)
+    for chunk in chunks:
+        r.extend(chunk)
     return r
 
 
-def terminated(i, indent):
-    if re.match(indent + "}", lines[i]):
-        return True
-    if re.match(indent + "}", lines[i - 1]):
+def getIndent(i):
+    s = text[i]
+    j = 0
+    while j < len(s) and s[j] == " ":
+        j += 1
+    if j == len(s):
+        return 1000
+    if s[j] == "\t":
+        err(i, "tab detected")
+    return j
+
+
+def sortSpans(spans):
+    chunks = []
+    for i, j in spans:
+        chunks.append(text[i:j])
+    chunks.sort()
+    i = spans[0][0]
+    j = spans[-1][1]
+    text[i:j] = flatten(chunks)
+
+
+# Switches
+
+
+def caseBlockSpan(i):
+    indent = getIndent(i)
+    if not re.match(r"\s*(case .*|default):", text[i]):
+        err(i, "bad case")
+    while getIndent(i) == indent:
+        i += 1
+    if text[i - 1].endswith("{"):
+        # Braced case block
+        while getIndent(i) > indent:
+            i += 1
+        if getIndent(i) != indent:
+            err(i, "bad indent")
+        if not text[i].endswith("}"):
+            err("bad braces")
+        i += 1
+        if getIndent(i) != indent:
+            err(i, "bad indent")
+    else:
+        # Unbraced case block
+        while getIndent(i) > indent:
+            i += 1
+        if getIndent(i) != indent:
+            err(i, "bad indent")
+    return i
+
+
+def caseBlockTerminated(i):
+    i -= 1
+    if text[i].endswith("}"):
         i -= 1
-    while re.match(r"\s*$", lines[i - 1]) or re.match(r"\s*//", lines[i - 1]):
-        i -= 1
-    m = re.match(r"\s*(\w+)", lines[i - 1])
+    m = re.match(r"\s*(\w+)", text[i])
     if m:
         return m[1] in (
             "break",
@@ -52,78 +92,70 @@ def terminated(i, indent):
         )
 
 
-def case(i, indent):
+def caseBlockFallthruSpan(i):
     while True:
-        while re.match(r"\s*$", lines[i]) or re.match(r"\s*//", lines[i]):
-            i += 1
-        if not re.match(indent + "(case .*|default):", lines[i]):
-            raise ValueError(filename + ":" + str(i) + ": case not found")
-        while re.match(indent + "(case .*|default):$", lines[i]):
-            i += 1
-        if re.match(indent + "(case .*|default): {", lines[i]):
-            while not re.match(indent + "}", lines[i]):
-                i += 1
-            i += 1
-        else:
-            while not re.match(indent + "(case .*|default)", lines[i]) and not re.match(
-                indent + "}", lines[i]
-            ):
-                i += 1
-        if terminated(i, indent):
+        i = caseBlockSpan(i)
+        if caseBlockTerminated(i):
             return i
 
 
-def cases(i, indent):
-    r = []
-    while not re.match(indent + "}", lines[i]):
-        j = case(i, indent)
-        r.append(lines[i:j])
+def caseBlockFallthruSpans(i):
+    spans = []
+    while re.match(r"\s*(case .*|default):", text[i]):
+        j = caseBlockFallthruSpan(i)
+        spans.append((i, j))
         i = j
-    return i, r
+    if not text[i].endswith("}"):
+        err("bad braces")
+    i += 1
+    return spans, i
 
 
-def sort_case(c):
+def sortSwitches():
     i = 0
-    while re.match(r"\s*(case .*|default):$", c[i]):
-        i += 1
-    brace = re.match(r"\s*(case .*|default): {", c[i])
-    if brace:
-        c[i] = c[i][:-2]
-        i += 1
-    c[:i] = sorted(c[:i])
-    if brace:
-        c[i - 1] += " {"
-
-
-def sort_switch1(i, indent):
-    j, cs = cases(i, indent)
-    for c in cs:
-        sort_case(c)
-    cs = sorted(cs)
-    lines[i:j] = flatten(cs)
-
-
-def sort_switch():
-    for i in range(len(lines)):
-        m = re.match(r"(\s*)switch (.*) {", lines[i])
-        if not m:
+    while i < len(text):
+        if re.match(r"\s*switch \(.*\) {", text[i]):
+            i += 1
+            spans, i = caseBlockFallthruSpans(i)
+            sortSpans(spans)
             continue
-        indent = m[1]
-        sort_switch1(i + 1, indent)
+        i += 1
 
 
 # Top level
 
 
 def sort_file():
-    global lines
-    lines = read_lines(filename)
-    old = lines.copy()
-    sort_switch()
-    if lines == old:
+    global text
+
+    # Skip files that are not C++ source files
+    # The omission of other common extensions is intentional
+    # This program should be carefully evaluated for required modification
+    # before being reused in other projects
+    if os.path.splitext(filename)[1] not in (".cc", ".h"):
         return
+
+    with open(filename) as f:
+        text = [s.rstrip("\n") for s in f]
+    old = text.copy()
+
+    sortSwitches()
+
+    # Don't write unchanged files
+    if text == old:
+        return
+
+    # Report which files we actually sorted
     print(filename)
-    write_lines(filename, lines)
+
+    # Final sanity check
+    # The only job of this program is sorting
+    # So the output should be a permutation of the input
+    assert text.sorted() == old.sorted()
+
+    with open(filename, "w") as f:
+        for s in text:
+            f.write(s + "\n")
 
 
 for arg in args.files:
@@ -133,8 +165,5 @@ for arg in args.files:
         continue
     for root, dirs, files in os.walk(arg):
         for filename in files:
-            ext = os.path.splitext(filename)[1]
-            if ext not in (".c", ".cc", ".cpp", ".h"):
-                continue
             filename = os.path.join(root, filename)
             sort_file()

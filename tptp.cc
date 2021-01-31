@@ -825,7 +825,7 @@ struct TptpParser : Parser {
 
           // Type
           if (role == k_type) {
-            auto parens = 0;
+            w parens = 0;
             while (eat('('))
               ++parens;
             auto S = name();
@@ -843,7 +843,7 @@ struct TptpParser : Parser {
               } else
                 S->ft = t;
             }
-            while (parens-- > 0)
+            while (parens--)
               expect(')');
             break;
           }

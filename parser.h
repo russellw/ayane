@@ -25,7 +25,7 @@ enum {
 
 extern const char *szs[];
 
-inline bool isDigit(char c) { return '0' <= c && c <= '9'; }
+inline bool isdigit1(char c) { return '0' <= c && c <= '9'; }
 
 // metadata
 extern bool conjecture;

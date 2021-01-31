@@ -2,8 +2,8 @@
 
 namespace {
 enum {
-  o_distinctObj = 1,
-  o_dollarWord,
+  o_distinctobj = 1,
+  o_dollarword,
   o_eqv,
   o_imp,
   o_impr,
@@ -18,7 +18,7 @@ enum {
   o_xor,
 };
 
-char isWord[0x100];
+char isword[0x100];
 #ifdef DEBUG
 int header;
 #endif
@@ -26,7 +26,6 @@ int header;
 struct Select : std::unordered_set<sym *> {
   bool all;
 
-  Select(const Select &x) : std::unordered_set<sym *>(x), all(x.all) {}
   explicit Select(bool all) : all(all) {}
 
   w count(sym *S) const {
@@ -48,10 +47,9 @@ struct TptpParser : Parser {
   vec<std::pair<sym *, w>> vars;
 
   // Tokenizer
-
   void word() {
     auto s = text;
-    while (isWord[*s])
+    while (isword[*s])
       ++s;
     tokSym = intern(text, s - text);
     text = s;
@@ -85,7 +83,7 @@ struct TptpParser : Parser {
 
   void digits() {
     auto s = text;
-    while (isDigit(*s))
+    while (isdigit1(*s))
       ++s;
     text = s;
   }
@@ -103,7 +101,7 @@ struct TptpParser : Parser {
     if (*tokStart == '+')
       ++tokStart;
     // Sign without digits should give a clear error message
-    if (!isDigit(*text))
+    if (!isdigit1(*text))
       err("Expected digit", text);
     tok = o_int;
     digits();
@@ -186,7 +184,7 @@ struct TptpParser : Parser {
       goto loop;
     case '$':
       text = s + 1;
-      tok = o_dollarWord;
+      tok = o_dollarword;
       word();
       return;
     case 'a':
@@ -266,7 +264,7 @@ struct TptpParser : Parser {
       num();
       return;
     case '"':
-      tok = o_distinctObj;
+      tok = o_distinctobj;
       quote();
       return;
     case '!':
@@ -349,7 +347,6 @@ struct TptpParser : Parser {
   }
 
   // Types
-
   ty atomicType() {
     auto k = tok;
     auto S = tokSym;
@@ -364,7 +361,7 @@ struct TptpParser : Parser {
     case '!':
     case '[':
       throw Inappropriate();
-    case o_dollarWord:
+    case o_dollarword:
       switch (keyword(S)) {
       case k_o:
         return t_bool;
@@ -403,7 +400,6 @@ struct TptpParser : Parser {
   }
 
   // Terms
-
   w parseInt() {
     strmemcpy(buf, tokStart, text);
     Int x;
@@ -436,7 +432,7 @@ struct TptpParser : Parser {
 
     // Integer part
     auto q = p;
-    while (isDigit(*q))
+    while (isdigit1(*q))
       ++q;
     strmemcpy(buf, p, q);
     mpz_t integer;
@@ -450,7 +446,7 @@ struct TptpParser : Parser {
     if (*p == '.') {
       ++p;
       q = p;
-      while (isDigit(*q))
+      while (isdigit1(*q))
         ++q;
       strmemcpy(buf, p, q);
       mpz_set_str(mantissa, buf, 10);
@@ -542,20 +538,17 @@ struct TptpParser : Parser {
       return parseInt();
     case o_rat:
       return parseRat();
-    case o_distinctObj: {
-      auto a = tag(tokSym, a_distinctObj);
+    case o_distinctobj: {
+      auto a = tag(tokSym, a_distinctobj);
       lex();
       return a;
     }
     case o_word: {
-      auto S = tokSym;
-      auto f = S->f;
-      if (!f)
-        S->f = f = fn(0, S);
+      auto a = tag(tokSym, a_sym);
       lex();
       if (tok != '(')
-        return f;
-      vec<w> v(f);
+        return a;
+      vec<w> v(a);
       args(v);
       return term(v);
     }
@@ -572,7 +565,7 @@ struct TptpParser : Parser {
       vars.push(std::make_pair(S, x));
       return x;
     }
-    case o_dollarWord: {
+    case o_dollarword: {
       auto S = tokSym;
       auto ts = tokStart;
       lex();
@@ -741,7 +734,6 @@ struct TptpParser : Parser {
   }
 
   // Top level
-
   sym *name() {
     switch (tok) {
     case o_word: {
@@ -836,7 +828,7 @@ struct TptpParser : Parser {
             auto parens = 0;
             while (eat('('))
               ++parens;
-            auto funcName = name();
+            auto S = name();
             expect(':');
             ts = tokStart;
             if (tok == o_word && tokSym == keywords + k_tType) {
@@ -845,11 +837,11 @@ struct TptpParser : Parser {
                 throw Inappropriate();
             } else {
               auto t = topLevelType();
-              if (funcName->f) {
-                if (t != typeof(funcName->f))
+              if (S->ft) {
+                if (t != typeof(S->ft))
                   err("Type mismatch", ts);
               } else
-                funcName->f = fn(t, funcName);
+                S->ft = t;
             }
             while (parens-- > 0)
               expect(')');
@@ -922,10 +914,10 @@ struct TptpParser : Parser {
 } // namespace
 
 void readTptp(const char *file) {
-  memset(isWord + '0', 1, 10);
-  memset(isWord + 'A', 1, 26);
-  isWord['_'] = 1;
-  memset(isWord + 'a', 1, 26);
+  memset(isword + '0', 1, 10);
+  memset(isword + 'A', 1, 26);
+  isword['_'] = 1;
+  memset(isword + 'a', 1, 26);
   conjecture = 0;
 #ifdef DEBUG
   header = 2;

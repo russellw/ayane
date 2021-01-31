@@ -10,26 +10,6 @@ w int1(Int *x) { return tag(ints.put(x), a_int); }
 w rat(Rat *x) { return tag(rats.put(x), a_rat); }
 w real(Rat *x) { return tag(rats.put(x), a_real); }
 
-namespace {
-Fn *mkfn(ty t) {
-  auto r = (Fn *)xmalloc(sizeof(Fn));
-  r->name = 0;
-  r->t = t;
-  return r;
-}
-} // namespace
-
-w fn(ty t) { return tag(mkfn(t), a_fn); }
-
-w fn(ty t, sym *name) {
-  auto a = name->f;
-  if (a)
-    return a;
-  auto r = mkfn(t);
-  r->name = name;
-  return name->f = tag(r, a_fn);
-}
-
 w term(const vec<w> &v) { return compounds.put(v.p, v.n); }
 
 w term(w op, w a) {

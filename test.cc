@@ -7,6 +7,13 @@ ty type(ty r, ty t1, ty t2) {
   return type(v);
 }
 
+w fn(ty t, sym *S) {
+  if (!S->ft)
+    S->ft = t;
+  assert(S->ft == t);
+  return tag(S, a_sym);
+}
+
 bool match0(w a, w b) {
   unified.n = 0;
   return match(a, b);
@@ -149,26 +156,21 @@ void test_term() {
 }
 
 void test_fn() {
-  auto blank = fn(t_bool);
-  auto blankp = fnp(blank);
-  assert(blankp->t == t_bool);
-
   auto red = fn(t_bool, intern("red"));
-  auto redp = fnp(red);
-  assert(redp->t == t_bool);
+  auto redp = symp(red);
+  assert(redp->ft == t_bool);
 
   auto green = fn(t_bool, intern("green"));
-  auto greenp = fnp(green);
-  assert(greenp->t == t_bool);
+  auto greenp = symp(green);
+  assert(greenp->ft == t_bool);
 
   auto blue = fn(t_bool, intern("blue"));
-  auto bluep = fnp(blue);
-  assert(bluep->t == t_bool);
+  auto bluep = symp(blue);
+  assert(bluep->ft == t_bool);
 
-  assert(!blankp->name);
-  assert(redp->name == intern("red"));
-  assert(greenp->name == intern("green"));
-  assert(bluep->name == intern("blue"));
+  assert(redp == intern("red"));
+  assert(greenp == intern("green"));
+  assert(bluep == intern("blue"));
 }
 
 void test_var() {

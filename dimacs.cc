@@ -32,7 +32,7 @@ struct DimacsParser : Parser {
       goto loop;
     }
     case '0':
-      if (!isDigit(s[1])) {
+      if (!isdigit1(s[1])) {
         text = s + 1;
         tok = o_zero;
         return;
@@ -48,7 +48,7 @@ struct DimacsParser : Parser {
     case '9':
       do
         ++s;
-      while (isDigit(*s));
+      while (isdigit1(*s));
       text = s;
       tokSym = intern(tokStart, s - tokStart);
       tok = o_num;
@@ -62,10 +62,13 @@ struct DimacsParser : Parser {
   }
 
   // Terms
-  w num() {
-    auto a = fn(t_bool, tokSym);
+  w fn() {
+    auto S = tokSym;
     lex();
-    return a;
+    if (!S->ft)
+      S->ft = t_bool;
+    assert(S->ft == t_bool);
+    return tag(S, a_sym);
   }
 
   // Top level
@@ -92,10 +95,10 @@ struct DimacsParser : Parser {
       for (;;)
         switch (tok) {
         case '-':
-          neg.push(num());
+          neg.push(fn());
           break;
         case o_num:
-          pos.push(num());
+          pos.push(fn());
           break;
         case o_zero:
           clause();

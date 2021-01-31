@@ -1,8 +1,8 @@
 enum {
   a_compound,
 
-  a_distinctObj,
-  a_fn,
+  a_distinctobj,
+  a_sym,
   a_int,
   a_rat,
   a_real,
@@ -89,11 +89,6 @@ struct Compound {
   static w process(Compound *x) { return tag(x, a_compound); }
 };
 
-struct Fn {
-  ty t;
-  sym *name;
-};
-
 inline Int *intp(w a) {
   assert((a & 7) == a_int);
   return (Int *)(a & ~(w)7);
@@ -111,12 +106,9 @@ w real(Rat *x);
 Int *intp(w a);
 Rat *ratp(w a);
 
-w fn(ty t);
-w fn(ty t, sym *name);
-
-inline Fn *fnp(w a) {
-  assert((a & 7) == a_fn);
-  return (Fn *)(a & ~(w)7);
+inline sym *symp(w a) {
+  assert((a & 7) == a_sym);
+  return (sym *)(a & ~(w)7);
 }
 
 inline Compound *compoundp(w a) {

@@ -58,7 +58,16 @@ def terminated(i, indent):
         i -= 1
     m = re.match(r"\s*(\w+)", lines[i - 1])
     if m:
-        return m[1] in ("break", "continue", "err", "exit", "goto", "return", "throw")
+        return m[1] in (
+            "break",
+            "continue",
+            "err",
+            "exit",
+            "goto",
+            "return",
+            "throw",
+            "unreachable",
+        )
 
 
 def case(i, indent):

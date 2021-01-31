@@ -70,7 +70,7 @@ const char *opt(int argc, const char **argv, int &i) {
   auto r = strpbrk(s, "=:");
   if (r)
     return r + 1;
-  if (*s == '-' && isDigit(s[2]))
+  if (*s == '-' && isdigit1(s[2]))
     return s + 2;
   if (++i == argc) {
     fprintf(stderr, "%s: Expected arg\n", s);
@@ -242,8 +242,10 @@ int main(int argc, const char **argv) {
     switch (getLanguage(file)) {
     case dimacs:
       readDimacs(file);
+      break;
     case tptp:
       readTptp(file);
+      break;
     default:
       unreachable;
     }

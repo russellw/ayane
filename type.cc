@@ -87,8 +87,8 @@ ty typeof(w a) {
   switch (a & 7) {
   case a_compound: {
     auto op = at(a, 0);
-    if ((op & 7) == a_fn) {
-      auto t = fnp(op)->t;
+    if ((op & 7) == a_sym) {
+      auto t = symp(op)->ft;
       assert(istcompound(t));
       auto t1 = tcompoundp(t);
       assert(size(a) == t1->n);
@@ -104,8 +104,8 @@ ty typeof(w a) {
     return t_rat;
   case a_real:
     return t_real;
-  case a_fn:
-    return fnp(a)->t;
+  case a_sym:
+    return symp(a)->ft;
   }
   unreachable;
   return 0;

@@ -1,13 +1,13 @@
-# sort elements of C/C++ code
-# assumes clang-format already run
-# does not work for all possible programs!
-# test carefully before reusing in other projects
+# Sort elements of C++ code
+# Assumes clang-format already run
+# Does not work for all possible programs!
+# Test carefully before reusing in other projects
 
 import argparse
 import os
 import re
 
-parser = argparse.ArgumentParser(description="sort elements of C/C++ code")
+parser = argparse.ArgumentParser(description="Sort elements of C++ code")
 parser.add_argument("files", nargs="+")
 args = parser.parse_args()
 
@@ -110,6 +110,9 @@ def sort_switch():
             continue
         indent = m[1]
         sort_switch1(i + 1, indent)
+
+
+# Top level
 
 
 def sort_file():

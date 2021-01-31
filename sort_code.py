@@ -157,10 +157,44 @@ def sortSwitches():
         i += 1
 
 
+# Marked blocks
+
+
+def blockSpan(i):
+    indent = getIndent(i)
+    i += 1
+    while getIndent(i) > indent:
+        i += 1
+    if getIndent(i) != indent:
+        err(i, "bad indent")
+    return i
+
+
+def blockSpans(i):
+    spans = []
+    while not re.match(r"\s*// END", text[i]):
+        j = blockSpan(i)
+        spans.append((i, j))
+        i = j
+    i += 1
+    return spans, i
+
+
+def sortMarked():
+    i = 0
+    while i < len(text):
+        if re.match(r"\s*// SORT$", text[i]):
+            i += 1
+            spans, i = blockSpans(i)
+            sortSpans(spans)
+            continue
+        i += 1
+
+
 # Top level
 
 
-def sort_file():
+def sortFile():
     global text
 
     # Skip files that are not C++ source files
@@ -176,6 +210,7 @@ def sort_file():
 
     sortCases()
     sortSwitches()
+    sortMarked()
 
     # Don't write unchanged files
     if text == old:
@@ -197,9 +232,9 @@ def sort_file():
 for arg in args.files:
     if os.path.isfile(arg):
         filename = arg
-        sort_file()
+        sortFile()
         continue
     for root, dirs, files in os.walk(arg):
         for filename in files:
             filename = os.path.join(root, filename)
-            sort_file()
+            sortFile()

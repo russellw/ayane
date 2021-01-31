@@ -20,17 +20,6 @@ struct DimacsParser : Parser {
     case '\v':
       text = s + 1;
       goto loop;
-    case 'c': {
-      text = strchr(s, '\n');
-#ifdef DEBUG
-      std::string line(s, text);
-      std::smatch m;
-      if (!status &&
-          std::regex_match(line, m, std::regex(R"(c .* (SAT|UNSAT) .*)")))
-        status = m[1] == "SAT" ? Satisfiable : Unsatisfiable;
-#endif
-      goto loop;
-    }
     case '0':
       if (!isdigit1(s[1])) {
         text = s + 1;
@@ -53,6 +42,17 @@ struct DimacsParser : Parser {
       tokSym = intern(tokStart, s - tokStart);
       tok = o_num;
       return;
+    case 'c': {
+      text = strchr(s, '\n');
+#ifdef DEBUG
+      std::string line(s, text);
+      std::smatch m;
+      if (!status &&
+          std::regex_match(line, m, std::regex(R"(c .* (SAT|UNSAT) .*)")))
+        status = m[1] == "SAT" ? Satisfiable : Unsatisfiable;
+#endif
+      goto loop;
+    }
     case 0:
       tok = 0;
       return;
@@ -97,6 +97,10 @@ struct DimacsParser : Parser {
         case '-':
           neg.push(fn());
           break;
+        case 0:
+          if (neg.n | pos.n)
+            clause();
+          return;
         case o_num:
           pos.push(fn());
           break;
@@ -104,10 +108,6 @@ struct DimacsParser : Parser {
           clause();
           lex();
           break;
-        case 0:
-          if (neg.n | pos.n)
-            clause();
-          return;
         default:
           throw "Syntax error";
         }

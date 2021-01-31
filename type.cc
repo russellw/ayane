@@ -96,8 +96,6 @@ ty typeof(w a) {
     }
     unreachable;
   }
-  case a_var:
-    return a >> 3 & (1 << 8 * sizeof(ty)) - 1;
   case a_int:
     return t_int;
   case a_rat:
@@ -106,6 +104,8 @@ ty typeof(w a) {
     return t_real;
   case a_sym:
     return symp(a)->ft;
+  case a_var:
+    return a >> 3 & (1 << 8 * sizeof(ty)) - 1;
   }
   unreachable;
   return 0;

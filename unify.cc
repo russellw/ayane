@@ -46,13 +46,6 @@ namespace {
 bool occurs(w a, w b) {
   assert((a & 7) == a_var);
   switch (b & 7) {
-  case a_var:
-    if (a == b)
-      return true;
-    for (auto p : unified)
-      if (p.first == b)
-        return occurs(a, p.second);
-    break;
   case a_compound: {
     auto n = size(b);
     for (w i = 0; i != n; ++i)
@@ -60,6 +53,13 @@ bool occurs(w a, w b) {
         return true;
     break;
   }
+  case a_var:
+    if (a == b)
+      return true;
+    for (auto p : unified)
+      if (p.first == b)
+        return occurs(a, p.second);
+    break;
   }
   return false;
 }
@@ -121,11 +121,6 @@ bool unify(w a, w b) {
 
 w replace(w a) {
   switch (a & 7) {
-  case a_var:
-    for (auto p : unified)
-      if (p.first == a)
-        return replace(p.second);
-    break;
   case a_compound: {
     auto n = size(a);
     vec<w> v;
@@ -134,6 +129,11 @@ w replace(w a) {
       v[i] = replace(at(a, i));
     return term(v);
   }
+  case a_var:
+    for (auto p : unified)
+      if (p.first == a)
+        return replace(p.second);
+    break;
   }
   return a;
 }

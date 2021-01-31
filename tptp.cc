@@ -106,11 +106,6 @@ struct TptpParser : Parser {
     tok = o_int;
     digits();
     switch (*text) {
-    case 'E':
-    case 'e':
-      tok = o_real;
-      exp();
-      break;
     case '.':
       tok = o_real;
       ++text;
@@ -126,6 +121,11 @@ struct TptpParser : Parser {
       tok = o_rat;
       ++text;
       digits();
+      break;
+    case 'E':
+    case 'e':
+      tok = o_real;
+      exp();
       break;
     }
     if (text - tokStart > sizeof buf - 1)
@@ -144,6 +144,23 @@ struct TptpParser : Parser {
     case '\v':
       text = s + 1;
       goto loop;
+    case '!':
+      switch (s[1]) {
+      case '=':
+        text = s + 2;
+        tok = o_ne;
+        return;
+      }
+      break;
+    case '"':
+      tok = o_distinctobj;
+      quote();
+      return;
+    case '$':
+      text = s + 1;
+      tok = o_dollarword;
+      word();
+      return;
     case '%': {
       text = strchr(s, '\n');
 #ifdef DEBUG
@@ -172,6 +189,20 @@ struct TptpParser : Parser {
 #endif
       goto loop;
     }
+    case '+':
+    case '-':
+    case '0':
+    case '1':
+    case '2':
+    case '3':
+    case '4':
+    case '5':
+    case '6':
+    case '7':
+    case '8':
+    case '9':
+      num();
+      return;
     case '/':
       if (s[1] != '*') {
         text = s + 1;
@@ -182,10 +213,67 @@ struct TptpParser : Parser {
           err("Unclosed comment");
       text = s + 2;
       goto loop;
-    case '$':
-      text = s + 1;
-      tok = o_dollarword;
+    case '<':
+      switch (s[1]) {
+      case '=':
+        if (s[2] == '>') {
+          text = s + 3;
+          tok = o_eqv;
+          return;
+        }
+        text = s + 2;
+        tok = o_impr;
+        return;
+      case '~':
+        if (s[2] == '>') {
+          text = s + 3;
+          tok = o_xor;
+          return;
+        }
+        tokStart = s + 2;
+        err("Expected '>'");
+      }
+      break;
+    case '=':
+      switch (s[1]) {
+      case '>':
+        text = s + 2;
+        tok = o_imp;
+        return;
+      }
+      break;
+    case 'A':
+    case 'B':
+    case 'C':
+    case 'D':
+    case 'E':
+    case 'F':
+    case 'G':
+    case 'H':
+    case 'I':
+    case 'J':
+    case 'K':
+    case 'L':
+    case 'M':
+    case 'N':
+    case 'O':
+    case 'P':
+    case 'Q':
+    case 'R':
+    case 'S':
+    case 'T':
+    case 'U':
+    case 'V':
+    case 'W':
+    case 'X':
+    case 'Y':
+    case 'Z':
+      tok = o_var;
       word();
+      return;
+    case '\'':
+      tok = o_word;
+      quote();
       return;
     case 'a':
     case 'b':
@@ -216,94 +304,6 @@ struct TptpParser : Parser {
       tok = o_word;
       word();
       return;
-    case '\'':
-      tok = o_word;
-      quote();
-      return;
-    case 'A':
-    case 'B':
-    case 'C':
-    case 'D':
-    case 'E':
-    case 'F':
-    case 'G':
-    case 'H':
-    case 'I':
-    case 'J':
-    case 'K':
-    case 'L':
-    case 'M':
-    case 'N':
-    case 'O':
-    case 'P':
-    case 'Q':
-    case 'R':
-    case 'S':
-    case 'T':
-    case 'U':
-    case 'V':
-    case 'W':
-    case 'X':
-    case 'Y':
-    case 'Z':
-      tok = o_var;
-      word();
-      return;
-    case '0':
-    case '1':
-    case '2':
-    case '3':
-    case '4':
-    case '5':
-    case '6':
-    case '7':
-    case '8':
-    case '9':
-    case '+':
-    case '-':
-      num();
-      return;
-    case '"':
-      tok = o_distinctobj;
-      quote();
-      return;
-    case '!':
-      switch (s[1]) {
-      case '=':
-        text = s + 2;
-        tok = o_ne;
-        return;
-      }
-      break;
-    case '=':
-      switch (s[1]) {
-      case '>':
-        text = s + 2;
-        tok = o_imp;
-        return;
-      }
-      break;
-    case '<':
-      switch (s[1]) {
-      case '=':
-        if (s[2] == '>') {
-          text = s + 3;
-          tok = o_eqv;
-          return;
-        }
-        text = s + 2;
-        tok = o_impr;
-        return;
-      case '~':
-        if (s[2] == '>') {
-          text = s + 3;
-          tok = o_xor;
-          return;
-        }
-        tokStart = s + 2;
-        err("Expected '>'");
-      }
-      break;
     case '~':
       switch (s[1]) {
       case '&':
@@ -353,26 +353,26 @@ struct TptpParser : Parser {
     auto ts = tokStart;
     lex();
     switch (k) {
+    case '!':
+    case '[':
+      throw Inappropriate();
     case '(': {
       auto t = atomicType();
       expect(')');
       return t;
     }
-    case '!':
-    case '[':
-      throw Inappropriate();
     case o_dollarword:
       switch (keyword(S)) {
-      case k_o:
-        return t_bool;
+      case k_i:
+        return t_individual;
       case k_int:
         return t_int;
+      case k_o:
+        return t_bool;
       case k_rat:
         return t_rat;
       case k_real:
         return t_real;
-      case k_i:
-        return t_individual;
       }
       err("Unknown word", ts);
     case o_word:
@@ -532,26 +532,88 @@ struct TptpParser : Parser {
 
   w atomicTerm() {
     switch (tok) {
-    case o_real:
-      return parseReal();
-    case o_int:
-      return parseInt();
-    case o_rat:
-      return parseRat();
     case o_distinctobj: {
       auto a = tag(tokSym, a_distinctobj);
       lex();
       return a;
     }
-    case o_word: {
-      auto a = tag(tokSym, a_sym);
+    case o_dollarword: {
+      auto S = tokSym;
+      auto ts = tokStart;
       lex();
-      if (tok != '(')
-        return a;
-      vec<w> v(a);
-      args(v);
-      return term(v);
+      vec<w> v;
+      switch (keyword(S)) {
+      case k_ceiling:
+        return definedFunctor(basic(b_ceil), 1);
+      case k_difference:
+        return definedFunctor(basic(b_sub), 2);
+      case k_distinct: {
+        args(v);
+        vec<w> clauses(basic(b_and));
+        for (auto i = v.begin(); i != v.end(); ++i)
+          for (auto j = v.begin(); j != i; ++j)
+            clauses.push(term(basic(b_not), term(basic(b_eq), *i, *j)));
+        return term(clauses);
+      }
+      case k_false:
+        return basic(b_false);
+      case k_floor:
+        return definedFunctor(basic(b_floor), 1);
+      case k_greater:
+        args(v, 2);
+        return term(basic(b_lt), v[1], v[0]);
+      case k_greatereq:
+        args(v, 2);
+        return term(basic(b_le), v[1], v[0]);
+      case k_is_int:
+        return definedFunctor(basic(b_isint), 1);
+      case k_is_rat:
+        return definedFunctor(basic(b_israt), 1);
+      case k_less:
+        return definedFunctor(basic(b_lt), 2);
+      case k_lesseq:
+        return definedFunctor(basic(b_le), 2);
+      case k_product:
+        return definedFunctor(basic(b_mul), 2);
+      case k_quotient:
+        return definedFunctor(basic(b_div), 2);
+      case k_quotient_e:
+        return definedFunctor(basic(b_dive), 2);
+      case k_quotient_f:
+        return definedFunctor(basic(b_divf), 2);
+      case k_quotient_t:
+        return definedFunctor(basic(b_divt), 2);
+      case k_remainder_e:
+        return definedFunctor(basic(b_reme), 2);
+      case k_remainder_f:
+        return definedFunctor(basic(b_remf), 2);
+      case k_remainder_t:
+        return definedFunctor(basic(b_remt), 2);
+      case k_round:
+        return definedFunctor(basic(b_round), 1);
+      case k_sum:
+        return definedFunctor(basic(b_add), 2);
+      case k_to_int:
+        return definedFunctor(basic(b_toint), 1);
+      case k_to_rat:
+        return definedFunctor(basic(b_torat), 1);
+      case k_to_real:
+        return definedFunctor(basic(b_toreal), 1);
+      case k_true:
+        return basic(b_true);
+      case k_truncate:
+        return definedFunctor(basic(b_trunc), 1);
+      case k_uminus:
+        return definedFunctor(basic(b_minus), 1);
+      }
+      err("Unknown word", ts);
     }
+    case o_int:
+      return parseInt();
+    case o_rat:
+      return parseRat();
+    case o_real:
+      return parseReal();
     case o_var: {
       auto S = tokSym;
       auto ts = tokStart;
@@ -565,76 +627,14 @@ struct TptpParser : Parser {
       vars.push(std::make_pair(S, x));
       return x;
     }
-    case o_dollarword: {
-      auto S = tokSym;
-      auto ts = tokStart;
+    case o_word: {
+      auto a = tag(tokSym, a_sym);
       lex();
-      vec<w> v;
-      switch (keyword(S)) {
-      case k_false:
-        return basic(b_false);
-      case k_true:
-        return basic(b_true);
-      case k_less:
-        return definedFunctor(basic(b_lt), 2);
-      case k_lesseq:
-        return definedFunctor(basic(b_le), 2);
-      case k_greater:
-        args(v, 2);
-        return term(basic(b_lt), v[1], v[0]);
-      case k_greatereq:
-        args(v, 2);
-        return term(basic(b_le), v[1], v[0]);
-      case k_uminus:
-        return definedFunctor(basic(b_minus), 1);
-      case k_sum:
-        return definedFunctor(basic(b_add), 2);
-      case k_difference:
-        return definedFunctor(basic(b_sub), 2);
-      case k_product:
-        return definedFunctor(basic(b_mul), 2);
-      case k_quotient:
-        return definedFunctor(basic(b_div), 2);
-      case k_quotient_e:
-        return definedFunctor(basic(b_dive), 2);
-      case k_quotient_t:
-        return definedFunctor(basic(b_divt), 2);
-      case k_quotient_f:
-        return definedFunctor(basic(b_divf), 2);
-      case k_remainder_e:
-        return definedFunctor(basic(b_reme), 2);
-      case k_remainder_t:
-        return definedFunctor(basic(b_remt), 2);
-      case k_remainder_f:
-        return definedFunctor(basic(b_remf), 2);
-      case k_floor:
-        return definedFunctor(basic(b_floor), 1);
-      case k_ceiling:
-        return definedFunctor(basic(b_ceil), 1);
-      case k_truncate:
-        return definedFunctor(basic(b_trunc), 1);
-      case k_round:
-        return definedFunctor(basic(b_round), 1);
-      case k_is_int:
-        return definedFunctor(basic(b_isint), 1);
-      case k_is_rat:
-        return definedFunctor(basic(b_israt), 1);
-      case k_to_int:
-        return definedFunctor(basic(b_toint), 1);
-      case k_to_rat:
-        return definedFunctor(basic(b_torat), 1);
-      case k_to_real:
-        return definedFunctor(basic(b_toreal), 1);
-      case k_distinct: {
-        args(v);
-        vec<w> clauses(basic(b_and));
-        for (auto i = v.begin(); i != v.end(); ++i)
-          for (auto j = v.begin(); j != i; ++j)
-            clauses.push(term(basic(b_not), term(basic(b_eq), *i, *j)));
-        return term(clauses);
-      }
-      }
-      err("Unknown word", ts);
+      if (tok != '(')
+        return a;
+      vec<w> v(a);
+      args(v);
+      return term(v);
     }
     }
     err("Syntax error");
@@ -679,19 +679,19 @@ struct TptpParser : Parser {
 
   w unitaryFormula() {
     switch (tok) {
-    case '~':
-      lex();
-      return term(basic(b_not), unitaryFormula());
+    case '!':
+      return quantifiedFormula(basic(b_all));
     case '(': {
       lex();
       auto a = logicFormula();
       expect(')');
       return a;
     }
-    case '!':
-      return quantifiedFormula(basic(b_all));
     case '?':
       return quantifiedFormula(basic(b_exists));
+    case '~':
+      lex();
+      return term(basic(b_not), unitaryFormula());
     }
     return infixUnary();
   }
@@ -736,13 +736,13 @@ struct TptpParser : Parser {
   // Top level
   sym *name() {
     switch (tok) {
-    case o_word: {
-      auto S = tokSym;
+    case o_int: {
+      auto S = intern(tokStart, text - tokStart);
       lex();
       return S;
     }
-    case o_int: {
-      auto S = intern(tokStart, text - tokStart);
+    case o_word: {
+      auto S = tokSym;
       lex();
       return S;
     }
@@ -752,13 +752,13 @@ struct TptpParser : Parser {
 
   void ignore() {
     switch (tok) {
-    case 0:
-      err("Unexpected end of file");
     case '(':
       lex();
       while (!eat(')'))
         ignore();
       return;
+    case 0:
+      err("Unexpected end of file");
     }
     lex();
   }

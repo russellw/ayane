@@ -31,24 +31,6 @@ def flatten(xss):
     return r
 
 
-def sort_enum1(i, j):
-    for s in lines[i:j]:
-        if not re.match(r"\s*\w+,", s):
-            return
-    lines[i:j] = sorted(lines[i:j])
-
-
-def sort_enum():
-    n = len(lines)
-    for i in range(n):
-        m = re.match(r"enum .*{", lines[i])
-        if m:
-            for j in range(i + 1, n):
-                if lines[j] == "};":
-                    sort_enum1(i + 1, j)
-                    break
-
-
 def terminated(i, indent):
     if re.match(indent + "}", lines[i]):
         return True
@@ -133,8 +115,7 @@ def sort_switch():
 def sort_file():
     global lines
     lines = read_lines(filename)
-    old = lines[:]
-    sort_enum()
+    old = lines.copy()
     sort_switch()
     if lines == old:
         return

@@ -1,8 +1,8 @@
 _(None)
 
 // SORT
-_(CounterSatisfiable)
 _(ContradictoryAxioms)
+_(CounterSatisfiable)
 _(Satisfiable)
 _(Theorem)
 _(Unsatisfiable)

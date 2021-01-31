@@ -37,6 +37,10 @@ def getIndent(i):
     return j
 
 
+def sortSpan(i, j):
+    text[i:j] = sorted(text[i:j])
+
+
 def sortSpans(spans):
     chunks = []
     for i, j in spans:
@@ -45,6 +49,35 @@ def sortSpans(spans):
     i = spans[0][0]
     j = spans[-1][1]
     text[i:j] = flatten(chunks)
+
+
+# Cases
+
+
+def casesSpan(i):
+    while re.match(r"\s*case .*:", text[i]):
+        i += 1
+    return i
+
+
+def sortCases():
+    # Sort the order of cases within case blocks
+    # This should be done before sorting the order of case blocks within switch statements
+    i = 0
+    while i < len(text):
+        if re.match(r"\s*case .*:", text[i]):
+            j = casesSpan(i)
+            # The tricky bit is that the last case might end with {
+            # which needs to be moved to the new last case
+            if text[j - 1].endswith(" {"):
+                text[j - 1] = text[j - 1][:-2]
+                sortSpan(i, j)
+                text[j - 1] += " {"
+            else:
+                sortSpan(i, j)
+            i = j
+            continue
+        i += 1
 
 
 # Switches
@@ -141,6 +174,7 @@ def sort_file():
         text = [s.rstrip("\n") for s in f]
     old = text.copy()
 
+    sortCases()
     sortSwitches()
 
     # Don't write unchanged files

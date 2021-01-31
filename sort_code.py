@@ -30,6 +30,8 @@ def getIndent(i):
         j += 1
     if j == len(s):
         return 1000
+    if s[j] == "#":
+        return 1000
     if s[j] == "\t":
         err(i, "tab detected")
     return j
@@ -151,7 +153,7 @@ def sort_file():
     # Final sanity check
     # The only job of this program is sorting
     # So the output should be a permutation of the input
-    assert text.sorted() == old.sorted()
+    assert sorted(text) == sorted(old)
 
     with open(filename, "w") as f:
         for s in text:

@@ -175,6 +175,8 @@ Language getLanguage(const char *file) {
 void print(w n, const char *caption) {
   auto s = buf + sizeof buf - 1;
   *s = 0;
+  // Use signed integer calculations for left justification to degrade
+  // gracefully just in case a number does overflow the allocated width
   int i = 0;
   do {
     // Extract a digit

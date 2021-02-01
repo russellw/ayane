@@ -168,12 +168,16 @@ def blockSpan(i):
         i += 1
     if getIndent(i) != indent:
         err(i, "bad indent")
+    if text[i].endswith("}") or text[i].endswith("};"):
+        i += 1
     return i
 
 
 def blockSpans(i):
     spans = []
     while not re.match(r"\s*// END", text[i]):
+        while not text[i]:
+            i += 1
         j = blockSpan(i)
         spans.append((i, j))
         i = j
@@ -181,12 +185,15 @@ def blockSpans(i):
     return spans, i
 
 
-def sortMarked(i, j):
-    while i < j:
+def sortMarked():
+    i = 0
+    while i < len(text):
         if re.match(r"\s*// SORT$", text[i]):
             i += 1
             spans, i = blockSpans(i)
+            old = len(text)
             sortSpans(spans)
+            i += len(text) - old
             continue
         i += 1
 
@@ -210,7 +217,7 @@ def sortFile():
 
     sortCases()
     sortSwitches(0, len(text))
-    sortMarked(0, len(text))
+    sortMarked()
 
     # Don't write unchanged files
     if text == old:
@@ -220,9 +227,11 @@ def sortFile():
     print(filename)
 
     # Final sanity check
-    # The only job of this program is sorting
-    # So the output should be a permutation of the input
-    assert sorted(text) == sorted(old)
+    # This program sorts non-blank lines, potentially adjusting blanks
+    # So the non-blank output should be a permutation of the non-blank input
+    old1 = [s for s in old if s]
+    text1 = [s for s in text if s]
+    assert sorted(text1) == sorted(old1)
 
     with open(filename, "w") as f:
         for s in text:

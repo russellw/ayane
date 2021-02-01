@@ -52,28 +52,6 @@ enum {
 inline w tag(void *p, w a) { return (w)p | a; }
 
 // SORT
-struct Int {
-  mpz_t val;
-
-  unsigned hash() { return mpz_get_ui(val); }
-
-  bool eq(Int *x) { return !mpz_cmp(val, x->val); }
-
-  void clear() { mpz_clear(val); }
-};
-
-struct Rat {
-  mpq_t val;
-
-  unsigned hash() {
-    return mpz_get_ui(mpq_numref(val)) ^ mpz_get_ui(mpq_denref(val));
-  }
-
-  bool eq(Rat *x) const { return mpq_equal(val, x->val); }
-
-  void clear() { mpq_clear(val); }
-};
-
 struct Compound {
   uint16_t n;
   w v[0];
@@ -92,6 +70,26 @@ struct Compound {
   }
 
   static w process(Compound *x) { return tag(x, a_compound); }
+};
+struct Int {
+  mpz_t val;
+
+  unsigned hash() { return mpz_get_ui(val); }
+
+  bool eq(Int *x) { return !mpz_cmp(val, x->val); }
+
+  void clear() { mpz_clear(val); }
+};
+struct Rat {
+  mpq_t val;
+
+  unsigned hash() {
+    return mpz_get_ui(mpq_numref(val)) ^ mpz_get_ui(mpq_denref(val));
+  }
+
+  bool eq(Rat *x) const { return mpq_equal(val, x->val); }
+
+  void clear() { mpq_clear(val); }
 };
 // END
 

@@ -11,12 +11,11 @@ void stacktrace() {
 #ifdef _WIN32
   auto process = GetCurrentProcess();
   SymInitialize(process, 0, true);
-  const int FramesToCapture = 64;
-  static void *stack[FramesToCapture];
-  auto nframes = CaptureStackBackTrace(1, FramesToCapture, stack, 0);
-  const int MaxNameLen = 256;
+  static void *stack[1000];
+  auto nframes =
+      CaptureStackBackTrace(1, sizeof stack / sizeof *stack, stack, 0);
   auto symbol = (SYMBOL_INFO *)buf;
-  symbol->MaxNameLen = MaxNameLen;
+  symbol->MaxNameLen = 1000;
   symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
   IMAGEHLP_LINE64 location;
   location.SizeOfStruct = sizeof location;

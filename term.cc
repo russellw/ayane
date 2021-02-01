@@ -16,7 +16,7 @@ w term(w op, w a) {
   w v[2];
   v[0] = op;
   v[1] = a;
-  return compounds.put(v, sizeof v / sizeof(w));
+  return compounds.put(v, sizeof v / sizeof *v);
 }
 
 w term(w op, w a, w b) {
@@ -24,7 +24,7 @@ w term(w op, w a, w b) {
   v[0] = op;
   v[1] = a;
   v[2] = b;
-  return compounds.put(v, sizeof v / sizeof(w));
+  return compounds.put(v, sizeof v / sizeof *v);
 }
 
 w imp(w a, w b) { return term(basic(b_or), term(basic(b_not), a), b); }

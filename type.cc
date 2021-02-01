@@ -72,7 +72,7 @@ ty type(ty r, ty t1) {
   ty v[2];
   v[0] = r;
   v[1] = t1;
-  return put(v, sizeof v / sizeof(ty));
+  return put(v, sizeof v / sizeof *v);
 }
 
 ty type(sym *name) {

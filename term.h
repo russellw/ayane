@@ -71,6 +71,7 @@ struct Compound {
 
   static w process(Compound *x) { return tag(x, a_compound); }
 };
+
 struct Int {
   mpz_t val;
 
@@ -80,6 +81,7 @@ struct Int {
 
   void clear() { mpz_clear(val); }
 };
+
 struct Rat {
   mpq_t val;
 

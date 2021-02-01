@@ -12,6 +12,14 @@ parser.add_argument("files", nargs="+")
 args = parser.parse_args()
 
 
+def blankBetween(spans):
+    d = 0
+    for i, j in spans[:-1]:
+        j += d
+        text.insert(j, "")
+        d += 1
+
+
 def err(i, s):
     raise ValueError(f"{filename}:{i}: {s}")
 
@@ -193,6 +201,10 @@ def sortMarked():
             spans, i = blockSpans(i)
             old = len(text)
             sortSpans(spans)
+            for i1, j1 in spans:
+                if text[i1].endswith("{"):
+                    blankBetween(spans)
+                    break
             i += len(text) - old
             continue
         i += 1

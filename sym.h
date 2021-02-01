@@ -42,7 +42,7 @@ struct sym {
 
 extern sym keywords[];
 
-inline w keyword(sym *S) {
+inline size_t keyword(sym *S) {
   // Turn a symbol into a keyword number by subtracting the base of the keyword
   // array and dividing by the declared size of a symbol structure (which is
   // efficient as long as that size is a power of 2)
@@ -50,7 +50,7 @@ inline w keyword(sym *S) {
   // It's okay if the symbol is not a keyword; that just means the resulting
   // number will not correspond to any keyword and will not match any case in a
   // switch statement
-  w i = (char *)S - (char *)keywords;
+  size_t i = (char *)S - (char *)keywords;
   return i / sizeof(sym);
 }
 

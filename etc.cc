@@ -41,10 +41,10 @@ bool assertfail(const char *file, w line, const char *s) {
 
 char buf[0x10000];
 
-w fnv(const void *p, w n) {
+size_t fnv(const void *p, w n) {
   // Fowler-Noll-Vo-1a
   auto p1 = (const char *)p;
-  w h = 2166136261u;
+  size_t h = 2166136261u;
   while (n--) {
     h ^= *p1++;
     h *= 16777619;

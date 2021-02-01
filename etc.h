@@ -4,7 +4,7 @@
 #define noret void
 #endif
 
-typedef size_t w;
+typedef intptr_t w;
 
 // SORT
 inline void fpr(FILE *F, char c) { fputc(c, F); }
@@ -46,4 +46,4 @@ bool assertfail(const char *file, w line, const char *s);
 
 extern char buf[0x10000];
 
-w fnv(const void *p, w n);
+size_t fnv(const void *p, w n);

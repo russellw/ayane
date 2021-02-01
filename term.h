@@ -51,6 +51,7 @@ enum {
 
 inline w tag(void *p, w a) { return (w)p | a; }
 
+// SORT
 struct Int {
   mpz_t val;
 
@@ -92,6 +93,7 @@ struct Compound {
 
   static w process(Compound *x) { return tag(x, a_compound); }
 };
+// END
 
 inline Int *intp(w a) {
   assert((a & 7) == a_int);

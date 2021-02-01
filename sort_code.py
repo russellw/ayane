@@ -146,12 +146,13 @@ def caseBlockFallthruSpans(i):
     return spans, i
 
 
-def sortSwitches():
-    i = 0
-    while i < len(text):
+def sortSwitches(i, j):
+    while i < j:
         if re.match(r"\s*switch \(.*\) {", text[i]):
             i += 1
             spans, i = caseBlockFallthruSpans(i)
+            for i1, j1 in spans:
+                sortSwitches(i1, j1)
             sortSpans(spans)
             continue
         i += 1
@@ -180,9 +181,8 @@ def blockSpans(i):
     return spans, i
 
 
-def sortMarked():
-    i = 0
-    while i < len(text):
+def sortMarked(i, j):
+    while i < j:
         if re.match(r"\s*// SORT$", text[i]):
             i += 1
             spans, i = blockSpans(i)
@@ -209,8 +209,8 @@ def sortFile():
     old = text.copy()
 
     sortCases()
-    sortSwitches()
-    sortMarked()
+    sortSwitches(0, len(text))
+    sortMarked(0, len(text))
 
     # Don't write unchanged files
     if text == old:

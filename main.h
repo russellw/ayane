@@ -27,13 +27,12 @@
 #include "bank.h"
 #include "vec.h"
 
-// Specific
+// Data
 #include "type.h"
 
 #include "clause.h"
 #include "sym.h"
 #include "term.h"
-#include "unify.h"
 
 #include "keywords.h"
 
@@ -42,6 +41,10 @@
 
 #include "dimacs.h"
 #include "tptp.h"
+
+// Algorithms
+#include "typeof.h"
+#include "unify.h"
 
 // Unit tests
 #include "test.h"

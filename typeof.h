@@ -1,0 +1,1 @@
+ty typeof(w a);

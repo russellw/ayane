@@ -32,4 +32,3 @@ inline TCompound *tcompoundp(ty t) {
 ty type(sym *name);
 ty type(const vec<ty> &v);
 ty type(ty r, ty t1);
-ty typeof(w a);

@@ -89,7 +89,7 @@ const char *szs[] = {
 
 bool conjecture;
 #ifdef DEBUG
-int status;
+w status;
 #endif
 
 noret Parser::err(const char *msg, const char *ts) {

@@ -20,7 +20,7 @@ enum {
 
 char isword[0x100];
 #ifdef DEBUG
-int header;
+w header;
 #endif
 
 struct Select : std::unordered_set<sym *> {

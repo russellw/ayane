@@ -5,7 +5,7 @@ struct Parser {
 
   // current token
   const char *tokStart;
-  int tok;
+  w tok;
   sym *tokSym;
 
   Parser(const char *file);
@@ -30,5 +30,5 @@ inline bool isdigit1(char c) { return '0' <= c && c <= '9'; }
 // metadata
 extern bool conjecture;
 #ifdef DEBUG
-extern int status;
+extern w status;
 #endif

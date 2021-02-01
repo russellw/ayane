@@ -20,21 +20,6 @@ bool match0(w a, w b) {
 }
 
 void test_vec() {
-  vec<char> u;
-  assert(u.n == 0);
-
-  u.push('a');
-  assert(u.n == 1);
-  assert(u.back() == 'a');
-
-  u.push('b');
-  assert(u.n == 2);
-  assert(u.back() == 'b');
-
-  u.push('c');
-  assert(u.n == 3);
-  assert(u.back() == 'c');
-
   vec<char, 1> v;
   assert(v.n == 0);
 

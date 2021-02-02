@@ -3,16 +3,16 @@
 #ifdef DEBUG
 namespace {
 // SORT
-bool match0(w a, w b) {
-  unified.n = 0;
-  return match(a, b);
-}
-
 w fn(w t, Sym *S) {
   if (!S->ft)
     S->ft = t;
   assert(S->ft == t);
   return tag(S, a_sym);
+}
+
+bool match0(w a, w b) {
+  unified.n = 0;
+  return match(a, b);
 }
 
 w type(w r, w t1, w t2) {

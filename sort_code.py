@@ -12,6 +12,15 @@ parser.add_argument("files", nargs="+")
 args = parser.parse_args()
 
 
+def chunkKey(chunk):
+    if chunk:
+        m = re.match(r"[\w ]+ \**(\w+)\(", chunk[0])
+        if m:
+            name = m[1]
+            return [name] + chunk
+    return [""] + chunk
+
+
 def err(i, s):
     raise ValueError(f"{filename}:{i}: {s}")
 
@@ -49,7 +58,7 @@ def sortSpans(spans):
             chunk = chunk[:-1]
         if chunk:
             chunks.append(chunk)
-    chunks.sort()
+    chunks.sort(key=chunkKey)
     i = spans[0][0]
     j = spans[-1][1]
     text[i:j] = flatten(chunks)
@@ -63,7 +72,7 @@ def sortSpansBlank(spans):
             chunk = chunk[:-1]
         if chunk:
             chunks.append(chunk)
-    chunks.sort()
+    chunks.sort(key=chunkKey)
     for i in range(0, len(chunks) - 1):
         chunks[i].append("")
     i = spans[0][0]

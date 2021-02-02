@@ -245,13 +245,13 @@ vec<w> neg, pos;
 // END
 
 // SORT
-Sym *intern(const char *s, w n) { return syms::put(s, n); }
-
 void clause() {}
 
 w imp(w a, w b) { return term(basic(b_or), term(basic(b_not), a), b); }
 
 w int1(Int *x) { return tag(nums::ints.put(x), a_int); }
+
+Sym *intern(const char *s, w n) { return syms::put(s, n); }
 
 w rat(Rat *x) { return tag(nums::rats.put(x), a_rat); }
 

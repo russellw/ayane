@@ -24,7 +24,6 @@
 
 // Containers
 #include "ary.h"
-#include "bank.h"
 #include "vec.h"
 
 // Data

@@ -66,7 +66,14 @@ enum {
   basic_types
 };
 
+// SORT
+inline bool istcompound(w t) {
+  assert(t < 0x10000);
+  return t & t_compound;
+}
+
 inline w tag(void *p, w a) { return (w)p | a; }
+// END
 
 // SORT
 struct Compound {
@@ -165,9 +172,43 @@ extern vec<TCompound *> tcompounds;
 extern vec<w> neg, pos;
 // END
 
-inline bool istcompound(w t) {
-  assert(t < 0x10000);
-  return t & t_compound;
+// SORT
+Int *intp(w a);
+Rat *ratp(w a);
+sym *intern(const char *s, w n);
+void clause();
+w imp(w a, w b);
+w int1(Int *x);
+w rat(Rat *x);
+w real(Rat *x);
+w term(const vec<w> &v);
+w term(w op, w a);
+w term(w op, w a, w b);
+w type(const vec<uint16_t> &v);
+w type(sym *name);
+w type(w r, w t1);
+// END
+
+// SORT
+inline Compound *compoundp(w a) {
+  assert((a & 7) == a_compound);
+  assert(!a_compound);
+  return (Compound *)a;
+}
+
+inline Int *intp(w a) {
+  assert((a & 7) == a_int);
+  return (Int *)(a & ~(w)7);
+}
+
+inline Rat *ratp(w a) {
+  assert((a & 7) == a_rat || (a & 7) == a_real);
+  return (Rat *)(a & ~(w)7);
+}
+
+inline TCompound *tcompoundp(w t) {
+  assert(istcompound(t));
+  return tcompounds[t & ~t_compound];
 }
 
 inline size_t keyword(sym *S) {
@@ -182,38 +223,13 @@ inline size_t keyword(sym *S) {
   return i / sizeof(sym);
 }
 
-sym *intern(const char *s, w n);
-
 inline sym *intern(const char *s) { return intern(s, strlen(s)); }
 
 inline void fpr(FILE *F, sym *S) { fwrite(S->v, 1, S->n, F); }
 
-inline Int *intp(w a) {
-  assert((a & 7) == a_int);
-  return (Int *)(a & ~(w)7);
-}
-
-inline Rat *ratp(w a) {
-  assert((a & 7) == a_rat || (a & 7) == a_real);
-  return (Rat *)(a & ~(w)7);
-}
-
-w int1(Int *x);
-w rat(Rat *x);
-w real(Rat *x);
-
-Int *intp(w a);
-Rat *ratp(w a);
-
 inline sym *symp(w a) {
   assert((a & 7) == a_sym);
   return (sym *)(a & ~(w)7);
-}
-
-inline Compound *compoundp(w a) {
-  assert((a & 7) == a_compound);
-  assert(!a_compound);
-  return (Compound *)a;
 }
 
 inline w at(w a, w i) { return compoundp(a)->v[i]; }
@@ -221,10 +237,6 @@ inline w at(w a, w i) { return compoundp(a)->v[i]; }
 inline w size(w a) { return compoundp(a)->n; }
 
 inline w basic(w op) { return op << 3 | a_basic; }
-
-w term(const vec<w> &v);
-w term(w op, w a);
-w term(w op, w a, w b);
 
 inline w var(w t, w i) {
   assert(!istcompound(t));
@@ -237,16 +249,4 @@ inline w vari(w a) {
   assert((a & 7) == a_var);
   return a >> (1 + 16 + 3);
 }
-
-w imp(w a, w b);
-
-inline TCompound *tcompoundp(w t) {
-  assert(istcompound(t));
-  return tcompounds[t & ~t_compound];
-}
-
-w type(sym *name);
-w type(const vec<uint16_t> &v);
-w type(w r, w t1);
-
-void clause();
+// END

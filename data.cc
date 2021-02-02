@@ -1,53 +1,5 @@
 #include "main.h"
 
-template <class T> class bank {
-  // Must be a power of 2
-  w cap = 0x10;
-  w count;
-  T **entries = (T **)xcalloc(cap, sizeof(T *));
-
-  w slot(T **entries, w cap, T *x) {
-    auto mask = cap - 1;
-    auto i = x->hash() & mask;
-    while (entries[i] && !entries[i]->eq(x))
-      i = (i + 1) & mask;
-    return i;
-  }
-
-  void expand() {
-    auto cap1 = cap * 2;
-    auto entries1 = (T **)xcalloc(cap1, sizeof *entries);
-    for (w i = 0; i != cap; ++i) {
-      auto x = entries[i];
-      if (x)
-        entries1[slot(entries1, cap1, x)] = x;
-    }
-    free(entries);
-    cap = cap1;
-    entries = entries1;
-  }
-
-  T *store(T *x) {
-    auto r = (T *)xmalloc(sizeof *x);
-    *r = *x;
-    return r;
-  }
-
-public:
-  T *put(T *x) {
-    auto i = slot(entries, cap, x);
-    if (entries[i]) {
-      x->clear();
-      return entries[i];
-    }
-    if (++count > cap * 3 / 4) {
-      expand();
-      i = slot(entries, cap, x);
-    }
-    return entries[i] = store(x);
-  }
-};
-
 namespace types {
 // The number of types is expected to be small. It is therefore possible to fit
 // a type reference into 16 bits, and desirable because this allows the type of
@@ -112,63 +64,58 @@ w put(const uint16_t *p, w n) {
 }
 } // namespace types
 
+template <class T> class bank {
+  // Must be a power of 2
+  w cap = 0x10;
+  w count;
+  T **entries = (T **)xcalloc(cap, sizeof(T *));
+
+  w slot(T **entries, w cap, T *x) {
+    auto mask = cap - 1;
+    auto i = x->hash() & mask;
+    while (entries[i] && !entries[i]->eq(x))
+      i = (i + 1) & mask;
+    return i;
+  }
+
+  void expand() {
+    auto cap1 = cap * 2;
+    auto entries1 = (T **)xcalloc(cap1, sizeof *entries);
+    for (w i = 0; i != cap; ++i) {
+      auto x = entries[i];
+      if (x)
+        entries1[slot(entries1, cap1, x)] = x;
+    }
+    free(entries);
+    cap = cap1;
+    entries = entries1;
+  }
+
+  T *store(T *x) {
+    auto r = (T *)xmalloc(sizeof *x);
+    *r = *x;
+    return r;
+  }
+
+public:
+  T *put(T *x) {
+    auto i = slot(entries, cap, x);
+    if (entries[i]) {
+      x->clear();
+      return entries[i];
+    }
+    if (++count > cap * 3 / 4) {
+      expand();
+      i = slot(entries, cap, x);
+    }
+    return entries[i] = store(x);
+  }
+};
+
 namespace {
 bank<Int> ints;
 bank<Rat> rats;
 } // namespace
-
-namespace compounds {
-// Must be a power of 2
-w cap = 0x1000;
-w count;
-Compound **entries = (Compound **)xcalloc(cap, sizeof(Compound *));
-
-bool eq(const Compound *x, const w *p, w n) {
-  if (x->n != n)
-    return false;
-  return !memcmp(x->v, p, n * sizeof *p);
-}
-
-w slot(Compound **entries, w cap, const w *p, w n) {
-  auto mask = cap - 1;
-  auto i = fnv(p, n * sizeof *p) & mask;
-  while (entries[i] && !eq(entries[i], p, n))
-    i = (i + 1) & mask;
-  return i;
-}
-
-void expand() {
-  auto cap1 = cap * 2;
-  auto entries1 = (Compound **)xcalloc(cap1, sizeof *entries);
-  for (w i = 0; i != cap; ++i) {
-    auto x = entries[i];
-    if (x)
-      entries1[slot(entries1, cap1, x->v, x->n)] = x;
-  }
-  free(entries);
-  cap = cap1;
-  entries = entries1;
-}
-
-Compound *store(const w *p, w n) {
-  auto r = (Compound *)xmalloc(offsetof(Compound, v) + n * sizeof *p);
-  r->n = n;
-  memcpy(r->v, p, n * sizeof *p);
-  return r;
-}
-
-w put(const w *p, w n) {
-  auto i = slot(entries, cap, p, n);
-  if (entries[i])
-    return tag(entries[i], a_compound);
-  if (++count > cap * 3 / 4) {
-    expand();
-    i = slot(entries, cap, p, n);
-  }
-  entries[i] = store(p, n);
-  return tag(entries[i], a_compound);
-}
-} // namespace compounds
 
 namespace syms {
 // Must be a power of 2, and large enough to hold the largest collection of
@@ -238,6 +185,59 @@ Sym *put(const char *p, w n) {
   return entries[i] = store(p, n);
 }
 } // namespace syms
+
+namespace compounds {
+// Must be a power of 2
+w cap = 0x1000;
+w count;
+Compound **entries = (Compound **)xcalloc(cap, sizeof(Compound *));
+
+bool eq(const Compound *x, const w *p, w n) {
+  if (x->n != n)
+    return false;
+  return !memcmp(x->v, p, n * sizeof *p);
+}
+
+w slot(Compound **entries, w cap, const w *p, w n) {
+  auto mask = cap - 1;
+  auto i = fnv(p, n * sizeof *p) & mask;
+  while (entries[i] && !eq(entries[i], p, n))
+    i = (i + 1) & mask;
+  return i;
+}
+
+void expand() {
+  auto cap1 = cap * 2;
+  auto entries1 = (Compound **)xcalloc(cap1, sizeof *entries);
+  for (w i = 0; i != cap; ++i) {
+    auto x = entries[i];
+    if (x)
+      entries1[slot(entries1, cap1, x->v, x->n)] = x;
+  }
+  free(entries);
+  cap = cap1;
+  entries = entries1;
+}
+
+Compound *store(const w *p, w n) {
+  auto r = (Compound *)xmalloc(offsetof(Compound, v) + n * sizeof *p);
+  r->n = n;
+  memcpy(r->v, p, n * sizeof *p);
+  return r;
+}
+
+w put(const w *p, w n) {
+  auto i = slot(entries, cap, p, n);
+  if (entries[i])
+    return tag(entries[i], a_compound);
+  if (++count > cap * 3 / 4) {
+    expand();
+    i = slot(entries, cap, p, n);
+  }
+  entries[i] = store(p, n);
+  return tag(entries[i], a_compound);
+}
+} // namespace compounds
 
 // SORT
 vec<TCompound *> tcompounds(0);

@@ -79,30 +79,13 @@ inline w tag(void *p, w a) { return (w)p | a; }
 struct Compound {
   uint16_t n;
   w v[0];
-
-  bool eq(const w *p, w m) const {
-    if (n != m)
-      return false;
-    return !memcmp(v, p, m * sizeof *p);
-  }
-
-  static Compound *store(const w *p, w n) {
-    auto r = (Compound *)xmalloc(offsetof(Compound, v) + n * sizeof *p);
-    r->n = n;
-    memcpy(r->v, p, n * sizeof *p);
-    return r;
-  }
-
-  static w process(Compound *x) { return tag(x, a_compound); }
 };
 
 struct Int {
   mpz_t val;
 
   unsigned hash() { return mpz_get_ui(val); }
-
   bool eq(Int *x) { return !mpz_cmp(val, x->val); }
-
   void clear() { mpz_clear(val); }
 };
 
@@ -112,9 +95,7 @@ struct Rat {
   unsigned hash() {
     return mpz_get_ui(mpq_numref(val)) ^ mpz_get_ui(mpq_denref(val));
   }
-
   bool eq(Rat *x) const { return mpq_equal(val, x->val); }
-
   void clear() { mpq_clear(val); }
 };
 

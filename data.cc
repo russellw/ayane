@@ -98,10 +98,16 @@ w cap = 0x100;
 w count;
 Compound **entries = (Compound **)xcalloc(cap, sizeof(Compound *));
 
+bool eq(const Compound *x, const w *p, w n) {
+  if (x->n != n)
+    return false;
+  return !memcmp(x->v, p, n * sizeof *p);
+}
+
 w slot(Compound **entries, w cap, const w *p, w n) {
   auto mask = cap - 1;
   auto i = fnv(p, n * sizeof *p) & mask;
-  while (entries[i] && !entries[i]->eq(p, n))
+  while (entries[i] && !eq(entries[i], p, n))
     i = (i + 1) & mask;
   return i;
 }
@@ -119,15 +125,23 @@ void expand() {
   entries = entries1;
 }
 
+Compound *store(const w *p, w n) {
+  auto r = (Compound *)xmalloc(offsetof(Compound, v) + n * sizeof *p);
+  r->n = n;
+  memcpy(r->v, p, n * sizeof *p);
+  return r;
+}
+
 w put(const w *p, w n) {
   auto i = slot(entries, cap, p, n);
   if (entries[i])
-    return Compound::process(entries[i]);
+    return tag(entries[i], a_compound);
   if (++count >= cap * 3 / 4) {
     expand();
     i = slot(entries, cap, p, n);
   }
-  return Compound::process(entries[i] = Compound::store(p, n));
+  entries[i] = store(p, n);
+  return tag(entries[i], a_compound);
 }
 } // namespace compounds
 

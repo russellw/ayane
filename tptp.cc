@@ -871,7 +871,7 @@ struct TptpParser : Parser {
           expect('(');
 
           // File
-          sprintf(buf, "%s/%s", tptp, name()->v);
+          snprintf(buf, sizeof buf, "%s/%s", tptp, name()->v);
           auto file1 = intern(buf, strlen(buf))->v;
 
           // Select and read

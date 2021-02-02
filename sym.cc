@@ -7,10 +7,16 @@ w cap = 0x100;
 w count;
 Sym **entries = (Sym **)xcalloc(cap, sizeof(Sym *));
 
+bool eq(const Sym *S, const char *s, w n) {
+  if (S->n != n)
+    return false;
+  return !memcmp(S->v, s, n);
+}
+
 w slot(Sym **entries, w cap, const char *p, w n) {
   auto mask = cap - 1;
   auto i = fnv(p, n) & mask;
-  while (entries[i] && !entries[i]->eq(p, n))
+  while (entries[i] && !eq(entries[i], p, n))
     i = (i + 1) & mask;
   return i;
 }
@@ -42,15 +48,23 @@ struct init {
   }
 } init1;
 
+Sym *store(const char *s, w n) {
+  auto r = (Sym *)xmalloc(offsetof(Sym, v) + n);
+  memset(r, 0, offsetof(Sym, v));
+  r->n = n;
+  memcpy(r->v, s, n);
+  return r;
+}
+
 Sym *put(const char *p, w n) {
   auto i = slot(entries, cap, p, n);
   if (entries[i])
-    return Sym::process(entries[i]);
+    return entries[i];
   if (++count >= cap * 3 / 4) {
     expand();
     i = slot(entries, cap, p, n);
   }
-  return Sym::process(entries[i] = Sym::store(p, n));
+  return entries[i] = store(p, n);
 }
 } // namespace syms
 

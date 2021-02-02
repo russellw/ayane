@@ -123,22 +123,6 @@ struct Sym {
   // When symbols are allocated on the heap, the code doing the allocation is
   // responsible for allocating enough space to hold the corresponding strings
   char v[0x20 - 3 * sizeof(uint16_t)];
-
-  bool eq(const char *s, w m) const {
-    if (this->n != m)
-      return false;
-    return !memcmp(v, s, m);
-  }
-
-  static Sym *store(const char *s, w n) {
-    auto r = (Sym *)xmalloc(offsetof(Sym, v) + n);
-    memset(r, 0, offsetof(Sym, v));
-    r->n = n;
-    memcpy(r->v, s, n);
-    return r;
-  }
-
-  static Sym *process(Sym *S) { return S; }
 };
 
 struct TCompound {

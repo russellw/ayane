@@ -95,9 +95,8 @@ struct Int {
 
   void clear() { mpz_clear(val); }
 };
+
 struct Rat {
-
-
   mpq_t val;
 
   unsigned hash() {
@@ -108,10 +107,9 @@ struct Rat {
 
   void clear() { mpq_clear(val); }
 };
+
 struct sym {
-
   // Type named by this symbol
-
   uint16_t t;
 
   // Type of function named by this symbol

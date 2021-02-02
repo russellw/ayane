@@ -12,14 +12,6 @@ parser.add_argument("files", nargs="+")
 args = parser.parse_args()
 
 
-def blankBetween(spans):
-    d = 0
-    for i, j in spans[:-1]:
-        j += d
-        text.insert(j, "")
-        d += 1
-
-
 def err(i, s):
     raise ValueError(f"{filename}:{i}: {s}")
 
@@ -178,14 +170,16 @@ def blockSpan(i):
         err(i, "bad indent")
     if text[i].endswith("}") or text[i].endswith("};"):
         i += 1
+    while not text[i]:
+        i += 1
     return i
 
 
 def blockSpans(i):
+    while not text[i]:
+        i += 1
     spans = []
     while not re.match(r"\s*// END", text[i]):
-        while not text[i]:
-            i += 1
         j = blockSpan(i)
         spans.append((i, j))
         i = j
@@ -199,13 +193,7 @@ def sortMarked():
         if re.match(r"\s*// SORT$", text[i]):
             i += 1
             spans, i = blockSpans(i)
-            old = len(text)
             sortSpans(spans)
-            for i1, j1 in spans:
-                if text[i1].endswith("{"):
-                    blankBetween(spans)
-                    break
-            i += len(text) - old
             continue
         i += 1
 
@@ -239,11 +227,9 @@ def sortFile():
     print(filename)
 
     # Final sanity check
-    # This program sorts non-blank lines, potentially adjusting blanks
-    # So the non-blank output should be a permutation of the non-blank input
-    old1 = [s for s in old if s]
-    text1 = [s for s in text if s]
-    assert sorted(text1) == sorted(old1)
+    # This program sorts lines
+    # So the output should be a permutation of the input
+    assert sorted(text) == sorted(old)
 
     with open(filename, "w") as f:
         for s in text:

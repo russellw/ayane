@@ -2,11 +2,11 @@
 
 #ifdef DEBUG
 namespace {
-w type(w r, w t1, w t2) {
-  vec<uint16_t> v(r, t1, t2);
-  return type(v);
+// SORT
+bool match0(w a, w b) {
+  unified.n = 0;
+  return match(a, b);
 }
-
 w fn(w t, Sym *S) {
   if (!S->ft)
     S->ft = t;
@@ -14,26 +14,184 @@ w fn(w t, Sym *S) {
   return tag(S, a_sym);
 }
 
-bool match0(w a, w b) {
-  unified.n = 0;
-  return match(a, b);
+w type(w r, w t1, w t2) {
+  vec<uint16_t> v(r, t1, t2);
+  return type(v);
 }
 
-void test_vec() {
-  vec<char, 1> v;
-  assert(v.n == 0);
+// END
 
-  v.push('a');
-  assert(v.n == 1);
-  assert(v.back() == 'a');
+// SORT
+void test_fn() {
+  auto red = fn(t_bool, intern("red"));
+  auto redp = symp(red);
+  assert(redp->ft == t_bool);
 
-  v.push('b');
-  assert(v.n == 2);
-  assert(v.back() == 'b');
+  auto green = fn(t_bool, intern("green"));
+  auto greenp = symp(green);
+  assert(greenp->ft == t_bool);
 
-  v.push('c');
-  assert(v.n == 3);
-  assert(v.back() == 'c');
+  auto blue = fn(t_bool, intern("blue"));
+  auto bluep = symp(blue);
+  assert(bluep->ft == t_bool);
+
+  assert(redp == intern("red"));
+  assert(greenp == intern("green"));
+  assert(bluep == intern("blue"));
+}
+
+void test_int() {
+  Int x1;
+  mpz_init_set_ui(x1.val, 1);
+  auto a1 = int1(&x1);
+  auto y1 = intp(a1);
+  assert(!mpz_cmp_ui(y1->val, 1));
+
+  Int x2;
+  mpz_init_set_ui(x2.val, 2);
+  auto a2 = int1(&x2);
+  auto y2 = intp(a2);
+  assert(!mpz_cmp_ui(y2->val, 2));
+
+  Int x3;
+  mpz_init(x3.val);
+  mpz_add(x3.val, y1->val, y2->val);
+  auto a3 = int1(&x3);
+  auto y3 = intp(a3);
+  assert(!mpz_cmp_ui(y3->val, 3));
+}
+
+void test_match() {
+  // Subset of unify where only the first argument can be treated as a variable
+  // to be matched against the second argument. Applied to the same test cases
+  // as unify, gives the same results in some cases, but different results in
+  // others. In particular, has no notion of an occurs check; in actual use, it
+  // is assumed that the arguments will have disjoint variables
+  auto a = fn(t_individual, intern("a"));
+  auto b = fn(t_individual, intern("b"));
+  auto f1 = fn(type(t_individual, t_individual), intern("f1"));
+  auto f2 = fn(type(t_individual, t_individual, t_individual), intern("f2"));
+  auto g1 = fn(type(t_individual, t_individual), intern("g1"));
+  auto x = var(t_individual, 0);
+  auto y = var(t_individual, 1);
+  auto z = var(t_individual, 2);
+
+  // Succeeds. (tautology)
+  assert(match0(a, a));
+  assert(unified.n == 0);
+
+  // a and b do not match
+  assert(!match0(a, b));
+
+  // Succeeds. (tautology)
+  assert(match0(x, x));
+  assert(unified.n == 0);
+
+  // x is not matched with the constant a, because the variable is on the
+  // right-hand side
+  assert(!match0(a, x));
+
+  // x and y are aliased
+  assert(match0(x, y));
+  assert(unified.n == 1);
+  assert(replace(x) == replace(y));
+
+  // Function and constant symbols match, x is unified with the constant b
+  assert(match0(term(f2, a, x), term(f2, a, b)));
+  assert(unified.n == 1);
+  assert(replace(x) == b);
+
+  // f and g do not match
+  assert(!match0(term(f1, a), term(g1, a)));
+
+  // x and y are aliased
+  assert(match0(term(f1, x), term(f1, y)));
+  assert(unified.n == 1);
+  assert(replace(x) == replace(y));
+
+  // f and g do not match
+  assert(!match0(term(f1, x), term(g1, y)));
+
+  // Fails. The f function symbols have different arity
+  assert(!match0(term(f1, x), term(f2, y, z)));
+
+  // Does not match y with the term g1(x), because the variable is on the
+  // right-hand side
+  assert(!match0(term(f1, term(g1, x)), term(f1, y)));
+
+  // Does not match, because the variable is on the right-hand side
+  assert(!match0(term(f2, term(g1, x), x), term(f2, y, a)));
+
+  // Returns false in first-order logic and many modern Prolog dialects
+  // (enforced by the occurs check) but returns true here because match has no
+  // notion of an occurs check
+  assert(match0(x, term(f1, x)));
+  assert(unified.n == 1);
+
+  // Both x and y are unified with the constant a
+  assert(match0(x, y));
+  assert(match(y, a));
+  assert(unified.n == 2);
+  assert(replace(x) == a);
+  assert(replace(y) == a);
+
+  // Fails this time, because the variable is on the right-hand side
+  assert(!match0(a, y));
+
+  // Fails. a and b do not match, so x can't be unified with both
+  assert(match0(x, a));
+  assert(!match(b, x));
+}
+void test_rat() {
+  Rat x1;
+  mpq_init(x1.val);
+  mpq_set_ui(x1.val, 1, 1);
+  auto a1 = rat(&x1);
+  auto y1 = ratp(a1);
+  assert(!mpq_cmp_ui(y1->val, 1, 1));
+
+  Rat x2;
+  mpq_init(x2.val);
+  mpq_set_ui(x2.val, 2, 1);
+  auto a2 = rat(&x2);
+  auto y2 = ratp(a2);
+  assert(!mpq_cmp_ui(y2->val, 2, 1));
+
+  Rat x3;
+  mpq_init(x3.val);
+  mpq_add(x3.val, y1->val, y2->val);
+  auto a3 = rat(&x3);
+  auto y3 = ratp(a3);
+  assert(!mpq_cmp_ui(y3->val, 3, 1));
+}
+
+void test_sym() {
+  assert(keyword(intern("cnf")) == k_cnf);
+  assert(keyword(intern("cnf....", 3)) == k_cnf);
+  assert(keyword(intern("fof")) == k_fof);
+  assert(keyword(intern("tff")) == k_tff);
+  assert(intern("") == intern("", 0));
+  assert(intern("xyz") == intern("xyz", 3));
+}
+
+void test_term() {
+  auto red = fn(t_bool, intern("red"));
+  auto green = fn(t_bool, intern("green"));
+  auto blue = fn(t_bool, intern("blue"));
+
+  auto a = term(basic(b_not), red);
+  assert(a == term(basic(b_not), red));
+
+  a = term(basic(b_and), red, green);
+  assert(a == term(basic(b_and), red, green));
+
+  vec<w> v;
+  v.push(basic(b_and));
+  v.push(red);
+  v.push(green);
+  v.push(blue);
+  a = term(v);
+  assert(a == term(v));
 }
 
 void test_type() {
@@ -74,15 +232,6 @@ void test_type() {
   assert(t->v[2] == t_rat);
 }
 
-void test_sym() {
-  assert(keyword(intern("cnf")) == k_cnf);
-  assert(keyword(intern("cnf....", 3)) == k_cnf);
-  assert(keyword(intern("fof")) == k_fof);
-  assert(keyword(intern("tff")) == k_tff);
-  assert(intern("") == intern("", 0));
-  assert(intern("xyz") == intern("xyz", 3));
-}
-
 void test_typeof() {
   assert(typeof(var(t_int, 13)) == t_int);
 
@@ -98,98 +247,6 @@ void test_typeof() {
 
   auto red = fn(t_bool, intern("red"));
   assert(typeof(red) == t_bool);
-}
-
-void test_int() {
-  Int x1;
-  mpz_init_set_ui(x1.val, 1);
-  auto a1 = int1(&x1);
-  auto y1 = intp(a1);
-  assert(!mpz_cmp_ui(y1->val, 1));
-
-  Int x2;
-  mpz_init_set_ui(x2.val, 2);
-  auto a2 = int1(&x2);
-  auto y2 = intp(a2);
-  assert(!mpz_cmp_ui(y2->val, 2));
-
-  Int x3;
-  mpz_init(x3.val);
-  mpz_add(x3.val, y1->val, y2->val);
-  auto a3 = int1(&x3);
-  auto y3 = intp(a3);
-  assert(!mpz_cmp_ui(y3->val, 3));
-}
-
-void test_term() {
-  auto red = fn(t_bool, intern("red"));
-  auto green = fn(t_bool, intern("green"));
-  auto blue = fn(t_bool, intern("blue"));
-
-  auto a = term(basic(b_not), red);
-  assert(a == term(basic(b_not), red));
-
-  a = term(basic(b_and), red, green);
-  assert(a == term(basic(b_and), red, green));
-
-  vec<w> v;
-  v.push(basic(b_and));
-  v.push(red);
-  v.push(green);
-  v.push(blue);
-  a = term(v);
-  assert(a == term(v));
-}
-
-void test_fn() {
-  auto red = fn(t_bool, intern("red"));
-  auto redp = symp(red);
-  assert(redp->ft == t_bool);
-
-  auto green = fn(t_bool, intern("green"));
-  auto greenp = symp(green);
-  assert(greenp->ft == t_bool);
-
-  auto blue = fn(t_bool, intern("blue"));
-  auto bluep = symp(blue);
-  assert(bluep->ft == t_bool);
-
-  assert(redp == intern("red"));
-  assert(greenp == intern("green"));
-  assert(bluep == intern("blue"));
-}
-
-void test_var() {
-  auto x = var(t_int, 0);
-  assert(vari(x) == 0);
-
-  auto y = var(t_int, 1);
-  assert(vari(y) == 1);
-
-  assert(x != y);
-}
-
-void test_rat() {
-  Rat x1;
-  mpq_init(x1.val);
-  mpq_set_ui(x1.val, 1, 1);
-  auto a1 = rat(&x1);
-  auto y1 = ratp(a1);
-  assert(!mpq_cmp_ui(y1->val, 1, 1));
-
-  Rat x2;
-  mpq_init(x2.val);
-  mpq_set_ui(x2.val, 2, 1);
-  auto a2 = rat(&x2);
-  auto y2 = ratp(a2);
-  assert(!mpq_cmp_ui(y2->val, 2, 1));
-
-  Rat x3;
-  mpq_init(x3.val);
-  mpq_add(x3.val, y1->val, y2->val);
-  auto a3 = rat(&x3);
-  auto y3 = ratp(a3);
-  assert(!mpq_cmp_ui(y3->val, 3, 1));
 }
 
 void test_unify() {
@@ -277,100 +334,49 @@ void test_unify() {
   assert(!unify(b, x));
 }
 
-void test_match() {
-  // Subset of unify where only the first argument can be treated as a variable
-  // to be matched against the second argument. Applied to the same test cases
-  // as unify, gives the same results in some cases, but different results in
-  // others. In particular, has no notion of an occurs check; in actual use, it
-  // is assumed that the arguments will have disjoint variables
-  auto a = fn(t_individual, intern("a"));
-  auto b = fn(t_individual, intern("b"));
-  auto f1 = fn(type(t_individual, t_individual), intern("f1"));
-  auto f2 = fn(type(t_individual, t_individual, t_individual), intern("f2"));
-  auto g1 = fn(type(t_individual, t_individual), intern("g1"));
-  auto x = var(t_individual, 0);
-  auto y = var(t_individual, 1);
-  auto z = var(t_individual, 2);
+void test_var() {
+  auto x = var(t_int, 0);
+  assert(vari(x) == 0);
 
-  // Succeeds. (tautology)
-  assert(match0(a, a));
-  assert(unified.n == 0);
+  auto y = var(t_int, 1);
+  assert(vari(y) == 1);
 
-  // a and b do not match
-  assert(!match0(a, b));
-
-  // Succeeds. (tautology)
-  assert(match0(x, x));
-  assert(unified.n == 0);
-
-  // x is not matched with the constant a, because the variable is on the
-  // right-hand side
-  assert(!match0(a, x));
-
-  // x and y are aliased
-  assert(match0(x, y));
-  assert(unified.n == 1);
-  assert(replace(x) == replace(y));
-
-  // Function and constant symbols match, x is unified with the constant b
-  assert(match0(term(f2, a, x), term(f2, a, b)));
-  assert(unified.n == 1);
-  assert(replace(x) == b);
-
-  // f and g do not match
-  assert(!match0(term(f1, a), term(g1, a)));
-
-  // x and y are aliased
-  assert(match0(term(f1, x), term(f1, y)));
-  assert(unified.n == 1);
-  assert(replace(x) == replace(y));
-
-  // f and g do not match
-  assert(!match0(term(f1, x), term(g1, y)));
-
-  // Fails. The f function symbols have different arity
-  assert(!match0(term(f1, x), term(f2, y, z)));
-
-  // Does not match y with the term g1(x), because the variable is on the
-  // right-hand side
-  assert(!match0(term(f1, term(g1, x)), term(f1, y)));
-
-  // Does not match, because the variable is on the right-hand side
-  assert(!match0(term(f2, term(g1, x), x), term(f2, y, a)));
-
-  // Returns false in first-order logic and many modern Prolog dialects
-  // (enforced by the occurs check) but returns true here because match has no
-  // notion of an occurs check
-  assert(match0(x, term(f1, x)));
-  assert(unified.n == 1);
-
-  // Both x and y are unified with the constant a
-  assert(match0(x, y));
-  assert(match(y, a));
-  assert(unified.n == 2);
-  assert(replace(x) == a);
-  assert(replace(y) == a);
-
-  // Fails this time, because the variable is on the right-hand side
-  assert(!match0(a, y));
-
-  // Fails. a and b do not match, so x can't be unified with both
-  assert(match0(x, a));
-  assert(!match(b, x));
+  assert(x != y);
 }
+
+void test_vec() {
+  vec<char, 1> v;
+  assert(v.n == 0);
+
+  v.push('a');
+  assert(v.n == 1);
+  assert(v.back() == 'a');
+
+  v.push('b');
+  assert(v.n == 2);
+  assert(v.back() == 'b');
+
+  v.push('c');
+  assert(v.n == 3);
+  assert(v.back() == 'c');
+}
+
+// END
 } // namespace
 
 void test() {
-  test_sym();
+  // SORT
+  test_fn();
   test_int();
+  test_match();
   test_rat();
+  test_sym();
+  test_term();
   test_type();
   test_typeof();
-  test_vec();
-  test_fn();
-  test_term();
   test_unify();
-  test_match();
   test_var();
+  test_vec();
+  // END
 }
 #endif

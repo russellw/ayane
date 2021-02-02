@@ -1,7 +1,6 @@
 struct sym;
 
-typedef uint16_t ty;
-const ty t_compound = 1 << 15;
+const w t_compound = 1 << 15;
 
 enum {
   t_none,
@@ -16,19 +15,19 @@ enum {
 };
 
 struct TCompound {
-  ty n;
-  ty v[0];
+  uint16_t n;
+  uint16_t v[0];
 };
 
 extern vec<TCompound *> tcompounds;
 
-inline ty istcompound(ty t) { return t & t_compound; }
+inline w istcompound(w t) { return t & t_compound; }
 
-inline TCompound *tcompoundp(ty t) {
+inline TCompound *tcompoundp(w t) {
   assert(istcompound(t));
   return tcompounds[t & ~t_compound];
 }
 
-ty type(sym *name);
-ty type(const vec<ty> &v);
-ty type(ty r, ty t1);
+w type(sym *name);
+w type(const vec<uint16_t> &v);
+w type(w r, w t1);

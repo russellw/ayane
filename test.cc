@@ -2,12 +2,12 @@
 
 #ifdef DEBUG
 namespace {
-ty type(ty r, ty t1, ty t2) {
-  vec<ty> v(r, t1, t2);
+w type(w r, w t1, w t2) {
+  vec<uint16_t> v(r, t1, t2);
   return type(v);
 }
 
-w fn(ty t, sym *S) {
+w fn(w t, sym *S) {
   if (!S->ft)
     S->ft = t;
   assert(S->ft == t);
@@ -47,7 +47,7 @@ void test_type() {
 
   assert(bird != plane);
 
-  vec<ty> v;
+  vec<uint16_t> v;
   v.push(t_bool);
   v.push(t_int);
   v.push(t_int);

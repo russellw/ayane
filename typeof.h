@@ -1,1 +1,1 @@
-ty typeof(w a);
+w typeof(w a);

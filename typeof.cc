@@ -1,6 +1,6 @@
 #include "main.h"
 
-ty typeof(w a) {
+w typeof(w a) {
   switch (a & 7) {
   case a_compound: {
     auto op = at(a, 0);
@@ -22,7 +22,7 @@ ty typeof(w a) {
   case a_sym:
     return symp(a)->ft;
   case a_var:
-    return a >> 3 & (1 << 8 * sizeof(ty)) - 1;
+    return a >> 3 & 0xffff;
   }
   unreachable;
   return 0;

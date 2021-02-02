@@ -1,9 +1,9 @@
 struct sym {
   // Type named by this symbol
-  ty t;
+  uint16_t t;
 
   // Type of function named by this symbol
-  ty ft;
+  uint16_t ft;
 
   // Number of characters (or UTF-8 bytes, if it's a Unicode string) in this
   // symbol
@@ -21,7 +21,7 @@ struct sym {
 
   // When symbols are allocated on the heap, the code doing the allocation is
   // responsible for allocating enough space to hold the corresponding strings
-  char v[0x20 - 2 * sizeof(ty) - sizeof(uint16_t)];
+  char v[0x20 - 3 * sizeof(uint16_t)];
 
   bool eq(const char *s, w m) const {
     if (this->n != m)

@@ -133,18 +133,18 @@ w term(const vec<w> &v);
 w term(w op, w a);
 w term(w op, w a, w b);
 
-const w alt = (w)1 << (8 * sizeof(ty) + 3);
+const w alt = (w)1 << (16 + 3);
 
-inline w var(ty t, w i) {
+inline w var(w t, w i) {
   assert(!istcompound(t));
   if (sizeof(w) == 4 && i >= 1 << 12)
     throw "Too many variables";
-  return i << (1 + 8 * sizeof(ty) + 3) | t << 3 | a_var;
+  return i << (1 + 16 + 3) | t << 3 | a_var;
 }
 
 inline w vari(w a) {
   assert((a & 7) == a_var);
-  return a >> (1 + 8 * sizeof(ty) + 3);
+  return a >> (1 + 16 + 3);
 }
 
 w imp(w a, w b);

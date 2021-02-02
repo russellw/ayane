@@ -6,20 +6,20 @@
 // therefore tracked with an unusual kind of memory bank in which entries are
 // 16-bit words rather than pointers
 namespace {
-ty atypes = basic_types;
+w atypes = basic_types;
 
 w cap = 0x10;
-ty *entries = (ty *)xcalloc(cap, sizeof(ty));
+uint16_t *entries = (uint16_t *)xcalloc(cap, sizeof(uint16_t));
 
-bool eq(const TCompound *t, const ty *p, w n) {
+bool eq(const TCompound *t, const uint16_t *p, w n) {
   if (t->n != n)
     return false;
-  return !memcmp(t->v, p, n * sizeof(ty));
+  return !memcmp(t->v, p, n * sizeof *p);
 }
 
-w slot(ty *entries, w cap, const ty *p, w n) {
+w slot(uint16_t *entries, w cap, const uint16_t *p, w n) {
   auto mask = cap - 1;
-  auto i = fnv(p, n * sizeof(ty)) & mask;
+  auto i = fnv(p, n * sizeof *p) & mask;
   while (entries[i] && !eq(tcompounds[entries[i]], p, n))
     i = (i + 1) & mask;
   return i;
@@ -27,7 +27,7 @@ w slot(ty *entries, w cap, const ty *p, w n) {
 
 void expand() {
   auto cap1 = cap * 2;
-  auto entries1 = (ty *)xcalloc(cap1, sizeof(ty));
+  auto entries1 = (uint16_t *)xcalloc(cap1, sizeof *entries);
   for (w i = 0; i != cap; ++i) {
     auto t = entries[i];
     if (t) {
@@ -40,14 +40,14 @@ void expand() {
   entries = entries1;
 }
 
-TCompound *store(const ty *p, w n) {
-  auto r = (TCompound *)xmalloc(offsetof(TCompound, v) + n * sizeof(ty));
+TCompound *store(const uint16_t *p, w n) {
+  auto r = (TCompound *)xmalloc(offsetof(TCompound, v) + n * sizeof *p);
   r->n = n;
-  memcpy(r->v, p, n * sizeof(ty));
+  memcpy(r->v, p, n * sizeof *p);
   return r;
 }
 
-ty put(const ty *p, w n) {
+w put(const uint16_t *p, w n) {
   auto i = slot(entries, cap, p, n);
   if (entries[i])
     return entries[i] | t_compound;
@@ -66,16 +66,16 @@ ty put(const ty *p, w n) {
 
 vec<TCompound *> tcompounds(0);
 
-ty type(const vec<ty> &v) { return put(v.p, v.n); }
+w type(const vec<uint16_t> &v) { return put(v.p, v.n); }
 
-ty type(ty r, ty t1) {
-  ty v[2];
+w type(w r, w t1) {
+  uint16_t v[2];
   v[0] = r;
   v[1] = t1;
   return put(v, sizeof v / sizeof *v);
 }
 
-ty type(sym *name) {
+w type(sym *name) {
   if (name->t)
     return name->t;
   if (atypes >= t_compound)

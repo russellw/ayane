@@ -347,7 +347,7 @@ struct TptpParser : Parser {
   }
 
   // Types
-  ty atomicType() {
+  w atomicType() {
     auto k = tok;
     auto S = tokSym;
     auto ts = tokStart;
@@ -382,9 +382,9 @@ struct TptpParser : Parser {
     }
   }
 
-  ty topLevelType() {
+  w topLevelType() {
     if (eat('(')) {
-      vec<ty> v(0);
+      vec<uint16_t> v(0);
       do
         v.push(atomicType());
       while (eat('*'));
@@ -663,7 +663,7 @@ struct TptpParser : Parser {
         err("Expected variable");
       auto S = tokSym;
       lex();
-      ty t = t_individual;
+      w t = t_individual;
       if (eat(':'))
         t = atomicType();
       auto x = var(t, vars.n);

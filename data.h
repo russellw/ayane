@@ -106,14 +106,6 @@ struct Sym {
   // Type of function named by this symbol
   uint16_t ft;
 
-  // Number of characters (or UTF-8 bytes, if it's a Unicode string) in this
-  // symbol
-
-  // Symbols don't use null terminators, though keywords (which are statically
-  // declared symbols) will have their strings padded out with nulls to the
-  // declared length of the character array
-  uint16_t n;
-
   // For the keyword system to work, the size of the declared character array
   // must be large enough to hold the longest keyword
 
@@ -122,7 +114,7 @@ struct Sym {
 
   // When symbols are allocated on the heap, the code doing the allocation is
   // responsible for allocating enough space to hold the corresponding strings
-  char v[0x20 - 3 * sizeof(uint16_t)];
+  char v[0x20 - 2 * sizeof(uint16_t)];
 };
 
 struct TCompound {
@@ -195,7 +187,7 @@ inline size_t keyword(Sym *S) {
   return i / sizeof(Sym);
 }
 
-inline void fpr(FILE *F, Sym *S) { fwrite(S->v, 1, S->n, F); }
+inline void fpr(FILE *f, Sym *S) { fpr(f, S->v); }
 
 inline w at(w a, w i) { return compoundp(a)->v[i]; }
 

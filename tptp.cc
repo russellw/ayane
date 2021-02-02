@@ -871,14 +871,8 @@ struct TptpParser : Parser {
           expect('(');
 
           // File
-          auto n = strlen(tptp);
-          auto S = name();
-          vec<char> file1;
-          file1.resize(n + S->n + 2);
-          memcpy(file1.p, tptp, n);
-          file1[n] = '/';
-          memcpy(file1.p + n + 1, S->v, S->n);
-          file1[n + 1 + S->n] = 0;
+          sprintf(buf, "%s/%s", tptp, name()->v);
+          auto file1 = intern(buf, strlen(buf))->v;
 
           // Select and read
           if (eat(',')) {
@@ -890,9 +884,9 @@ struct TptpParser : Parser {
                 select1.insert(formulaName);
             } while (eat(','));
             expect(']');
-            TptpParser parser(file1.p, select1);
+            TptpParser parser(file1, select1);
           } else {
-            TptpParser parser(file1.p, select);
+            TptpParser parser(file1, select);
           }
           break;
         }

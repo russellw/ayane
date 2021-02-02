@@ -76,6 +76,7 @@ void test_type() {
 
 void test_sym() {
   assert(keyword(intern("cnf")) == k_cnf);
+  assert(keyword(intern("cnf....", 3)) == k_cnf);
   assert(keyword(intern("fof")) == k_fof);
   assert(keyword(intern("tff")) == k_tff);
   assert(intern("") == intern("", 0));

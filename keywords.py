@@ -35,7 +35,7 @@ with open("keywords.h", "w") as f:
 with open("keywords.cc", "w") as f:
     f.write("// AUTO GENERATED FILE - DO NOT MODIFY\n")
     f.write('#include "main.h"\n')
-    f.write("sym keywords [] = {\n")
+    f.write("Sym keywords [] = {\n")
     for s in lines:
-        f.write("{0,0," + str(len(s)) + ',"' + s + '"},\n')
+        f.write('{0,0,"' + s + '"},\n')
     f.write("};\n")

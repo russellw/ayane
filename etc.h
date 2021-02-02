@@ -7,14 +7,14 @@
 typedef intptr_t w;
 
 // SORT
-inline void fpr(FILE *F, char c) { fputc(c, F); }
-inline void fpr(FILE *F, const char *s) { fputs(s, F); }
-inline void fpr(FILE *F, double a) { fprintf(F, "%f", a); }
-inline void fpr(FILE *F, int32_t a) { fprintf(F, "%" PRIi32, a); }
-inline void fpr(FILE *F, int64_t a) { fprintf(F, "%" PRIi64, a); }
-inline void fpr(FILE *F, uint32_t a) { fprintf(F, "%" PRIu32, a); }
-inline void fpr(FILE *F, uint64_t a) { fprintf(F, "%" PRIu64, a); }
-inline void fpr(FILE *F, void *p) { fprintf(F, "%p", p); }
+inline void fpr(FILE *f, char c) { fputc(c, f); }
+inline void fpr(FILE *f, const char *s) { fputs(s, f); }
+inline void fpr(FILE *f, double a) { fprintf(f, "%f", a); }
+inline void fpr(FILE *f, int32_t a) { fprintf(f, "%" PRIi32, a); }
+inline void fpr(FILE *f, int64_t a) { fprintf(f, "%" PRIi64, a); }
+inline void fpr(FILE *f, uint32_t a) { fprintf(f, "%" PRIu32, a); }
+inline void fpr(FILE *f, uint64_t a) { fprintf(f, "%" PRIu64, a); }
+inline void fpr(FILE *f, void *p) { fprintf(f, "%p", p); }
 // END
 
 #ifdef DEBUG

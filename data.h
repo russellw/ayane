@@ -63,8 +63,55 @@ enum {
   basic_types
 };
 
+inline w tag(void *p, w a) { return (w)p | a; }
+
+// SORT
+struct Compound {
+  uint16_t n;
+  w v[0];
+
+  bool eq(const w *p, w m) const {
+    if (n != m)
+      return false;
+    return !memcmp(v, p, m * sizeof *p);
+  }
+
+  static Compound *store(const w *p, w n) {
+    auto r = (Compound *)xmalloc(offsetof(Compound, v) + n * sizeof *p);
+    r->n = n;
+    memcpy(r->v, p, n * sizeof *p);
+    return r;
+  }
+
+  static w process(Compound *x) { return tag(x, a_compound); }
+};
+
+struct Int {
+  mpz_t val;
+
+  unsigned hash() { return mpz_get_ui(val); }
+
+  bool eq(Int *x) { return !mpz_cmp(val, x->val); }
+
+  void clear() { mpz_clear(val); }
+};
+struct Rat {
+
+
+  mpq_t val;
+
+  unsigned hash() {
+    return mpz_get_ui(mpq_numref(val)) ^ mpz_get_ui(mpq_denref(val));
+  }
+
+  bool eq(Rat *x) const { return mpq_equal(val, x->val); }
+
+  void clear() { mpq_clear(val); }
+};
 struct sym {
+
   // Type named by this symbol
+
   uint16_t t;
 
   // Type of function named by this symbol
@@ -104,6 +151,7 @@ struct sym {
 
   static sym *process(sym *S) { return S; }
 };
+// END
 
 inline bool istcompound(w t) {
   assert(t < 0x10000);
@@ -129,52 +177,6 @@ sym *intern(const char *s, w n);
 inline sym *intern(const char *s) { return intern(s, strlen(s)); }
 
 inline void fpr(FILE *F, sym *S) { fwrite(S->v, 1, S->n, F); }
-
-inline w tag(void *p, w a) { return (w)p | a; }
-
-// SORT
-struct Compound {
-  uint16_t n;
-  w v[0];
-
-  bool eq(const w *p, w m) const {
-    if (n != m)
-      return false;
-    return !memcmp(v, p, m * sizeof *p);
-  }
-
-  static Compound *store(const w *p, w n) {
-    auto r = (Compound *)xmalloc(offsetof(Compound, v) + n * sizeof *p);
-    r->n = n;
-    memcpy(r->v, p, n * sizeof *p);
-    return r;
-  }
-
-  static w process(Compound *x) { return tag(x, a_compound); }
-};
-
-struct Int {
-  mpz_t val;
-
-  unsigned hash() { return mpz_get_ui(val); }
-
-  bool eq(Int *x) { return !mpz_cmp(val, x->val); }
-
-  void clear() { mpz_clear(val); }
-};
-
-struct Rat {
-  mpq_t val;
-
-  unsigned hash() {
-    return mpz_get_ui(mpq_numref(val)) ^ mpz_get_ui(mpq_denref(val));
-  }
-
-  bool eq(Rat *x) const { return mpq_equal(val, x->val); }
-
-  void clear() { mpq_clear(val); }
-};
-// END
 
 inline Int *intp(w a) {
   assert((a & 7) == a_int);

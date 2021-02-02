@@ -29,11 +29,6 @@
 
 // Data
 #include "data.h"
-
-#include "clause.h"
-#include "sym.h"
-#include "term.h"
-
 #include "keywords.h"
 
 // Parsers

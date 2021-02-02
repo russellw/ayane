@@ -1,6 +1,55 @@
-struct sym;
-
 const w t_compound = 1 << 15;
+
+enum {
+  a_compound,
+
+  // SORT
+  a_basic,
+  a_distinctobj,
+  a_int,
+  a_rat,
+  a_real,
+  a_sym,
+  a_var,
+  // END
+};
+
+enum {
+  b_false,
+  b_true,
+
+  // SORT
+  b_add,
+  b_all,
+  b_and,
+  b_ceil,
+  b_div,
+  b_dive,
+  b_divf,
+  b_divt,
+  b_eq,
+  b_eqv,
+  b_exists,
+  b_floor,
+  b_isint,
+  b_israt,
+  b_le,
+  b_lt,
+  b_minus,
+  b_mul,
+  b_not,
+  b_or,
+  b_reme,
+  b_remf,
+  b_remt,
+  b_round,
+  b_sub,
+  b_toint,
+  b_torat,
+  b_toreal,
+  b_trunc,
+  // END
+};
 
 enum {
   t_none,
@@ -14,14 +63,176 @@ enum {
   basic_types
 };
 
+struct sym {
+  // Type named by this symbol
+  uint16_t t;
+
+  // Type of function named by this symbol
+  uint16_t ft;
+
+  // Number of characters (or UTF-8 bytes, if it's a Unicode string) in this
+  // symbol
+
+  // Symbols don't use null terminators, though keywords (which are statically
+  // declared symbols) will have their strings padded out with nulls to the
+  // declared length of the character array
+  uint16_t n;
+
+  // For the keyword system to work, the size of the declared character array
+  // must be large enough to hold the longest keyword
+
+  // For the system to work efficiently, the size of the whole structure must be
+  // a power of 2
+
+  // When symbols are allocated on the heap, the code doing the allocation is
+  // responsible for allocating enough space to hold the corresponding strings
+  char v[0x20 - 3 * sizeof(uint16_t)];
+
+  bool eq(const char *s, w m) const {
+    if (this->n != m)
+      return false;
+    return !memcmp(v, s, m);
+  }
+
+  static sym *store(const char *s, w n) {
+    auto r = (sym *)xmalloc(offsetof(sym, v) + n);
+    memset(r, 0, offsetof(sym, v));
+    r->n = n;
+    memcpy(r->v, s, n);
+    return r;
+  }
+
+  static sym *process(sym *S) { return S; }
+};
+
+inline w istcompound(w t) { return t & t_compound; }
+
+extern sym keywords[];
+
+inline size_t keyword(sym *S) {
+  // Turn a symbol into a keyword number by subtracting the base of the keyword
+  // array and dividing by the declared size of a symbol structure (which is
+  // efficient as long as that size is a power of 2)
+
+  // It's okay if the symbol is not a keyword; that just means the resulting
+  // number will not correspond to any keyword and will not match any case in a
+  // switch statement
+  size_t i = (char *)S - (char *)keywords;
+  return i / sizeof(sym);
+}
+
+sym *intern(const char *s, w n);
+
+inline sym *intern(const char *s) { return intern(s, strlen(s)); }
+
+inline void fpr(FILE *F, sym *S) { fwrite(S->v, 1, S->n, F); }
+
+inline w tag(void *p, w a) { return (w)p | a; }
+
+// SORT
+struct Compound {
+  uint16_t n;
+  w v[0];
+
+  bool eq(const w *p, w m) const {
+    if (n != m)
+      return false;
+    return !memcmp(v, p, m * sizeof *p);
+  }
+
+  static Compound *store(const w *p, w n) {
+    auto r = (Compound *)xmalloc(offsetof(Compound, v) + n * sizeof *p);
+    r->n = n;
+    memcpy(r->v, p, n * sizeof *p);
+    return r;
+  }
+
+  static w process(Compound *x) { return tag(x, a_compound); }
+};
+
+struct Int {
+  mpz_t val;
+
+  unsigned hash() { return mpz_get_ui(val); }
+
+  bool eq(Int *x) { return !mpz_cmp(val, x->val); }
+
+  void clear() { mpz_clear(val); }
+};
+
+struct Rat {
+  mpq_t val;
+
+  unsigned hash() {
+    return mpz_get_ui(mpq_numref(val)) ^ mpz_get_ui(mpq_denref(val));
+  }
+
+  bool eq(Rat *x) const { return mpq_equal(val, x->val); }
+
+  void clear() { mpq_clear(val); }
+};
+// END
+
+inline Int *intp(w a) {
+  assert((a & 7) == a_int);
+  return (Int *)(a & ~(w)7);
+}
+
+inline Rat *ratp(w a) {
+  assert((a & 7) == a_rat || (a & 7) == a_real);
+  return (Rat *)(a & ~(w)7);
+}
+
+w int1(Int *x);
+w rat(Rat *x);
+w real(Rat *x);
+
+Int *intp(w a);
+Rat *ratp(w a);
+
+inline sym *symp(w a) {
+  assert((a & 7) == a_sym);
+  return (sym *)(a & ~(w)7);
+}
+
+inline Compound *compoundp(w a) {
+  assert((a & 7) == a_compound);
+  assert(!a_compound);
+  return (Compound *)a;
+}
+
+inline w at(w a, w i) { return compoundp(a)->v[i]; }
+
+inline w size(w a) { return compoundp(a)->n; }
+
+inline w basic(w op) { return op << 3 | a_basic; }
+
+w term(const vec<w> &v);
+w term(w op, w a);
+w term(w op, w a, w b);
+
+const w alt = (w)1 << (16 + 3);
+
+inline w var(w t, w i) {
+  assert(!istcompound(t));
+  if (sizeof(w) == 4 && i >= 1 << 12)
+    throw "Too many variables";
+  return i << (1 + 16 + 3) | t << 3 | a_var;
+}
+
+inline w vari(w a) {
+  assert((a & 7) == a_var);
+  return a >> (1 + 16 + 3);
+}
+
+w imp(w a, w b);
+
 struct TCompound {
   uint16_t n;
   uint16_t v[0];
 };
 
 extern vec<TCompound *> tcompounds;
-
-inline w istcompound(w t) { return t & t_compound; }
 
 inline TCompound *tcompoundp(w t) {
   assert(istcompound(t));
@@ -31,3 +242,6 @@ inline TCompound *tcompoundp(w t) {
 w type(sym *name);
 w type(const vec<uint16_t> &v);
 w type(w r, w t1);
+
+extern vec<w> neg, pos;
+void clause();

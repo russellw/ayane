@@ -44,8 +44,28 @@ def sortSpan(i, j):
 def sortSpans(spans):
     chunks = []
     for i, j in spans:
-        chunks.append(text[i:j])
+        chunk = text[i:j]
+        while chunk and not chunk[-1]:
+            chunk = chunk[:-1]
+        if chunk:
+            chunks.append(chunk)
     chunks.sort()
+    i = spans[0][0]
+    j = spans[-1][1]
+    text[i:j] = flatten(chunks)
+
+
+def sortSpansBlank(spans):
+    chunks = []
+    for i, j in spans:
+        chunk = text[i:j]
+        while chunk and not chunk[-1]:
+            chunk = chunk[:-1]
+        if chunk:
+            chunks.append(chunk)
+    chunks.sort()
+    for i in range(0, len(chunks) - 1):
+        chunks[i].append("")
     i = spans[0][0]
     j = spans[-1][1]
     text[i:j] = flatten(chunks)
@@ -153,7 +173,9 @@ def sortSwitches(i, j):
             spans, i = caseBlockFallthruSpans(i)
             for i1, j1 in spans:
                 sortSwitches(i1, j1)
+            old = len(text)
             sortSpans(spans)
+            i += len(text) - old
             continue
         i += 1
 
@@ -166,12 +188,8 @@ def blockSpan(i):
     i += 1
     while getIndent(i) > indent:
         i += 1
-    if getIndent(i) != indent:
-        err(i, "bad indent")
     if re.match(r"\s*}", text[i]):
         i += 1
-        while not text[i]:
-            i += 1
     return i
 
 
@@ -193,7 +211,14 @@ def sortMarked():
         if re.match(r"\s*// SORT$", text[i]):
             i += 1
             spans, i = blockSpans(i)
-            sortSpans(spans)
+            old = len(text)
+            for i1, j1 in spans:
+                if text[i1].endswith("{"):
+                    sortSpansBlank(spans)
+                    break
+            else:
+                sortSpans(spans)
+            i += len(text) - old
             continue
         i += 1
 
@@ -227,9 +252,11 @@ def sortFile():
     print(filename)
 
     # Final sanity check
-    # This program sorts lines
-    # So the output should be a permutation of the input
-    assert sorted(text) == sorted(old)
+    # This program sorts lines, possibly adding or removing blanks
+    # So the output should be a permutation of the input, disregarding blanks
+    old1 = [s for s in old if s]
+    text1 = [s for s in text if s]
+    assert sorted(text1) == sorted(old1)
 
     with open(filename, "w") as f:
         for s in text:

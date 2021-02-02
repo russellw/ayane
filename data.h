@@ -146,16 +146,16 @@ w type(const vec<uint16_t> &v);
 w type(w r, w t1);
 // --
 
-// SORT
-inline w at(w a, w i) { return compoundp(a)->v[i]; }
-
-inline w basic(w op) { return op << 3 | a_basic; }
-
 inline Compound *compoundp(w a) {
   assert((a & 7) == a_compound);
   assert(!a_compound);
   return (Compound *)a;
 }
+
+// SORT
+inline w at(w a, w i) { return compoundp(a)->v[i]; }
+
+inline w basic(w op) { return op << 3 | a_basic; }
 
 inline void fpr(FILE *f, Sym *S) { fpr(f, S->v); }
 

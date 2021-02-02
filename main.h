@@ -37,7 +37,7 @@
 #include "tptp.h"
 
 // Algorithms
-#include "typeof.h"
+#include "types.h"
 #include "unify.h"
 
 // Unit tests

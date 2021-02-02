@@ -95,7 +95,7 @@ def caseBlockSpan(i):
             i += 1
         if getIndent(i) != indent:
             err(i, "bad indent")
-        if not text[i].endswith("}"):
+        if not re.match(r"\s*}", text[i]):
             err("bad braces")
         i += 1
         if getIndent(i) != indent:
@@ -111,7 +111,7 @@ def caseBlockSpan(i):
 
 def caseBlockTerminated(i):
     i -= 1
-    if text[i].endswith("}"):
+    if re.match(r"\s*}", text[i]):
         i -= 1
     m = re.match(r"\s*(\w+)", text[i])
     if m:
@@ -140,7 +140,7 @@ def caseBlockFallthruSpans(i):
         j = caseBlockFallthruSpan(i)
         spans.append((i, j))
         i = j
-    if not text[i].endswith("}"):
+    if not re.match(r"\s*}", text[i]):
         err("bad braces")
     i += 1
     return spans, i

@@ -277,7 +277,7 @@ w term(w op, w a, w b) {
 w type(Sym *name) {
   if (name->t)
     return name->t;
-  if (types::atoms >= t_compound)
+  if (istcompound(types::atoms))
     throw "Too many atomic types";
   return name->t = types::atoms++;
 }

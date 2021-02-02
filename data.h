@@ -118,12 +118,7 @@ struct Rat {
   void clear() { mpq_clear(val); }
 };
 
-struct TCompound {
-  uint16_t n;
-  uint16_t v[0];
-};
-
-struct sym {
+struct Sym {
   // Type named by this symbol
   uint16_t t;
 
@@ -154,20 +149,25 @@ struct sym {
     return !memcmp(v, s, m);
   }
 
-  static sym *store(const char *s, w n) {
-    auto r = (sym *)xmalloc(offsetof(sym, v) + n);
-    memset(r, 0, offsetof(sym, v));
+  static Sym *store(const char *s, w n) {
+    auto r = (Sym *)xmalloc(offsetof(Sym, v) + n);
+    memset(r, 0, offsetof(Sym, v));
     r->n = n;
     memcpy(r->v, s, n);
     return r;
   }
 
-  static sym *process(sym *S) { return S; }
+  static Sym *process(Sym *S) { return S; }
+};
+
+struct TCompound {
+  uint16_t n;
+  uint16_t v[0];
 };
 // END
 
 // SORT
-extern sym keywords[];
+extern Sym keywords[];
 extern vec<TCompound *> tcompounds;
 extern vec<w> neg, pos;
 // END
@@ -175,7 +175,7 @@ extern vec<w> neg, pos;
 // SORT
 Int *intp(w a);
 Rat *ratp(w a);
-sym *intern(const char *s, w n);
+Sym *intern(const char *s, w n);
 void clause();
 w imp(w a, w b);
 w int1(Int *x);
@@ -184,8 +184,8 @@ w real(Rat *x);
 w term(const vec<w> &v);
 w term(w op, w a);
 w term(w op, w a, w b);
+w type(Sym *name);
 w type(const vec<uint16_t> &v);
-w type(sym *name);
 w type(w r, w t1);
 // END
 
@@ -206,12 +206,19 @@ inline Rat *ratp(w a) {
   return (Rat *)(a & ~(w)7);
 }
 
+inline Sym *intern(const char *s) { return intern(s, strlen(s)); }
+
+inline Sym *symp(w a) {
+  assert((a & 7) == a_sym);
+  return (Sym *)(a & ~(w)7);
+}
+
 inline TCompound *tcompoundp(w t) {
   assert(istcompound(t));
   return tcompounds[t & ~t_compound];
 }
 
-inline size_t keyword(sym *S) {
+inline size_t keyword(Sym *S) {
   // Turn a symbol into a keyword number by subtracting the base of the keyword
   // array and dividing by the declared size of a symbol structure (which is
   // efficient as long as that size is a power of 2)
@@ -220,17 +227,10 @@ inline size_t keyword(sym *S) {
   // number will not correspond to any keyword and will not match any case in a
   // switch statement
   size_t i = (char *)S - (char *)keywords;
-  return i / sizeof(sym);
+  return i / sizeof(Sym);
 }
 
-inline sym *intern(const char *s) { return intern(s, strlen(s)); }
-
-inline sym *symp(w a) {
-  assert((a & 7) == a_sym);
-  return (sym *)(a & ~(w)7);
-}
-
-inline void fpr(FILE *F, sym *S) { fwrite(S->v, 1, S->n, F); }
+inline void fpr(FILE *F, Sym *S) { fwrite(S->v, 1, S->n, F); }
 
 inline w at(w a, w i) { return compoundp(a)->v[i]; }
 

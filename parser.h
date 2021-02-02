@@ -6,7 +6,7 @@ struct Parser {
   // current token
   const char *tokStart;
   w tok;
-  sym *tokSym;
+  Sym *tokSym;
 
   Parser(const char *file);
   ~Parser();

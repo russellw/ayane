@@ -1,7 +1,7 @@
 #include "main.h"
 
 namespace {
-BankMap<char, sym, sym *> syms;
+BankMap<char, Sym, Sym *> syms;
 
 struct init {
   init() {
@@ -14,7 +14,7 @@ struct init {
 } init1;
 } // namespace
 
-sym *intern(const char *s, w n) {
+Sym *intern(const char *s, w n) {
   if (n > 0xffff)
     throw "Symbol too long";
   return syms.put(s, n);

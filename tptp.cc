@@ -23,15 +23,15 @@ char isword[0x100];
 w header;
 #endif
 
-struct Select : std::unordered_set<sym *> {
+struct Select : std::unordered_set<Sym *> {
   bool all;
 
   explicit Select(bool all) : all(all) {}
 
-  w count(sym *S) const {
+  w count(Sym *S) const {
     if (all)
       return 1;
-    return std::unordered_set<sym *>::count(S);
+    return std::unordered_set<Sym *>::count(S);
   }
 };
 
@@ -44,7 +44,7 @@ void strmemcpy(char *dest, const char *src, const char *end) {
 struct TptpParser : Parser {
   Select select;
   bool cnfMode;
-  vec<std::pair<sym *, w>> vars;
+  vec<std::pair<Sym *, w>> vars;
 
   // Tokenizer
   void word() {
@@ -734,7 +734,7 @@ struct TptpParser : Parser {
   }
 
   // Top level
-  sym *name() {
+  Sym *name() {
     switch (tok) {
     case o_int: {
       auto S = intern(tokStart, text - tokStart);

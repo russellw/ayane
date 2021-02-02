@@ -7,7 +7,7 @@ w type(w r, w t1, w t2) {
   return type(v);
 }
 
-w fn(w t, sym *S) {
+w fn(w t, Sym *S) {
   if (!S->ft)
     S->ft = t;
   assert(S->ft == t);

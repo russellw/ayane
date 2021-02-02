@@ -1,6 +1,6 @@
 // AUTO GENERATED FILE - DO NOT MODIFY
 #include "main.h"
-sym keywords[] = {
+Sym keywords[] = {
     {0, 0, 1, "V"},
     {0, 0, 7, "ceiling"},
     {0, 0, 3, "cnf"},

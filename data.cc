@@ -75,7 +75,7 @@ w type(w r, w t1) {
   return types::put(v, sizeof v / sizeof *v);
 }
 
-w type(sym *name) {
+w type(Sym *name) {
   if (name->t)
     return name->t;
   if (types::atoms >= t_compound)

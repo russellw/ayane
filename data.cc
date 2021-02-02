@@ -90,20 +90,58 @@ void clause() {}
 namespace {
 BankSet<Int> ints;
 BankSet<Rat> rats;
-BankMap<w, Compound, w> compounds;
 } // namespace
+
+namespace compounds {
+// Must be a power of 2
+w cap = 0x100;
+w count;
+Compound **entries = (Compound **)xcalloc(cap, sizeof(Compound *));
+
+w slot(Compound **entries, w cap, const w *p, w n) {
+  auto mask = cap - 1;
+  auto i = fnv(p, n * sizeof *p) & mask;
+  while (entries[i] && !entries[i]->eq(p, n))
+    i = (i + 1) & mask;
+  return i;
+}
+
+void expand() {
+  auto cap1 = cap * 2;
+  auto entries1 = (Compound **)xcalloc(cap1, sizeof *entries);
+  for (w i = 0; i != cap; ++i) {
+    auto x = entries[i];
+    if (x)
+      entries1[slot(entries1, cap1, x->v, x->n)] = x;
+  }
+  free(entries);
+  cap = cap1;
+  entries = entries1;
+}
+
+w put(const w *p, w n) {
+  auto i = slot(entries, cap, p, n);
+  if (entries[i])
+    return Compound::process(entries[i]);
+  if (++count >= cap * 3 / 4) {
+    expand();
+    i = slot(entries, cap, p, n);
+  }
+  return Compound::process(entries[i] = Compound::store(p, n));
+}
+} // namespace compounds
 
 w int1(Int *x) { return tag(ints.put(x), a_int); }
 w rat(Rat *x) { return tag(rats.put(x), a_rat); }
 w real(Rat *x) { return tag(rats.put(x), a_real); }
 
-w term(const vec<w> &v) { return compounds.put(v.p, v.n); }
+w term(const vec<w> &v) { return compounds::put(v.p, v.n); }
 
 w term(w op, w a) {
   w v[2];
   v[0] = op;
   v[1] = a;
-  return compounds.put(v, sizeof v / sizeof *v);
+  return compounds::put(v, sizeof v / sizeof *v);
 }
 
 w term(w op, w a, w b) {
@@ -111,7 +149,7 @@ w term(w op, w a, w b) {
   v[0] = op;
   v[1] = a;
   v[2] = b;
-  return compounds.put(v, sizeof v / sizeof *v);
+  return compounds::put(v, sizeof v / sizeof *v);
 }
 
 w imp(w a, w b) { return term(basic(b_or), term(basic(b_not), a), b); }

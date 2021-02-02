@@ -194,8 +194,6 @@ def blockSpan(i):
 
 
 def blockSpans(i):
-    while not text[i]:
-        i += 1
     spans = []
     while not re.match(r"\s*// END", text[i]):
         j = blockSpan(i)

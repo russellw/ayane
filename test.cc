@@ -7,6 +7,7 @@ bool match0(w a, w b) {
   unified.n = 0;
   return match(a, b);
 }
+
 w fn(w t, Sym *S) {
   if (!S->ft)
     S->ft = t;
@@ -18,7 +19,6 @@ w type(w r, w t1, w t2) {
   vec<uint16_t> v(r, t1, t2);
   return type(v);
 }
-
 // END
 
 // SORT
@@ -142,6 +142,7 @@ void test_match() {
   assert(match0(x, a));
   assert(!match(b, x));
 }
+
 void test_rat() {
   Rat x1;
   mpq_init(x1.val);
@@ -360,7 +361,6 @@ void test_vec() {
   assert(v.n == 3);
   assert(v.back() == 'c');
 }
-
 // END
 } // namespace
 

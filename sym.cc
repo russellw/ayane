@@ -61,7 +61,7 @@ Sym *put(const char *p, w n) {
   auto i = slot(entries, cap, p, n);
   if (entries[i])
     return entries[i];
-  if (++count >= cap * 3 / 4) {
+  if (++count > cap * 3 / 4) {
     expand();
     i = slot(entries, cap, p, n);
   }

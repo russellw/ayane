@@ -184,7 +184,7 @@ w put(const w *p, w n) {
   auto i = slot(entries, cap, p, n);
   if (entries[i])
     return tag(entries[i], a_compound);
-  if (++count >= cap * 3 / 4) {
+  if (++count > cap * 3 / 4) {
     expand();
     i = slot(entries, cap, p, n);
   }

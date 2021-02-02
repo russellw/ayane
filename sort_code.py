@@ -168,10 +168,10 @@ def blockSpan(i):
         i += 1
     if getIndent(i) != indent:
         err(i, "bad indent")
-    if text[i].endswith("}") or text[i].endswith("};"):
+    if re.match(r"\s*};?", text[i]):
         i += 1
-    while not text[i]:
-        i += 1
+        while not text[i]:
+            i += 1
     return i
 
 

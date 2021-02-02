@@ -225,18 +225,18 @@ inline size_t keyword(sym *S) {
 
 inline sym *intern(const char *s) { return intern(s, strlen(s)); }
 
-inline void fpr(FILE *F, sym *S) { fwrite(S->v, 1, S->n, F); }
-
 inline sym *symp(w a) {
   assert((a & 7) == a_sym);
   return (sym *)(a & ~(w)7);
 }
 
+inline void fpr(FILE *F, sym *S) { fwrite(S->v, 1, S->n, F); }
+
 inline w at(w a, w i) { return compoundp(a)->v[i]; }
 
-inline w size(w a) { return compoundp(a)->n; }
-
 inline w basic(w op) { return op << 3 | a_basic; }
+
+inline w size(w a) { return compoundp(a)->n; }
 
 inline w var(w t, w i) {
   assert(!istcompound(t));

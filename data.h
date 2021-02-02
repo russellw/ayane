@@ -105,7 +105,10 @@ struct sym {
   static sym *process(sym *S) { return S; }
 };
 
-inline w istcompound(w t) { return t & t_compound; }
+inline bool istcompound(w t) {
+  assert(t < 0x10000);
+  return t & t_compound;
+}
 
 extern sym keywords[];
 

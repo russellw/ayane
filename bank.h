@@ -14,7 +14,7 @@ template <class T> class BankSet {
 
   void expand() {
     auto cap1 = cap * 2;
-    auto entries1 = (T **)xcalloc(cap1, sizeof(T *));
+    auto entries1 = (T **)xcalloc(cap1, sizeof *entries);
     for (w i = 0; i != cap; ++i) {
       auto x = entries[i];
       if (x)
@@ -26,7 +26,7 @@ template <class T> class BankSet {
   }
 
   T *store(T *x) {
-    auto r = (T *)xmalloc(sizeof(T));
+    auto r = (T *)xmalloc(sizeof *x);
     *r = *x;
     return r;
   }
@@ -63,7 +63,7 @@ template <class K, class T, class R> class BankMap {
 
   void expand() {
     auto cap1 = cap * 2;
-    auto entries1 = (T **)xcalloc(cap1, sizeof(T *));
+    auto entries1 = (T **)xcalloc(cap1, sizeof *entries);
     for (w i = 0; i != cap; ++i) {
       auto x = entries[i];
       if (x)

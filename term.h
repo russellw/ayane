@@ -59,13 +59,13 @@ struct Compound {
   bool eq(const w *p, w m) const {
     if (n != m)
       return false;
-    return !memcmp(v, p, m * sizeof(w));
+    return !memcmp(v, p, m * sizeof *p);
   }
 
   static Compound *store(const w *p, w n) {
-    auto r = (Compound *)xmalloc(offsetof(Compound, v) + n * sizeof(w));
+    auto r = (Compound *)xmalloc(offsetof(Compound, v) + n * sizeof *p);
     r->n = n;
-    memcpy(r->v, p, n * sizeof(w));
+    memcpy(r->v, p, n * sizeof *p);
     return r;
   }
 

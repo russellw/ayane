@@ -64,6 +64,7 @@ w put(const uint16_t *p, w n) {
 }
 } // namespace types
 
+namespace nums {
 template <class T> class bank {
   // Must be a power of 2
   w cap = 0x10;
@@ -112,10 +113,9 @@ public:
   }
 };
 
-namespace {
 bank<Int> ints;
 bank<Rat> rats;
-} // namespace
+} // namespace nums
 
 namespace syms {
 // Must be a power of 2, and large enough to hold the largest collection of
@@ -251,11 +251,11 @@ void clause() {}
 
 w imp(w a, w b) { return term(basic(b_or), term(basic(b_not), a), b); }
 
-w int1(Int *x) { return tag(ints.put(x), a_int); }
+w int1(Int *x) { return tag(nums::ints.put(x), a_int); }
 
-w rat(Rat *x) { return tag(rats.put(x), a_rat); }
+w rat(Rat *x) { return tag(nums::rats.put(x), a_rat); }
 
-w real(Rat *x) { return tag(rats.put(x), a_real); }
+w real(Rat *x) { return tag(nums::rats.put(x), a_real); }
 
 w term(const vec<w> &v) { return compounds::put(v.p, v.n); }
 

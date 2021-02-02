@@ -1,4 +1,7 @@
+// SORT
+const w alt = (w)1 << (16 + 3);
 const w t_compound = 1 << 15;
+// END
 
 enum {
   a_compound,
@@ -108,6 +111,11 @@ struct Rat {
   void clear() { mpq_clear(val); }
 };
 
+struct TCompound {
+  uint16_t n;
+  uint16_t v[0];
+};
+
 struct sym {
   // Type named by this symbol
   uint16_t t;
@@ -151,12 +159,16 @@ struct sym {
 };
 // END
 
+// SORT
+extern sym keywords[];
+extern vec<TCompound *> tcompounds;
+extern vec<w> neg, pos;
+// END
+
 inline bool istcompound(w t) {
   assert(t < 0x10000);
   return t & t_compound;
 }
-
-extern sym keywords[];
 
 inline size_t keyword(sym *S) {
   // Turn a symbol into a keyword number by subtracting the base of the keyword
@@ -214,8 +226,6 @@ w term(const vec<w> &v);
 w term(w op, w a);
 w term(w op, w a, w b);
 
-const w alt = (w)1 << (16 + 3);
-
 inline w var(w t, w i) {
   assert(!istcompound(t));
   if (sizeof(w) == 4 && i >= 1 << 12)
@@ -230,13 +240,6 @@ inline w vari(w a) {
 
 w imp(w a, w b);
 
-struct TCompound {
-  uint16_t n;
-  uint16_t v[0];
-};
-
-extern vec<TCompound *> tcompounds;
-
 inline TCompound *tcompoundp(w t) {
   assert(istcompound(t));
   return tcompounds[t & ~t_compound];
@@ -246,5 +249,4 @@ w type(sym *name);
 w type(const vec<uint16_t> &v);
 w type(w r, w t1);
 
-extern vec<w> neg, pos;
 void clause();

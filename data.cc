@@ -1,11 +1,11 @@
 #include "main.h"
 
+namespace types {
 // The number of types is expected to be small. It is therefore possible to fit
 // a type reference into 16 bits, and desirable because this allows the type of
 // a variable to be read without an extra memory access. Compound types are
 // therefore tracked with an unusual kind of memory bank in which entries are
 // 16-bit words rather than pointers
-namespace types {
 w atoms = basic_types;
 
 w cap = 0x10;
@@ -82,3 +82,7 @@ w type(sym *name) {
     throw "Too many atomic types";
   return name->t = types::atoms++;
 }
+
+vec<w> neg, pos;
+
+void clause() {}

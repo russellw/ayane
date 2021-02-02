@@ -112,29 +112,6 @@ w put(const uint16_t *p, w n) {
 }
 } // namespace types
 
-vec<TCompound *> tcompounds(0);
-
-w type(const vec<uint16_t> &v) { return types::put(v.p, v.n); }
-
-w type(w r, w t1) {
-  uint16_t v[2];
-  v[0] = r;
-  v[1] = t1;
-  return types::put(v, sizeof v / sizeof *v);
-}
-
-w type(Sym *name) {
-  if (name->t)
-    return name->t;
-  if (types::atoms >= t_compound)
-    throw "Too many atomic types";
-  return name->t = types::atoms++;
-}
-
-vec<w> neg, pos;
-
-void clause() {}
-
 namespace {
 bank<Int> ints;
 bank<Rat> rats;
@@ -192,29 +169,6 @@ w put(const w *p, w n) {
   return tag(entries[i], a_compound);
 }
 } // namespace compounds
-
-w int1(Int *x) { return tag(ints.put(x), a_int); }
-w rat(Rat *x) { return tag(rats.put(x), a_rat); }
-w real(Rat *x) { return tag(rats.put(x), a_real); }
-
-w term(const vec<w> &v) { return compounds::put(v.p, v.n); }
-
-w term(w op, w a) {
-  w v[2];
-  v[0] = op;
-  v[1] = a;
-  return compounds::put(v, sizeof v / sizeof *v);
-}
-
-w term(w op, w a, w b) {
-  w v[3];
-  v[0] = op;
-  v[1] = a;
-  v[2] = b;
-  return compounds::put(v, sizeof v / sizeof *v);
-}
-
-w imp(w a, w b) { return term(basic(b_or), term(basic(b_not), a), b); }
 
 namespace syms {
 // Must be a power of 2, and large enough to hold the largest collection of
@@ -285,4 +239,55 @@ Sym *put(const char *p, w n) {
 }
 } // namespace syms
 
+// SORT
+vec<TCompound *> tcompounds(0);
+vec<w> neg, pos;
+// END
+
+// SORT
 Sym *intern(const char *s, w n) { return syms::put(s, n); }
+
+void clause() {}
+
+w imp(w a, w b) { return term(basic(b_or), term(basic(b_not), a), b); }
+
+w int1(Int *x) { return tag(ints.put(x), a_int); }
+
+w rat(Rat *x) { return tag(rats.put(x), a_rat); }
+
+w real(Rat *x) { return tag(rats.put(x), a_real); }
+
+w term(const vec<w> &v) { return compounds::put(v.p, v.n); }
+
+w term(w op, w a) {
+  w v[2];
+  v[0] = op;
+  v[1] = a;
+  return compounds::put(v, sizeof v / sizeof *v);
+}
+
+w term(w op, w a, w b) {
+  w v[3];
+  v[0] = op;
+  v[1] = a;
+  v[2] = b;
+  return compounds::put(v, sizeof v / sizeof *v);
+}
+
+w type(Sym *name) {
+  if (name->t)
+    return name->t;
+  if (types::atoms >= t_compound)
+    throw "Too many atomic types";
+  return name->t = types::atoms++;
+}
+
+w type(const vec<uint16_t> &v) { return types::put(v.p, v.n); }
+
+w type(w r, w t1) {
+  uint16_t v[2];
+  v[0] = r;
+  v[1] = t1;
+  return types::put(v, sizeof v / sizeof *v);
+}
+// END

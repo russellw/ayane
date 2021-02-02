@@ -184,6 +184,8 @@ def sortSwitches(i, j):
 
 
 def blockSpan(i):
+    if re.match(r"\s*}", text[i]):
+        err(i, "bad block")
     indent = getIndent(i)
     i += 1
     while getIndent(i) > indent:

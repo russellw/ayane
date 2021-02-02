@@ -5,8 +5,8 @@
 // a variable to be read without an extra memory access. Compound types are
 // therefore tracked with an unusual kind of memory bank in which entries are
 // 16-bit words rather than pointers
-namespace {
-w atypes = basic_types;
+namespace types {
+w atoms = basic_types;
 
 w cap = 0x10;
 uint16_t *entries = (uint16_t *)xcalloc(cap, sizeof(uint16_t));
@@ -62,23 +62,23 @@ w put(const uint16_t *p, w n) {
   tcompounds.push(store(p, n));
   return t | t_compound;
 }
-} // namespace
+} // namespace types
 
 vec<TCompound *> tcompounds(0);
 
-w type(const vec<uint16_t> &v) { return put(v.p, v.n); }
+w type(const vec<uint16_t> &v) { return types::put(v.p, v.n); }
 
 w type(w r, w t1) {
   uint16_t v[2];
   v[0] = r;
   v[1] = t1;
-  return put(v, sizeof v / sizeof *v);
+  return types::put(v, sizeof v / sizeof *v);
 }
 
 w type(sym *name) {
   if (name->t)
     return name->t;
-  if (atypes >= t_compound)
+  if (types::atoms >= t_compound)
     throw "Too many atomic types";
-  return name->t = atypes++;
+  return name->t = types::atoms++;
 }

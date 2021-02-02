@@ -28,7 +28,7 @@
 #include "vec.h"
 
 // Data
-#include "type.h"
+#include "data.h"
 
 #include "clause.h"
 #include "sym.h"

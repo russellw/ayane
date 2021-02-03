@@ -242,7 +242,7 @@ w put(const w *p, w n) {
 // SORT
 vec<TCompound *> tcompounds(0);
 vec<w> neg, pos;
-// --
+///
 
 // SORT
 void clause() {}
@@ -290,4 +290,4 @@ w type(w r, w t1) {
   v[1] = t1;
   return types::put(v, sizeof v / sizeof *v);
 }
-// --
+///

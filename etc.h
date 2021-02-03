@@ -15,7 +15,7 @@ inline void fpr(FILE *f, int64_t a) { fprintf(f, "%" PRIi64, a); }
 inline void fpr(FILE *f, uint32_t a) { fprintf(f, "%" PRIu32, a); }
 inline void fpr(FILE *f, uint64_t a) { fprintf(f, "%" PRIu64, a); }
 inline void fpr(FILE *f, void *p) { fprintf(f, "%p", p); }
-// --
+///
 
 #ifdef DEBUG
 

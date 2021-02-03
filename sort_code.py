@@ -206,7 +206,7 @@ def blockSpan(i):
 
 def blockSpans(i):
     spans = []
-    while not re.match(r"\s*// --$", text[i]):
+    while not re.match(r"\s*///$", text[i]):
         j = blockSpan(i)
         spans.append((i, j))
         i = j

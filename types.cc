@@ -1,5 +1,6 @@
 #include "main.h"
 
+// SORT
 void defaultType(w t, w a) {
   assert(!istcompound(t));
   switch (a & 7) {
@@ -99,3 +100,4 @@ w typeof(w a) {
   unreachable;
   return 0;
 }
+///

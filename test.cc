@@ -19,7 +19,7 @@ w type(w r, w t1, w t2) {
   vec<uint16_t> v(r, t1, t2);
   return type(v);
 }
-// --
+///
 
 // SORT
 void test_fn() {
@@ -361,7 +361,7 @@ void test_vec() {
   assert(v.n == 3);
   assert(v.back() == 'c');
 }
-// --
+///
 } // namespace
 
 void test() {
@@ -377,6 +377,6 @@ void test() {
   test_unify();
   test_var();
   test_vec();
-  // --
+  ///
 }
 #endif

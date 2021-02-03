@@ -1,7 +1,7 @@
 // SORT
 const w alt = (w)1 << (16 + 3);
 const w t_compound = 1 << 15;
-// --
+///
 
 enum {
   a_compound,
@@ -14,7 +14,7 @@ enum {
   a_real,
   a_sym,
   a_var,
-  // --
+  ///
 };
 
 enum {
@@ -51,7 +51,7 @@ enum {
   b_torat,
   b_toreal,
   b_trunc,
-  // --
+  ///
 };
 
 enum {
@@ -73,7 +73,7 @@ inline bool istcompound(w t) {
 }
 
 inline w tag(void *p, w a) { return (w)p | a; }
-// --
+///
 
 // SORT
 struct Compound {
@@ -121,13 +121,13 @@ struct TCompound {
   uint16_t n;
   uint16_t v[0];
 };
-// --
+///
 
 // SORT
 extern Sym keywords[];
 extern vec<TCompound *> tcompounds;
 extern vec<w> neg, pos;
-// --
+///
 
 // SORT
 void clause();
@@ -144,7 +144,7 @@ w term(w op, w a, w b);
 w type(Sym *name);
 w type(const vec<uint16_t> &v);
 w type(w r, w t1);
-// --
+///
 
 inline Compound *compoundp(w a) {
   assert((a & 7) == a_compound);
@@ -206,4 +206,4 @@ inline w vari(w a) {
   assert((a & 7) == a_var);
   return a >> (1 + 16 + 3);
 }
-// --
+///

@@ -667,7 +667,7 @@ struct TptpParser : Parser {
       auto b = atomicTerm();
       defaultType(t_individual, a);
       requireType(typeof(a), b);
-      return term(basic(b_eq), a, atomicTerm());
+      return term(basic(b_eq), a, b);
     }
     case o_ne: {
       lex();

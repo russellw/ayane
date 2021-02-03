@@ -527,6 +527,9 @@ struct TptpParser : Parser {
   w definedFunctor(w op, w arity) {
     vec<w> v(op);
     args(v, arity);
+    auto t = numType(v[1]);
+    for (auto i = v.begin() + 2; i != v.end(); ++i)
+      requireType(t, *i);
     return term(v);
   }
 
@@ -549,6 +552,10 @@ struct TptpParser : Parser {
         return definedFunctor(basic(b_sub), 2);
       case k_distinct: {
         args(v);
+        defaultType(t_individual, v[0]);
+        auto t = typeof(v[0]);
+        for (auto i = v.begin() + 1; i != v.end(); ++i)
+          requireType(t, *i);
         vec<w> clauses(basic(b_and));
         for (auto i = v.begin(); i != v.end(); ++i)
           for (auto j = v.begin(); j != i; ++j)
@@ -559,12 +566,18 @@ struct TptpParser : Parser {
         return basic(b_false);
       case k_floor:
         return definedFunctor(basic(b_floor), 1);
-      case k_greater:
+      case k_greater: {
         args(v, 2);
+        auto t = numType(v[0]);
+        requireType(t, v[1]);
         return term(basic(b_lt), v[1], v[0]);
-      case k_greatereq:
+      }
+      case k_greatereq: {
         args(v, 2);
+        auto t = numType(v[0]);
+        requireType(t, v[1]);
         return term(basic(b_le), v[1], v[0]);
+      }
       case k_is_int:
         return definedFunctor(basic(b_isint), 1);
       case k_is_rat:
@@ -575,8 +588,12 @@ struct TptpParser : Parser {
         return definedFunctor(basic(b_le), 2);
       case k_product:
         return definedFunctor(basic(b_mul), 2);
-      case k_quotient:
-        return definedFunctor(basic(b_div), 2);
+      case k_quotient: {
+        auto a = definedFunctor(basic(b_div), 2);
+        if (typeof(at(a, 1)) == t_int)
+          err("Expected fraction term");
+        return a;
+      }
       case k_quotient_e:
         return definedFunctor(basic(b_dive), 2);
       case k_quotient_f:
@@ -634,6 +651,8 @@ struct TptpParser : Parser {
         return a;
       vec<w> v(a);
       args(v);
+      for (auto i = v.begin() + 1; i != v.end(); ++i)
+        defaultType(t_individual, *i);
       return term(v);
     }
     }
@@ -643,13 +662,22 @@ struct TptpParser : Parser {
   w infixUnary() {
     auto a = atomicTerm();
     switch (tok) {
-    case '=':
+    case '=': {
       lex();
+      auto b = atomicTerm();
+      defaultType(t_individual, a);
+      requireType(typeof(a), b);
       return term(basic(b_eq), a, atomicTerm());
-    case o_ne:
-      lex();
-      return term(basic(b_not), term(basic(b_eq), a, atomicTerm()));
     }
+    case o_ne: {
+      lex();
+      auto b = atomicTerm();
+      defaultType(t_individual, a);
+      requireType(typeof(a), b);
+      return term(basic(b_not), term(basic(b_eq), a, b));
+    }
+    }
+    requireType(t_bool, a);
     return a;
   }
 

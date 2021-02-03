@@ -65,9 +65,7 @@ struct DimacsParser : Parser {
   w fn() {
     auto S = tokSym;
     lex();
-    if (!S->ft)
-      S->ft = t_bool;
-    assert(S->ft == t_bool);
+    S->ft = t_bool;
     return tag(S, a_sym);
   }
 

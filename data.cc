@@ -31,8 +31,8 @@ void expand() {
   for (w i = 0; i != cap; ++i) {
     auto t = entries[i];
     if (t) {
-      auto t1 = tcompounds[t];
-      entries1[slot(entries1, cap1, t1->v, t1->n)] = t;
+      auto tp = tcompounds[t];
+      entries1[slot(entries1, cap1, tp->v, tp->n)] = t;
     }
   }
   free(entries);

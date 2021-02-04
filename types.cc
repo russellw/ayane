@@ -1,7 +1,7 @@
 #include "main.h"
 
 // SORT
-void defaultType(w t, w a) {
+void defaulttype(w t, w a) {
   assert(!istcompound(t));
   switch (a & 7) {
   case a_compound: {
@@ -27,7 +27,7 @@ void defaultType(w t, w a) {
   }
 }
 
-w numType(w a) {
+w numtype(w a) {
   auto t = typeof(a);
   switch (t) {
   case t_int:
@@ -38,8 +38,8 @@ w numType(w a) {
   throw "Expected number term";
 }
 
-void requireType(w t, w a) {
-  defaultType(t, a);
+void requiretype(w t, w a) {
+  defaulttype(t, a);
   if (t != typeof(a))
     throw "Type mismatch";
 }

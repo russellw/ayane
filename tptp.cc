@@ -527,9 +527,9 @@ struct TptpParser : Parser {
   w definedFunctor(w op, w arity) {
     vec<w> v(op);
     args(v, arity);
-    auto t = numType(v[1]);
+    auto t = numtype(v[1]);
     for (auto i = v.begin() + 2; i != v.end(); ++i)
-      requireType(t, *i);
+      requiretype(t, *i);
     return term(v);
   }
 
@@ -552,10 +552,10 @@ struct TptpParser : Parser {
         return definedFunctor(basic(b_sub), 2);
       case k_distinct: {
         args(v);
-        defaultType(t_individual, v[0]);
+        defaulttype(t_individual, v[0]);
         auto t = typeof(v[0]);
         for (auto i = v.begin() + 1; i != v.end(); ++i)
-          requireType(t, *i);
+          requiretype(t, *i);
         vec<w> clauses(basic(b_and));
         for (auto i = v.begin(); i != v.end(); ++i)
           for (auto j = v.begin(); j != i; ++j)
@@ -568,14 +568,14 @@ struct TptpParser : Parser {
         return definedFunctor(basic(b_floor), 1);
       case k_greater: {
         args(v, 2);
-        auto t = numType(v[0]);
-        requireType(t, v[1]);
+        auto t = numtype(v[0]);
+        requiretype(t, v[1]);
         return term(basic(b_lt), v[1], v[0]);
       }
       case k_greatereq: {
         args(v, 2);
-        auto t = numType(v[0]);
-        requireType(t, v[1]);
+        auto t = numtype(v[0]);
+        requiretype(t, v[1]);
         return term(basic(b_le), v[1], v[0]);
       }
       case k_is_int:
@@ -652,7 +652,7 @@ struct TptpParser : Parser {
       vec<w> v(a);
       args(v);
       for (auto i = v.begin() + 1; i != v.end(); ++i)
-        defaultType(t_individual, *i);
+        defaulttype(t_individual, *i);
       return term(v);
     }
     }
@@ -665,19 +665,19 @@ struct TptpParser : Parser {
     case '=': {
       lex();
       auto b = atomicTerm();
-      defaultType(t_individual, a);
-      requireType(typeof(a), b);
+      defaulttype(t_individual, a);
+      requiretype(typeof(a), b);
       return term(basic(b_eq), a, b);
     }
     case o_ne: {
       lex();
       auto b = atomicTerm();
-      defaultType(t_individual, a);
-      requireType(typeof(a), b);
+      defaulttype(t_individual, a);
+      requiretype(typeof(a), b);
       return term(basic(b_not), term(basic(b_eq), a, b));
     }
     }
-    requireType(t_bool, a);
+    requiretype(t_bool, a);
     return a;
   }
 

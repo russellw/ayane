@@ -17,6 +17,7 @@ include
 int
 is_int
 is_rat
+ite
 less
 lesseq
 lst

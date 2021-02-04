@@ -586,6 +586,8 @@ struct TptpParser : parser {
         return definedFunctor(basic(b_isint), 1);
       case k_is_rat:
         return definedFunctor(basic(b_israt), 1);
+      case k_ite:
+        throw Inappropriate();
       case k_less:
         return definedFunctor(basic(b_lt), 2);
       case k_lesseq:

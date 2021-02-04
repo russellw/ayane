@@ -19,6 +19,7 @@ enum {
   k_int,
   k_is_int,
   k_is_rat,
+  k_ite,
   k_less,
   k_lesseq,
   k_lst,

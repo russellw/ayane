@@ -859,7 +859,7 @@ struct TptpParser : Parser {
             auto S = name();
             expect(':');
             ts = tokStart;
-            if (tok == o_word && tokSym == keywords + k_tType) {
+            if (tok == o_dollarword && tokSym == keywords + k_tType) {
               lex();
               if (tok == '>')
                 throw Inappropriate();

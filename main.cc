@@ -43,24 +43,21 @@ w lang;
 ///
 
 void help() {
-  printf("Usage: ayane [options] [files]\n"
-         "\n"
-         "General options:\n"
-         "-help       Show help\n"
-         "-version    Show version\n"
-         "\n"
+  printf("General options:\n"
+         "-help       show help\n"
+         "-version    show version\n"
          "\n"
          "Input:\n"
-         "-dimacs     DIMACS format\n"
-         "-tptp       TPTP format\n"
-         "-           Read stdin\n"
+         "-dimacs     dimacs format\n"
+         "-tptp       tptp format\n"
+         "-           read stdin\n"
          "\n"
          "Resources:\n"
-         "-t seconds  Time limit\n");
+         "-t seconds  time limit\n");
 }
 
 const char *ext(const char *file) {
-  // Don't care about a.b/c
+  // don't care about a.b/c
   auto s = strrchr(file, '.');
   return s ? s + 1 : "";
 }
@@ -73,7 +70,7 @@ const char *opt(int argc, const char **argv, int &i) {
   if (*s == '-' && isdigit1(s[2]))
     return s + 2;
   if (++i == argc) {
-    fprintf(stderr, "%s: Expected arg\n", s);
+    fprintf(stderr, "%s: expected arg\n", s);
     exit(1);
   }
   return argv[i];
@@ -89,7 +86,7 @@ double optdouble(int argc, const char **argv, int &i) {
     exit(1);
   }
   if (t == s) {
-    fprintf(stderr, "%s: Expected number\n", s);
+    fprintf(stderr, "%s: expected number\n", s);
     exit(1);
   }
   return a;
@@ -151,7 +148,7 @@ void parse(int argc, const char **argv) {
       lang = l_tptp;
       break;
     default:
-      fprintf(stderr, "%s: Unknown option\n", argv[i]);
+      fprintf(stderr, "%s: unknown option\n", argv[i]);
       exit(1);
     }
   }

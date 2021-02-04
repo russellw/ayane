@@ -172,18 +172,18 @@ w language(const char *file) {
 void print(w n, const char *caption) {
   auto s = buf + sizeof buf - 1;
   *s = 0;
-  // Use signed integer calculations for left justification to degrade
+  // use signed integer calculations for left justification to degrade
   // gracefully just in case a number does overflow the allocated width
   int i = 0;
   do {
-    // Extract a digit
+    // extract a digit
     *--s = '0' + n % 10;
     n /= 10;
 
-    // Track how many digits we have extracted
+    // track how many digits we have extracted
     ++i;
 
-    // So that we can punctuate them in groups of 3
+    // so that we can punctuate them in groups of 3
     if (i % 3 == 0 && n)
       *--s = ',';
   } while (n);
@@ -260,7 +260,7 @@ int main(int argc, const char **argv) {
       printf("%zu seconds\n", (w)(time(0) - start));
 #endif
     } catch (inappropriate e) {
-      printf("%% SZS status inappropriate for %s\n", bname);
+      printf("%% SZS status Inappropriate for %s\n", bname);
     }
     if (i + 1 < files.n)
       putchar('\n');

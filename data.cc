@@ -55,7 +55,7 @@ w put(const uint16_t *p, w n) {
     return entries[i] | t_compound;
   if (tcompounds.n >= cap * 3 / 4) {
     if (tcompounds.n >= t_compound)
-      throw "Too many compound types";
+      throw "too many compound types";
     expand();
     i = slot(entries, cap, p, n);
   }

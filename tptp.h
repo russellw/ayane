@@ -1,3 +1,3 @@
 struct Inappropriate {};
 
-void readTptp(const char *file);
+void tptp(const char *file);

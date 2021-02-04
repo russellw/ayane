@@ -14,10 +14,10 @@ static VOID CALLBACK timeout(PVOID a, BOOLEAN b) { ExitProcess(1); }
 #define version "3"
 
 enum {
-  unknown,
+  l_unknown,
 
-  dimacs,
-  tptp,
+  l_dimacs,
+  l_tptp,
 };
 
 namespace {
@@ -128,7 +128,7 @@ void parse(int argc, const char **argv) {
              sizeof(void *) * 8);
       exit(0);
     case k_dimacs:
-      lang = dimacs;
+      lang = l_dimacs;
       break;
     case k_h:
     case k_help:
@@ -146,7 +146,7 @@ void parse(int argc, const char **argv) {
       break;
     }
     case k_tptp:
-      lang = tptp;
+      lang = l_tptp;
       break;
     default:
       fprintf(stderr, "%s: Unknown option\n", argv[i]);
@@ -160,9 +160,9 @@ w language(const char *file) {
     return lang;
   switch (keyword(intern(ext(file)))) {
   case k_cnf:
-    return dimacs;
+    return l_dimacs;
   }
-  return tptp;
+  return l_tptp;
 }
 
 #ifdef DEBUG
@@ -240,11 +240,11 @@ int main(int argc, const char **argv) {
     clear();
     try {
       switch (language(file)) {
-      case dimacs:
-        readDimacs(file);
+      case l_dimacs:
+        dimacs(file);
         break;
-      case tptp:
-        readTptp(file);
+      case l_tptp:
+        tptp(file);
         break;
       default:
         unreachable;

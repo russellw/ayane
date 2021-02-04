@@ -116,4 +116,4 @@ struct DimacsParser : Parser {
 };
 } // namespace
 
-void readDimacs(const char *file) { DimacsParser parser(file); }
+void dimacs(const char *file) { DimacsParser parser(file); }

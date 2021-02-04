@@ -893,13 +893,13 @@ struct TptpParser : Parser {
           break;
         }
         case k_include: {
-          auto tptp = getenv("TPTP");
-          if (!tptp)
+          auto dir = getenv("TPTP");
+          if (!dir)
             err("TPTP environment variable not set", ts);
           expect('(');
 
           // File
-          snprintf(buf, sizeof buf, "%s/%s", tptp, name()->v);
+          snprintf(buf, sizeof buf, "%s/%s", dir, name()->v);
           auto file1 = intern(buf, strlen(buf))->v;
 
           // Select and read
@@ -935,7 +935,7 @@ struct TptpParser : Parser {
 };
 } // namespace
 
-void readTptp(const char *file) {
+void tptp(const char *file) {
   memset(isword + '0', 1, 10);
   memset(isword + 'A', 1, 26);
   isword['_'] = 1;

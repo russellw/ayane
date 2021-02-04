@@ -1,1 +1,1 @@
-void readDimacs(const char *file);
+void dimacs(const char *file);

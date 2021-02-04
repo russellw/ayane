@@ -50,7 +50,7 @@ struct parser1 : parser {
   vec<std::pair<Sym *, w>> vars;
   ///
 
-  // Tokenizer
+  // tokenizer
   void word() {
     auto s = text;
     while (isword[*s])
@@ -67,9 +67,9 @@ struct parser1 : parser {
       if (*s == '\\')
         ++s;
       if (*s < ' ')
-        err("Unclosed quote");
+        err("unclosed quote");
       if (i >= sizeof buf)
-        err("Symbol too long");
+        err("symbol too long");
       buf[i++] = *s++;
     }
     text = s + 1;
@@ -101,12 +101,12 @@ struct parser1 : parser {
 
   void num() {
     sign();
-    // GMP doesn't handle unary +, so need to omit it from token
+    // gmp doesn't handle unary +, so need to omit it from token
     if (*tokstart == '+')
       ++tokstart;
-    // Sign without digits should give a clear error message
+    // sign without digits should give a clear error message
     if (!isdigit1(*text))
-      err("Expected digit", text);
+      err("expected digit", text);
     tok = o_int;
     digits();
     switch (*text) {
@@ -133,7 +133,7 @@ struct parser1 : parser {
       break;
     }
     if (text - tokstart > sizeof buf - 1)
-      err("Number too long");
+      err("number too long");
   }
 
   void lex() {
@@ -178,7 +178,7 @@ struct parser1 : parser {
               break;
             }
           if (!status)
-            err("Unknown status");
+            err("unknown status");
         }
       }
       if (header) {
@@ -210,11 +210,11 @@ struct parser1 : parser {
     case '/':
       if (s[1] != '*') {
         text = s + 1;
-        err("Expected '*'");
+        err("expected '*'");
       }
       for (s += 2; !(s[0] == '*' && s[1] == '/'); ++s)
         if (!*s)
-          err("Unclosed comment");
+          err("unclosed comment");
       text = s + 2;
       goto loop;
     case '<':
@@ -235,7 +235,7 @@ struct parser1 : parser {
           return;
         }
         tokstart = s + 2;
-        err("Expected '>'");
+        err("expected '>'");
       }
       break;
     case '=':
@@ -339,18 +339,18 @@ struct parser1 : parser {
   void expect(char o) {
     if (eat(o))
       return;
-    sprintf(buf, "Expected '%c'", o);
+    sprintf(buf, "expected '%c'", o);
     err(buf);
   }
 
   void expect(char o, const char *s) {
     if (eat(o))
       return;
-    sprintf(buf, "Expected %s", s);
+    sprintf(buf, "expected %s", s);
     err(buf);
   }
 
-  // Types
+  // types
   w atomic_type() {
     auto k = tok;
     auto S = toksym;
@@ -382,7 +382,7 @@ struct parser1 : parser {
     case o_word:
       return type(S);
     default:
-      err("Expected type", ts);
+      err("expected type", ts);
     }
   }
 
@@ -403,12 +403,12 @@ struct parser1 : parser {
     return t;
   }
 
-  // Terms
+  // terms
   w parse_int() {
     strmemcpy(buf, tokstart, text);
     Int x;
     if (mpz_init_set_str(x.val, buf, 10))
-      err("Invalid number");
+      err("invalid number");
     lex();
     return int1(&x);
   }
@@ -418,7 +418,7 @@ struct parser1 : parser {
     Rat x;
     mpq_init(x.val);
     if (mpq_set_str(x.val, buf, 10))
-      err("Invalid number");
+      err("invalid number");
     mpq_canonicalize(x.val);
     lex();
     return rat(&x);
@@ -427,14 +427,14 @@ struct parser1 : parser {
   w parse_real() {
     auto p = tokstart;
 
-    // Sign
+    // sign
     auto sign = false;
     if (*p == '-') {
       ++p;
       sign = true;
     }
 
-    // Integer part
+    // integer part
     auto q = p;
     while (isdigit1(*q))
       ++q;
@@ -443,7 +443,7 @@ struct parser1 : parser {
     mpz_init_set_str(integer, buf, 10);
     p = q;
 
-    // Decimal part
+    // decimal part
     mpz_t mantissa;
     mpz_init(mantissa);
     w scale = 0;
@@ -457,31 +457,31 @@ struct parser1 : parser {
       scale = q - p;
       p = q;
     }
-    mpz_t powScale;
-    mpz_init(powScale);
-    mpz_ui_pow_ui(powScale, 10, scale);
+    mpz_t powscale;
+    mpz_init(powscale);
+    mpz_ui_pow_ui(powscale, 10, scale);
 
-    // Mantissa += integer * 10^scale
-    mpz_addmul(mantissa, integer, powScale);
+    // mantissa += integer * 10^scale
+    mpz_addmul(mantissa, integer, powscale);
 
-    // Sign
+    // sign
     if (sign)
       mpz_neg(mantissa, mantissa);
 
-    // Result = scaled mantissa
+    // result = scaled mantissa
     Rat x;
     mpq_init(x.val);
     mpq_set_num(x.val, mantissa);
-    mpq_set_den(x.val, powScale);
+    mpq_set_den(x.val, powscale);
 
-    // Exponent
-    auto exponentSign = false;
+    // exponent
+    auto exponentsign = false;
     w exponent = 0;
-    if (*p == 'e' || *p == 'E') {
+    if (*p == 'e' || *p == 'e') {
       ++p;
       switch (*p) {
       case '-':
-        exponentSign = true;
+        exponentsign = true;
       case '+':
         ++p;
         break;
@@ -491,21 +491,21 @@ struct parser1 : parser {
       if (errno)
         err(strerror(errno));
     }
-    mpz_t powExponent;
-    mpz_init(powExponent);
-    mpz_ui_pow_ui(powExponent, 10, exponent);
-    if (exponentSign)
-      mpz_mul(mpq_denref(x.val), mpq_denref(x.val), powExponent);
+    mpz_t powexponent;
+    mpz_init(powexponent);
+    mpz_ui_pow_ui(powexponent, 10, exponent);
+    if (exponentsign)
+      mpz_mul(mpq_denref(x.val), mpq_denref(x.val), powexponent);
     else
-      mpz_mul(mpq_numref(x.val), mpq_numref(x.val), powExponent);
+      mpz_mul(mpq_numref(x.val), mpq_numref(x.val), powexponent);
 
-    // Cleanup
+    // cleanup
     mpz_clear(integer);
     mpz_clear(mantissa);
-    mpz_clear(powScale);
-    mpz_clear(powExponent);
+    mpz_clear(powscale);
+    mpz_clear(powexponent);
 
-    // Result
+    // result
     lex();
     mpq_canonicalize(x.val);
     return real(&x);
@@ -524,7 +524,7 @@ struct parser1 : parser {
     args(v);
     if (v.n - old == arity)
       return;
-    sprintf(buf, "Expected %zu arguments", arity);
+    sprintf(buf, "expected %zu arguments", arity);
     err(buf);
   }
 
@@ -631,7 +631,7 @@ struct parser1 : parser {
       case k_uminus:
         return defined_functor(basic(b_minus), 1);
       }
-      err("Unknown word", ts);
+      err("unknown word", ts);
     }
     case o_int:
       return parse_int();
@@ -647,7 +647,7 @@ struct parser1 : parser {
         if (i->first == S)
           return i->second;
       if (!cnfmode)
-        err("Unknown variable", ts);
+        err("unknown variable", ts);
       auto x = var(t_individual, vars.n);
       vars.push(std::make_pair(S, x));
       return x;
@@ -664,7 +664,7 @@ struct parser1 : parser {
       return term(v);
     }
     }
-    err("Syntax error");
+    err("syntax error");
   }
 
   w infix_unary() {
@@ -696,7 +696,7 @@ struct parser1 : parser {
     vec<w> v(op, 0);
     do {
       if (tok != o_var)
-        err("Expected variable");
+        err("expected variable");
       auto S = toksym;
       lex();
       w t = t_individual;
@@ -769,7 +769,7 @@ struct parser1 : parser {
     return a;
   }
 
-  // Top level
+  // top level
   Sym *name() {
     switch (tok) {
     case o_int: {
@@ -783,7 +783,7 @@ struct parser1 : parser {
       return S;
     }
     }
-    err("Expected name");
+    err("expected name");
   }
 
   void ignore() {
@@ -794,7 +794,7 @@ struct parser1 : parser {
         ignore();
       return;
     case 0:
-      err("Unexpected end of file");
+      err("unexpected end of file");
     }
     lex();
   }
@@ -809,15 +809,15 @@ struct parser1 : parser {
         case k_cnf: {
           expect('(');
 
-          // Name
+          // name
           auto forname = name();
           expect(',');
 
-          // Role
+          // role
           name();
           expect(',');
 
-          // Literals
+          // literals
           cnfmode = true;
           neg.n = pos.n = 0;
           auto parens = eat('(');
@@ -833,11 +833,11 @@ struct parser1 : parser {
           if (parens)
             expect(')');
 
-          // Select
+          // select
           if (!sel.count(forname))
             break;
 
-          // Clause
+          // clause
           clause();
           break;
         }
@@ -845,20 +845,20 @@ struct parser1 : parser {
         case k_tff: {
           expect('(');
 
-          // Name
+          // name
           auto forname = name();
           expect(',');
 
-          // Role
+          // role
           if (tok != o_word)
-            err("Expected role");
+            err("expected role");
           auto role = keyword(toksym);
           if (role == k_conjecture && conjecture)
-            err("Multiple conjectures not supported");
+            err("multiple conjectures not supported");
           lex();
           expect(',');
 
-          // Type
+          // type
           if (role == k_type) {
             w parens = 0;
             while (eat('('))
@@ -874,7 +874,7 @@ struct parser1 : parser {
               auto t = top_level_type();
               if (S->ft) {
                 if (t != S->ft)
-                  err("Type mismatch");
+                  err("type mismatch");
               } else
                 S->ft = t;
             }
@@ -883,16 +883,16 @@ struct parser1 : parser {
             break;
           }
 
-          // Formula
+          // formula
           cnfmode = false;
           auto a = logic_formula();
           assert(!vars.n);
 
-          // Select
+          // select
           if (!sel.count(forname))
             break;
 
-          // CNF
+          // cnf
           if (role == k_conjecture) {
             a = term(basic(b_not), a);
             conjecture = true;
@@ -905,11 +905,11 @@ struct parser1 : parser {
             err("TPTP environment variable not set", ts);
           expect('(');
 
-          // File
+          // file
           snprintf(buf, sizeof buf, "%s/%s", dir, name()->v);
           auto file1 = intern(buf, strlen(buf))->v;
 
-          // Select and read
+          // select and read
           if (eat(',')) {
             expect('[');
             selection sel1(false);
@@ -926,7 +926,7 @@ struct parser1 : parser {
           break;
         }
         default:
-          err("Unknown language", ts);
+          err("unknown language", ts);
         }
         if (tok == ',')
           do

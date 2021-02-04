@@ -37,13 +37,13 @@ w numtype(w a) {
   case t_real:
     return t;
   }
-  throw "Expected number term";
+  throw "expected number term";
 }
 
 void requiretype(w t, w a) {
   defaulttype(t, a);
   if (t != typeof(a))
-    throw "Type mismatch";
+    throw "type mismatch";
 }
 
 w typeof(w a) {

@@ -9,7 +9,7 @@ enum {
 };
 
 struct parser1 : parser {
-  // Tokenizer
+  // tokenizer
   void lex() {
   loop:
     auto s = tokstart = text;
@@ -63,7 +63,7 @@ struct parser1 : parser {
     tok = *s;
   }
 
-  // Terms
+  // terms
   w fn() {
     auto S = toksym;
     lex();
@@ -71,7 +71,7 @@ struct parser1 : parser {
     return tag(S, a_sym);
   }
 
-  // Top level
+  // top level
   parser1(const char *file) : parser(file) {
     try {
       lex();
@@ -80,16 +80,16 @@ struct parser1 : parser {
           ++text;
 
         if (!(text[0] == 'c' && text[1] == 'n' && text[2] == 'f'))
-          throw "Expected 'cnf'";
+          throw "expected 'cnf'";
         text += 3;
         lex();
 
         if (tok != o_num)
-          throw "Expected count";
+          throw "expected count";
         lex();
 
         if (tok != o_num)
-          throw "Expected count";
+          throw "expected count";
         lex();
       }
       for (;;)
@@ -109,7 +109,7 @@ struct parser1 : parser {
           lex();
           break;
         default:
-          throw "Syntax error";
+          throw "syntax error";
         }
     } catch (const char *e) {
       err(e);

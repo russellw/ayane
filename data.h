@@ -131,6 +131,7 @@ extern vec<w> neg, pos;
 
 // SORT
 void clause();
+void clear();
 w imp(w a, w b);
 w int1(Int *x);
 Sym *intern(const char *s, w n);

@@ -234,6 +234,7 @@ int main(int argc, const char **argv) {
 #ifdef DEBUG
     auto start = time(0);
 #endif
+    clear();
     switch (getLanguage(file)) {
     case dimacs:
       readDimacs(file);

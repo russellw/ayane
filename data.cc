@@ -247,6 +247,14 @@ vec<w> neg, pos;
 // SORT
 void clause() {}
 
+void clear() {
+  for (w i = 0; i != syms::count; ++i) {
+    auto S = syms::entries[i];
+    if (S)
+      S->ft = 0;
+  }
+}
+
 w imp(w a, w b) { return term(basic(b_or), term(basic(b_not), a), b); }
 
 w int1(Int *x) { return tag(nums::ints.put(x), a_int); }

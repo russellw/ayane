@@ -93,22 +93,24 @@ template <class T, w small = 4> struct vec {
 
   // element access
   T &operator[](w i) {
+    assert(0 <= i);
     assert(i < n);
     return p[i];
   }
 
   const T &operator[](w i) const {
+    assert(0 <= i);
     assert(i < n);
     return p[i];
   }
 
   T &back() {
-    assert(n);
+    assert(n > 0);
     return p[n - 1];
   }
 
   const T &back() const {
-    assert(n);
+    assert(n > 0);
     return p[n - 1];
   }
 
@@ -119,7 +121,7 @@ template <class T, w small = 4> struct vec {
   }
 
   void pop() {
-    assert(n);
+    assert(n > 0);
     --n;
   }
 

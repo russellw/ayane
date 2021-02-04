@@ -248,7 +248,7 @@ vec<w> neg, pos;
 void clause() {}
 
 void clear() {
-  for (w i = 0; i != syms::count; ++i) {
+  for (w i = 0; i != syms::cap; ++i) {
     auto S = syms::entries[i];
     if (S)
       S->ft = 0;

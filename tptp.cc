@@ -167,7 +167,7 @@ struct TptpParser : Parser {
       if (!status) {
         std::string s1(s, text);
         std::smatch m;
-        if (std::regex_match(s1, m, std::regex(R"(% Status\s*:\s*(\w+))"))) {
+        if (std::regex_match(s1, m, std::regex(R"(% Status\s*:\s*(\w+)\s*)"))) {
           for (w i = 1; i != n_szs; ++i)
             if (m[1] == szs[i]) {
               status = i;

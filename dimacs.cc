@@ -49,7 +49,7 @@ struct DimacsParser : Parser {
       std::smatch m;
       if (!status &&
           std::regex_match(line, m, std::regex(R"(c .* (SAT|UNSAT) .*)")))
-        status = m[1] == "SAT" ? Satisfiable : Unsatisfiable;
+        status = m[1] == "SAT" ? s_Satisfiable : s_Unsatisfiable;
 #endif
       goto loop;
     }

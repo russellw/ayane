@@ -17,7 +17,7 @@ struct Parser {
 
 // SZS status codes
 enum {
-#define _(s) s,
+#define _(s) s_##s,
 #include "szs.h"
 #undef _
   n_szs

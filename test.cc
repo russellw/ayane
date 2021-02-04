@@ -64,10 +64,10 @@ void test_int() {
 }
 
 void test_match() {
-  // Subset of unify where only the first argument can be treated as a variable
-  // to be matched against the second argument. Applied to the same test cases
+  // subset of unify where only the first argument can be treated as a variable
+  // to be matched against the second argument. applied to the same test cases
   // as unify, gives the same results in some cases, but different results in
-  // others. In particular, has no notion of an occurs check; in actual use, it
+  // others. in particular, has no notion of an occurs check; in actual use, it
   // is assumed that the arguments will have disjoint variables
   auto a = fn(t_individual, intern("a"));
   auto b = fn(t_individual, intern("b"));

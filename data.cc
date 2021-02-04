@@ -3,9 +3,9 @@
 #include "main.h"
 
 namespace types {
-// The number of types is expected to be small. It is therefore possible to fit
+// the number of types is expected to be small. it is therefore possible to fit
 // a type reference into 16 bits, and desirable because this allows the type of
-// a variable to be read without an extra memory access. Compound types are
+// a variable to be read without an extra memory access. compound types are
 // therefore tracked with an unusual kind of memory bank in which entries are
 // 16-bit words rather than pointers
 w atoms = basic_types;
@@ -67,7 +67,7 @@ w put(const uint16_t *p, w n) {
 } // namespace types
 
 namespace syms {
-// Must be a power of 2, and large enough to hold the largest collection of
+// must be a power of 2, and large enough to hold the largest collection of
 // entries that will be loaded at initialization time
 w cap = 0x100;
 w count;
@@ -137,7 +137,7 @@ Sym *put(const char *p, w n) {
 
 namespace nums {
 template <class T> class bank {
-  // Must be a power of 2
+  // must be a power of 2
   w cap = 0x10;
   w count;
   T **entries = (T **)xcalloc(cap, sizeof(T *));
@@ -189,7 +189,7 @@ bank<Rat> rats;
 } // namespace nums
 
 namespace compounds {
-// Must be a power of 2
+// must be a power of 2
 w cap = 0x1000;
 w count;
 Compound **entries = (Compound **)xcalloc(cap, sizeof(Compound *));
@@ -303,7 +303,7 @@ w type(Sym *name) {
   if (name->t)
     return name->t;
   if (istcompound(types::atoms))
-    throw "Too many atomic types";
+    throw "too many atomic types";
   return name->t = types::atoms++;
 }
 

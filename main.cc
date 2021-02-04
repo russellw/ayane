@@ -21,8 +21,8 @@ enum {
 };
 
 namespace {
-struct LineParser : Parser {
-  LineParser(const char *file, vec<const char *> &v) : Parser(file) {
+struct LineParser : parser {
+  LineParser(const char *file, vec<const char *> &v) : parser(file) {
     auto s = text;
     while (*s) {
       auto t = strchr(s, '\n');
@@ -103,7 +103,7 @@ void parse(int argc, const char **argv) {
     if (*s != '-') {
       if (!strcmp(ext(s), "lst")) {
         vec<const char *> v;
-        LineParser parser(s, v);
+        LineParser p(s, v);
         parse(v.n, v.p);
         continue;
       }

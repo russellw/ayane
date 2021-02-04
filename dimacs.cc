@@ -6,7 +6,7 @@ enum {
   o_zero,
 };
 
-struct DimacsParser : Parser {
+struct DimacsParser : parser {
   // Tokenizer
   void lex() {
   loop:
@@ -70,7 +70,7 @@ struct DimacsParser : Parser {
   }
 
   // Top level
-  DimacsParser(const char *file) : Parser(file) {
+  DimacsParser(const char *file) : parser(file) {
     try {
       lex();
       if (tok == 'p') {
@@ -116,4 +116,4 @@ struct DimacsParser : Parser {
 };
 } // namespace
 
-void dimacs(const char *file) { DimacsParser parser(file); }
+void dimacs(const char *file) { DimacsParser p(file); }

@@ -1,4 +1,4 @@
-struct Parser {
+struct parser {
   // File
   const char *file;
   const char *textstart;
@@ -11,8 +11,8 @@ struct Parser {
   w tok;
   Sym *toksym;
 
-  Parser(const char *file);
-  ~Parser();
+  parser(const char *file);
+  ~parser();
 
   noret err(const char *msg, const char *ts);
   noret err(const char *msg);

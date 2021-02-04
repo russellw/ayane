@@ -41,7 +41,7 @@ void strmemcpy(char *dest, const char *src, const char *end) {
   dest[n] = 0;
 }
 
-struct TptpParser : Parser {
+struct TptpParser : parser {
   Select select;
   bool cnfMode;
   vec<std::pair<Sym *, w>> vars;
@@ -792,7 +792,7 @@ struct TptpParser : Parser {
   }
 
   TptpParser(const char *file, const Select &select)
-      : Parser(file), select(select) {
+      : parser(file), select(select) {
     try {
       lex();
       while (tok) {
@@ -912,9 +912,9 @@ struct TptpParser : Parser {
                 select1.insert(formulaName);
             } while (eat(','));
             expect(']');
-            TptpParser parser(file1, select1);
+            TptpParser p(file1, select1);
           } else {
-            TptpParser parser(file1, select);
+            TptpParser p(file1, select);
           }
           break;
         }
@@ -943,5 +943,5 @@ void tptp(const char *file) {
 #ifdef DEBUG
   header = 2;
 #endif
-  TptpParser parser(file, Select(true));
+  TptpParser p(file, Select(true));
 }

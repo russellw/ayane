@@ -9,7 +9,7 @@
 #define O_BINARY 0
 #endif
 
-Parser::Parser(const char *file) : file(file) {
+parser::parser(const char *file) : file(file) {
   char *s = 0;
   w n = 0;
   if (strcmp(file, "stdin")) {
@@ -79,9 +79,9 @@ Parser::Parser(const char *file) : file(file) {
   tokstart = s;
 }
 
-Parser::~Parser() { free((void *)textstart); }
+parser::~parser() { free((void *)textstart); }
 
-noret Parser::err(const char *msg, const char *ts) {
+noret parser::err(const char *msg, const char *ts) {
   // Line number
   w line = 1;
   for (auto s = textstart; s != ts; ++s)
@@ -108,4 +108,4 @@ noret Parser::err(const char *msg, const char *ts) {
   exit(1);
 }
 
-noret Parser::err(const char *msg) { err(msg, tokstart); }
+noret parser::err(const char *msg) { err(msg, tokstart); }

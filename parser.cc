@@ -74,23 +74,23 @@ Parser::Parser(const char *file) : file(file) {
   }
 
   // Start at the beginning
-  textStart = s;
+  textstart = s;
   text = s;
-  tokStart = s;
+  tokstart = s;
 }
 
-Parser::~Parser() { free((void *)textStart); }
+Parser::~Parser() { free((void *)textstart); }
 
 noret Parser::err(const char *msg, const char *ts) {
   // Line number
   w line = 1;
-  for (auto s = textStart; s != ts; ++s)
+  for (auto s = textstart; s != ts; ++s)
     if (*s == '\n')
       ++line;
 
   // Start of line
   auto lineStart = ts;
-  while (!(lineStart == textStart || lineStart[-1] == '\n'))
+  while (!(lineStart == textstart || lineStart[-1] == '\n'))
     --lineStart;
 
   // Print context
@@ -108,4 +108,4 @@ noret Parser::err(const char *msg, const char *ts) {
   exit(1);
 }
 
-noret Parser::err(const char *msg) { err(msg, tokStart); }
+noret Parser::err(const char *msg) { err(msg, tokstart); }

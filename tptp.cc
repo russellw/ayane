@@ -51,7 +51,7 @@ struct TptpParser : Parser {
     auto s = text;
     while (isword[*s])
       ++s;
-    tokSym = intern(text, s - text);
+    toksym = intern(text, s - text);
     text = s;
   }
 
@@ -69,7 +69,7 @@ struct TptpParser : Parser {
       buf[i++] = *s++;
     }
     text = s + 1;
-    tokSym = intern(buf, i);
+    toksym = intern(buf, i);
   }
 
   void sign() {
@@ -98,8 +98,8 @@ struct TptpParser : Parser {
   void num() {
     sign();
     // GMP doesn't handle unary +, so need to omit it from token
-    if (*tokStart == '+')
-      ++tokStart;
+    if (*tokstart == '+')
+      ++tokstart;
     // Sign without digits should give a clear error message
     if (!isdigit1(*text))
       err("Expected digit", text);
@@ -128,13 +128,13 @@ struct TptpParser : Parser {
       exp();
       break;
     }
-    if (text - tokStart > sizeof buf - 1)
+    if (text - tokstart > sizeof buf - 1)
       err("Number too long");
   }
 
   void lex() {
   loop:
-    auto s = tokStart = text;
+    auto s = tokstart = text;
     switch (*s) {
     case ' ':
     case '\f':
@@ -230,7 +230,7 @@ struct TptpParser : Parser {
           tok = o_xor;
           return;
         }
-        tokStart = s + 2;
+        tokstart = s + 2;
         err("Expected '>'");
       }
       break;
@@ -349,8 +349,8 @@ struct TptpParser : Parser {
   // Types
   w atomicType() {
     auto k = tok;
-    auto S = tokSym;
-    auto ts = tokStart;
+    auto S = toksym;
+    auto ts = tokstart;
     lex();
     switch (k) {
     case '!':
@@ -401,7 +401,7 @@ struct TptpParser : Parser {
 
   // Terms
   w parseInt() {
-    strmemcpy(buf, tokStart, text);
+    strmemcpy(buf, tokstart, text);
     Int x;
     if (mpz_init_set_str(x.val, buf, 10))
       err("Invalid number");
@@ -410,7 +410,7 @@ struct TptpParser : Parser {
   }
 
   w parseRat() {
-    strmemcpy(buf, tokStart, text);
+    strmemcpy(buf, tokstart, text);
     Rat x;
     mpq_init(x.val);
     if (mpq_set_str(x.val, buf, 10))
@@ -421,7 +421,7 @@ struct TptpParser : Parser {
   }
 
   w parseReal() {
-    auto p = tokStart;
+    auto p = tokstart;
 
     // Sign
     auto sign = false;
@@ -536,13 +536,13 @@ struct TptpParser : Parser {
   w atomicTerm() {
     switch (tok) {
     case o_distinctobj: {
-      auto a = tag(tokSym, a_distinctobj);
+      auto a = tag(toksym, a_distinctobj);
       lex();
       return a;
     }
     case o_dollarword: {
-      auto S = tokSym;
-      auto ts = tokStart;
+      auto S = toksym;
+      auto ts = tokstart;
       lex();
       vec<w> v;
       switch (keyword(S)) {
@@ -632,8 +632,8 @@ struct TptpParser : Parser {
     case o_real:
       return parseReal();
     case o_var: {
-      auto S = tokSym;
-      auto ts = tokStart;
+      auto S = toksym;
+      auto ts = tokstart;
       lex();
       for (auto i = vars.rbegin(); i != vars.rend(); ++i)
         if (i->first == S)
@@ -645,7 +645,7 @@ struct TptpParser : Parser {
       return x;
     }
     case o_word: {
-      auto a = tag(tokSym, a_sym);
+      auto a = tag(toksym, a_sym);
       lex();
       if (tok != '(')
         return a;
@@ -689,7 +689,7 @@ struct TptpParser : Parser {
     do {
       if (tok != o_var)
         err("Expected variable");
-      auto S = tokSym;
+      auto S = toksym;
       lex();
       w t = t_individual;
       if (eat(':'))
@@ -765,12 +765,12 @@ struct TptpParser : Parser {
   Sym *name() {
     switch (tok) {
     case o_int: {
-      auto S = intern(tokStart, text - tokStart);
+      auto S = intern(tokstart, text - tokstart);
       lex();
       return S;
     }
     case o_word: {
-      auto S = tokSym;
+      auto S = toksym;
       lex();
       return S;
     }
@@ -796,7 +796,7 @@ struct TptpParser : Parser {
     try {
       lex();
       while (tok) {
-        auto ts = tokStart;
+        auto ts = tokstart;
         vars.n = 0;
         switch (keyword(name())) {
         case k_cnf: {
@@ -845,7 +845,7 @@ struct TptpParser : Parser {
           // Role
           if (tok != o_word)
             err("Expected role");
-          auto role = keyword(tokSym);
+          auto role = keyword(toksym);
           if (role == k_conjecture && conjecture)
             err("Multiple conjectures not supported");
           lex();
@@ -858,8 +858,8 @@ struct TptpParser : Parser {
               ++parens;
             auto S = name();
             expect(':');
-            ts = tokStart;
-            if (tok == o_dollarword && tokSym == keywords + k_tType) {
+            ts = tokstart;
+            if (tok == o_dollarword && toksym == keywords + k_tType) {
               lex();
               if (tok == '>')
                 throw Inappropriate();

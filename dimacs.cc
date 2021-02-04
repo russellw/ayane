@@ -10,7 +10,7 @@ struct DimacsParser : Parser {
   // Tokenizer
   void lex() {
   loop:
-    auto s = tokStart = text;
+    auto s = tokstart = text;
     switch (*text) {
     case ' ':
     case '\f':
@@ -39,7 +39,7 @@ struct DimacsParser : Parser {
         ++s;
       while (isdigit1(*s));
       text = s;
-      tokSym = intern(tokStart, s - tokStart);
+      toksym = intern(tokstart, s - tokstart);
       tok = o_num;
       return;
     case 'c': {
@@ -63,7 +63,7 @@ struct DimacsParser : Parser {
 
   // Terms
   w fn() {
-    auto S = tokSym;
+    auto S = toksym;
     lex();
     S->ft = t_bool;
     return tag(S, a_sym);

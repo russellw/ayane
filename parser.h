@@ -1,15 +1,15 @@
 struct Parser {
   // File
   const char *file;
-  const char *textStart;
+  const char *textstart;
 
   // Current location
   const char *text;
 
   // Current token
-  const char *tokStart;
+  const char *tokstart;
   w tok;
-  Sym *tokSym;
+  Sym *toksym;
 
   Parser(const char *file);
   ~Parser();

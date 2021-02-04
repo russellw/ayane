@@ -25,10 +25,10 @@ char isword[0x100];
 w header;
 #endif
 
-struct select : std::unordered_set<Sym *> {
+struct selection : std::unordered_set<Sym *> {
   bool all;
 
-  explicit select(bool all) : all(all) {}
+  explicit selection(bool all) : all(all) {}
 
   w count(Sym *S) const {
     if (all)
@@ -46,7 +46,7 @@ void strmemcpy(char *dest, const char *src, const char *end) {
 struct parser1 : parser {
   // SORT
   bool cnfmode;
-  select sel;
+  selection sel;
   vec<std::pair<Sym *, w>> vars;
   ///
 
@@ -404,7 +404,7 @@ struct parser1 : parser {
   }
 
   // Terms
-  w parseInt() {
+  w parse_int() {
     strmemcpy(buf, tokstart, text);
     Int x;
     if (mpz_init_set_str(x.val, buf, 10))
@@ -413,7 +413,7 @@ struct parser1 : parser {
     return int1(&x);
   }
 
-  w parseRat() {
+  w parse_rat() {
     strmemcpy(buf, tokstart, text);
     Rat x;
     mpq_init(x.val);
@@ -424,7 +424,7 @@ struct parser1 : parser {
     return rat(&x);
   }
 
-  w parseReal() {
+  w parse_real() {
     auto p = tokstart;
 
     // Sign
@@ -634,11 +634,11 @@ struct parser1 : parser {
       err("Unknown word", ts);
     }
     case o_int:
-      return parseInt();
+      return parse_int();
     case o_rat:
-      return parseRat();
+      return parse_rat();
     case o_real:
-      return parseReal();
+      return parse_real();
     case o_var: {
       auto S = toksym;
       auto ts = tokstart;
@@ -799,7 +799,7 @@ struct parser1 : parser {
     lex();
   }
 
-  parser1(const char *file, const select &sel) : parser(file), sel(sel) {
+  parser1(const char *file, const selection &sel) : parser(file), sel(sel) {
     try {
       lex();
       while (tok) {
@@ -912,7 +912,7 @@ struct parser1 : parser {
           // Select and read
           if (eat(',')) {
             expect('[');
-            select sel1(false);
+            selection sel1(false);
             do {
               auto formulaName = name();
               if (sel.count(formulaName))
@@ -950,5 +950,5 @@ void tptp(const char *file) {
 #ifdef DEBUG
   header = 2;
 #endif
-  parser1 p(file, select(true));
+  parser1 p(file, selection(true));
 }

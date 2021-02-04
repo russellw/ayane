@@ -234,25 +234,30 @@ int main(int argc, const char **argv) {
 #ifdef DEBUG
     auto start = time(0);
 #endif
+    auto bname = basename(file);
     clear();
-    switch (getLanguage(file)) {
-    case dimacs:
-      readDimacs(file);
-      break;
-    case tptp:
-      readTptp(file);
-      break;
-    default:
-      unreachable;
-    }
+    try {
+      switch (getLanguage(file)) {
+      case dimacs:
+        readDimacs(file);
+        break;
+      case tptp:
+        readTptp(file);
+        break;
+      default:
+        unreachable;
+      }
 #ifdef DEBUG
 #ifdef _WIN32
-    putchar('\n');
-    printMem();
-    putchar('\n');
+      putchar('\n');
+      printMem();
+      putchar('\n');
 #endif
-    printf("%zu seconds\n", (w)(time(0) - start));
+      printf("%zu seconds\n", (w)(time(0) - start));
 #endif
+    } catch (Inappropriate e) {
+      printf("%% SZS status Inappropriate for %s\n", bname);
+    }
     if (i + 1 < files.n)
       putchar('\n');
   }

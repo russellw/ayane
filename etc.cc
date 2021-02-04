@@ -41,6 +41,21 @@ bool assertfail(const char *file, w line, const char *s) {
 
 char buf[0x10000];
 
+// SORT
+const char *basename(const char *file) {
+  auto i = strlen(file);
+  while (i) {
+    if (file[i - 1] == '/')
+      return file + 1;
+#ifdef _WIN32
+    if (file[i - 1] == '\\')
+      return file + 1;
+#endif
+    --i;
+  }
+  return file;
+}
+
 size_t fnv(const void *p, w n) {
   // Fowler-Noll-Vo-1a
   auto p1 = (const char *)p;
@@ -51,3 +66,15 @@ size_t fnv(const void *p, w n) {
   }
   return h;
 }
+
+void quote(char q, const char *s) {
+  putchar(q);
+  while (*s) {
+    auto c = *s++;
+    if (c == q || c == '\\')
+      putchar('\\');
+    putchar(c);
+  }
+  putchar(q);
+}
+///

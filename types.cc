@@ -86,6 +86,8 @@ w typeof(w a) {
     }
     unreachable;
   }
+  case a_distinctobj:
+    return t_individual;
   case a_int:
     return t_int;
   case a_rat:
@@ -94,8 +96,6 @@ w typeof(w a) {
     return t_real;
   case a_sym:
     return symp(a)->ft;
-  case a_distinctobj:
-    return t_individual;
   case a_var:
     return a >> 3 & 0xffff;
   }

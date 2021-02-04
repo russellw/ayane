@@ -46,4 +46,8 @@ bool assertfail(const char *file, w line, const char *s);
 
 extern char buf[0x10000];
 
+// SORT
+const char *basename(const char *file);
 size_t fnv(const void *p, w n);
+void quote(char q, const char *s);
+///

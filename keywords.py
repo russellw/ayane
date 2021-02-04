@@ -37,7 +37,7 @@ with open("keywords.cc", "w") as f:
     f.write('#include "stdafx.h"\n')
     f.write("// stdafx.h must be first\n")
     f.write('#include "main.h"\n')
-    f.write("Sym keywords [] = {\n")
+    f.write("sym keywords [] = {\n")
     for s in lines:
         f.write('{0,0,"' + s + '"},\n')
     f.write("};\n")

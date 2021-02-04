@@ -5,7 +5,7 @@
 #ifdef DEBUG
 namespace {
 // SORT
-w fn(w t, Sym *S) {
+w fn(w t, sym *S) {
   if (!S->ft)
     S->ft = t;
   assert(S->ft == t);

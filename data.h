@@ -106,7 +106,12 @@ struct Rat {
   void clear() { mpq_clear(val); }
 };
 
-struct Sym {
+struct TCompound {
+  uint16_t n;
+  uint16_t v[0];
+};
+
+struct sym {
   // type named by this symbol
   uint16_t t;
 
@@ -123,17 +128,12 @@ struct Sym {
   // responsible for allocating enough space to hold the corresponding strings
   char v[0x20 - 2 * sizeof(uint16_t)];
 };
-
-struct TCompound {
-  uint16_t n;
-  uint16_t v[0];
-};
 ///
 
 // SORT
-extern Sym keywords[];
 extern bool conjecture;
 extern const char *szs[];
+extern sym keywords[];
 extern vec<TCompound *> tcompounds;
 extern vec<w> neg, pos;
 ///
@@ -147,7 +147,7 @@ void clause();
 void clear();
 w imp(w a, w b);
 w int1(Int *x);
-Sym *intern(const char *s, w n);
+sym *intern(const char *s, w n);
 Int *intp(w a);
 w rat(Rat *x);
 Rat *ratp(w a);
@@ -155,8 +155,8 @@ w real(Rat *x);
 w term(const vec<w> &v);
 w term(w op, w a);
 w term(w op, w a, w b);
-w type(Sym *name);
 w type(const vec<uint16_t> &v);
+w type(sym *name);
 w type(w r, w t1);
 ///
 
@@ -171,16 +171,16 @@ inline w at(w a, w i) { return compoundp(a)->v[i]; }
 
 inline w basic(w op) { return op << 3 | a_basic; }
 
-inline void fpr(FILE *f, const Sym *S) { fpr(f, S->v); }
+inline void fpr(FILE *f, const sym *S) { fpr(f, S->v); }
 
-inline Sym *intern(const char *s) { return intern(s, strlen(s)); }
+inline sym *intern(const char *s) { return intern(s, strlen(s)); }
 
 inline Int *intp(w a) {
   assert((a & 7) == a_int);
   return (Int *)(a - a_int);
 }
 
-inline size_t keyword(const Sym *S) {
+inline size_t keyword(const sym *S) {
   // turn a symbol into a keyword number by subtracting the base of the keyword
   // array and dividing by the declared size of a symbol structure (which is
   // efficient as long as that size is a power of 2)
@@ -189,7 +189,7 @@ inline size_t keyword(const Sym *S) {
   // number will not correspond to any keyword and will not match any case in a
   // switch statement
   size_t i = (const char *)S - (const char *)keywords;
-  return i / sizeof(Sym);
+  return i / sizeof(sym);
 }
 
 inline Rat *ratp(w a) {
@@ -199,9 +199,9 @@ inline Rat *ratp(w a) {
 
 inline w size(w a) { return compoundp(a)->n; }
 
-inline Sym *symp(w a) {
+inline sym *symp(w a) {
   assert((a & 7) == a_sym);
-  return (Sym *)(a - a_sym);
+  return (sym *)(a - a_sym);
 }
 
 inline TCompound *tcompoundp(w t) {

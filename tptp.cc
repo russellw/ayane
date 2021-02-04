@@ -25,15 +25,15 @@ char isword[0x100];
 w header;
 #endif
 
-struct selection : std::unordered_set<Sym *> {
+struct selection : std::unordered_set<sym *> {
   bool all;
 
   explicit selection(bool all) : all(all) {}
 
-  w count(Sym *S) const {
+  w count(sym *S) const {
     if (all)
       return 1;
-    return std::unordered_set<Sym *>::count(S);
+    return std::unordered_set<sym *>::count(S);
   }
 };
 
@@ -47,7 +47,7 @@ struct parser1 : parser {
   // SORT
   bool cnfmode;
   selection sel;
-  vec<std::pair<Sym *, w>> vars;
+  vec<std::pair<sym *, w>> vars;
   ///
 
   // tokenizer
@@ -770,7 +770,7 @@ struct parser1 : parser {
   }
 
   // top level
-  Sym *name() {
+  sym *name() {
     switch (tok) {
     case o_int: {
       auto S = intern(tokstart, text - tokstart);

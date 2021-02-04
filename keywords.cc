@@ -2,7 +2,7 @@
 #include "stdafx.h"
 // stdafx.h must be first
 #include "main.h"
-Sym keywords[] = {
+sym keywords[] = {
     {0, 0, "V"},           {0, 0, "ceiling"},     {0, 0, "cnf"},
     {0, 0, "conjecture"},  {0, 0, "difference"},  {0, 0, "dimacs"},
     {0, 0, "distinct"},    {0, 0, "false"},       {0, 0, "floor"},

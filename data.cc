@@ -71,7 +71,7 @@ namespace syms {
 // entries that will be loaded at initialization time
 w cap = 0x100;
 w count;
-Sym **entries = (Sym **)xcalloc(cap, sizeof(Sym *));
+sym **entries = (sym **)xcalloc(cap, sizeof(sym *));
 
 bool strmemeq(const char *s, const char *p, w n) {
   while (n--)
@@ -80,7 +80,7 @@ bool strmemeq(const char *s, const char *p, w n) {
   return !*s;
 }
 
-w slot(Sym **entries, w cap, const char *p, w n) {
+w slot(sym **entries, w cap, const char *p, w n) {
   auto mask = cap - 1;
   auto i = fnv(p, n) & mask;
   while (entries[i] && !strmemeq(entries[i]->v, p, n))
@@ -90,7 +90,7 @@ w slot(Sym **entries, w cap, const char *p, w n) {
 
 void expand() {
   auto cap1 = cap * 2;
-  auto entries1 = (Sym **)xcalloc(cap1, sizeof *entries);
+  auto entries1 = (sym **)xcalloc(cap1, sizeof *entries);
   for (w i = 0; i != cap; ++i) {
     auto S = entries[i];
     if (S)
@@ -115,15 +115,15 @@ struct init {
   }
 } init1;
 
-Sym *store(const char *s, w n) {
-  auto r = (Sym *)xmalloc(offsetof(Sym, v) + n + 1);
-  memset(r, 0, offsetof(Sym, v));
+sym *store(const char *s, w n) {
+  auto r = (sym *)xmalloc(offsetof(sym, v) + n + 1);
+  memset(r, 0, offsetof(sym, v));
   memcpy(r->v, s, n);
   r->v[n] = 0;
   return r;
 }
 
-Sym *put(const char *p, w n) {
+sym *put(const char *p, w n) {
   auto i = slot(entries, cap, p, n);
   if (entries[i])
     return entries[i];
@@ -276,7 +276,7 @@ w imp(w a, w b) { return term(basic(b_or), term(basic(b_not), a), b); }
 
 w int1(Int *x) { return tag(nums::ints.put(x), a_int); }
 
-Sym *intern(const char *s, w n) { return syms::put(s, n); }
+sym *intern(const char *s, w n) { return syms::put(s, n); }
 
 w rat(Rat *x) { return tag(nums::rats.put(x), a_rat); }
 
@@ -299,15 +299,15 @@ w term(w op, w a, w b) {
   return compounds::put(v, sizeof v / sizeof *v);
 }
 
-w type(Sym *name) {
+w type(const vec<uint16_t> &v) { return types::put(v.p, v.n); }
+
+w type(sym *name) {
   if (name->t)
     return name->t;
   if (istcompound(types::atoms))
     throw "too many atomic types";
   return name->t = types::atoms++;
 }
-
-w type(const vec<uint16_t> &v) { return types::put(v.p, v.n); }
 
 w type(w r, w t1) {
   uint16_t v[2];

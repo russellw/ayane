@@ -5,34 +5,34 @@
 vec<std::pair<w, w>> unified;
 
 bool match(w a, w b) {
-  // Equal
+  // equal
   if (a == b)
     return true;
 
-  // Type mismatch
+  // type mismatch
   if (typeof(a) != typeof(b))
     return false;
 
-  // Variable
+  // variable
   if ((a & 7) == a_var) {
-    // Existing mapping
+    // existing mapping
     for (auto p : unified) {
       if (p.first == a)
         return p.second == b;
     }
 
-    // New mapping
+    // new mapping
     unified.push(std::make_pair(a, b));
     return true;
   }
 
-  // Atoms
+  // atoms
   if ((a & 7) != a_compound)
     return false;
   if ((b & 7) != a_compound)
     return false;
 
-  // Compounds
+  // compounds
   auto n = size(a);
   if (n != size(b))
     return false;
@@ -66,11 +66,11 @@ bool occurs(w a, w b) {
   return false;
 }
 
-bool unifyVar(w a, w b) {
+bool unifyvar(w a, w b) {
   assert((a & 7) == a_var);
   assert(typeof(a) == typeof(b));
 
-  // Existing mappings
+  // existing mappings
   for (auto p : unified) {
     if (p.first == a)
       return unify(p.second, b);
@@ -78,38 +78,38 @@ bool unifyVar(w a, w b) {
       return unify(a, p.second);
   }
 
-  // Occurs check
+  // occurs check
   if (occurs(a, b))
     return false;
 
-  // New mapping
+  // new mapping
   unified.push(std::make_pair(a, b));
   return true;
 }
 } // namespace
 
 bool unify(w a, w b) {
-  // Equal
+  // equal
   if (a == b)
     return true;
 
-  // Type mismatch
+  // type mismatch
   if (typeof(a) != typeof(b))
     return false;
 
-  // Variables
+  // variables
   if ((a & 7) == a_var)
-    return unifyVar(a, b);
+    return unifyvar(a, b);
   if ((b & 7) == a_var)
-    return unifyVar(b, a);
+    return unifyvar(b, a);
 
-  // Atoms
+  // atoms
   if ((a & 7) != a_compound)
     return false;
   if ((b & 7) != a_compound)
     return false;
 
-  // Compounds
+  // compounds
   auto n = size(a);
   if (n != size(b))
     return false;

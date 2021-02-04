@@ -5,3 +5,4 @@ del *.obj
 del *.pch
 del *.pdb
 del *.zip
+del ayane

@@ -260,8 +260,8 @@ void clause() {}
 
 void clear() {
   conjecture = 0;
-  for (w i = 0; i != syms::cap; ++i) {
-    auto S = syms::entries[i];
+  for (auto i = syms::entries, end = syms::entries + syms::cap; i != end; ++i) {
+    auto S = *i;
     if (S)
       S->ft = 0;
   }

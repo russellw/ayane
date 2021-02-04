@@ -84,7 +84,7 @@ w typeof(w a) {
       return ftp->v[0];
     }
     }
-    break;
+    unreachable;
   }
   case a_int:
     return t_int;

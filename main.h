@@ -18,27 +18,27 @@
 
 #include <gmp.h>
 
-// General
+// general
 #include "etc.h"
 #include "mem.h"
 
-// Containers
+// containers
 #include "ary.h"
 #include "vec.h"
 
-// Data
+// data
 #include "data.h"
 #include "keywords.h"
 
-// Parsers
+// parsers
 #include "parser.h"
 
 #include "dimacs.h"
 #include "tptp.h"
 
-// Algorithms
+// algorithms
 #include "types.h"
 #include "unify.h"
 
-// Unit tests
+// unit tests
 #include "test.h"

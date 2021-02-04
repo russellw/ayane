@@ -259,8 +259,8 @@ int main(int argc, const char **argv) {
 #endif
       printf("%zu seconds\n", (w)(time(0) - start));
 #endif
-    } catch (Inappropriate e) {
-      printf("%% SZS status Inappropriate for %s\n", bname);
+    } catch (inappropriate e) {
+      printf("%% SZS status inappropriate for %s\n", bname);
     }
     if (i + 1 < files.n)
       putchar('\n');

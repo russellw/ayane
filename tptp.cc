@@ -359,7 +359,7 @@ struct parser1 : parser {
     switch (k) {
     case '!':
     case '[':
-      throw Inappropriate();
+      throw inappropriate();
     case '(': {
       auto t = atomic_type();
       expect(')');
@@ -378,7 +378,7 @@ struct parser1 : parser {
       case k_real:
         return t_real;
       }
-      throw Inappropriate();
+      throw inappropriate();
     case o_word:
       return type(S);
     default:
@@ -540,7 +540,7 @@ struct parser1 : parser {
   w atomic_term() {
     switch (tok) {
     case '!':
-      throw Inappropriate();
+      throw inappropriate();
     case o_distinctobj: {
       auto a = tag(toksym, a_distinctobj);
       lex();
@@ -589,7 +589,7 @@ struct parser1 : parser {
       case k_is_rat:
         return defined_functor(basic(b_israt), 1);
       case k_ite:
-        throw Inappropriate();
+        throw inappropriate();
       case k_less:
         return defined_functor(basic(b_lt), 2);
       case k_lesseq:
@@ -869,7 +869,7 @@ struct parser1 : parser {
             if (tok == o_dollarword && toksym == keywords + k_tType) {
               lex();
               if (tok == '>')
-                throw Inappropriate();
+                throw inappropriate();
             } else {
               auto t = top_level_type();
               if (S->ft) {

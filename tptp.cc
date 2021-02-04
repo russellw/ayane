@@ -810,7 +810,7 @@ struct parser1 : parser {
           expect('(');
 
           // Name
-          auto formulaName = name();
+          auto forname = name();
           expect(',');
 
           // Role
@@ -834,7 +834,7 @@ struct parser1 : parser {
             expect(')');
 
           // Select
-          if (!sel.count(formulaName))
+          if (!sel.count(forname))
             break;
 
           // Clause
@@ -846,7 +846,7 @@ struct parser1 : parser {
           expect('(');
 
           // Name
-          auto formulaName = name();
+          auto forname = name();
           expect(',');
 
           // Role
@@ -889,7 +889,7 @@ struct parser1 : parser {
           assert(!vars.n);
 
           // Select
-          if (!sel.count(formulaName))
+          if (!sel.count(forname))
             break;
 
           // CNF
@@ -914,9 +914,9 @@ struct parser1 : parser {
             expect('[');
             selection sel1(false);
             do {
-              auto formulaName = name();
-              if (sel.count(formulaName))
-                sel1.insert(formulaName);
+              auto forname = name();
+              if (sel.count(forname))
+                sel1.insert(forname);
             } while (eat(','));
             expect(']');
             parser1 p(file1, sel1);

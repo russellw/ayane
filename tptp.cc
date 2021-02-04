@@ -43,7 +43,7 @@ void strmemcpy(char *dest, const char *src, const char *end) {
   dest[n] = 0;
 }
 
-struct TptpParser : parser {
+struct parser1 : parser {
   // SORT
   bool cnfmode;
   select sel;
@@ -799,7 +799,7 @@ struct TptpParser : parser {
     lex();
   }
 
-  TptpParser(const char *file, const select &sel) : parser(file), sel(sel) {
+  parser1(const char *file, const select &sel) : parser(file), sel(sel) {
     try {
       lex();
       while (tok) {
@@ -919,9 +919,9 @@ struct TptpParser : parser {
                 sel1.insert(formulaName);
             } while (eat(','));
             expect(']');
-            TptpParser p(file1, sel1);
+            parser1 p(file1, sel1);
           } else {
-            TptpParser p(file1, sel);
+            parser1 p(file1, sel);
           }
           break;
         }
@@ -950,5 +950,5 @@ void tptp(const char *file) {
 #ifdef DEBUG
   header = 2;
 #endif
-  TptpParser p(file, select(true));
+  parser1 p(file, select(true));
 }

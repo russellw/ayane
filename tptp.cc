@@ -23,10 +23,10 @@ char isword[0x100];
 w header;
 #endif
 
-struct Select : std::unordered_set<Sym *> {
+struct select : std::unordered_set<Sym *> {
   bool all;
 
-  explicit Select(bool all) : all(all) {}
+  explicit select(bool all) : all(all) {}
 
   w count(Sym *S) const {
     if (all)
@@ -42,9 +42,11 @@ void strmemcpy(char *dest, const char *src, const char *end) {
 }
 
 struct TptpParser : parser {
-  Select select;
-  bool cnfMode;
+  // SORT
+  bool cnfmode;
+  select sel;
   vec<std::pair<Sym *, w>> vars;
+  ///
 
   // Tokenizer
   void word() {
@@ -638,7 +640,7 @@ struct TptpParser : parser {
       for (auto i = vars.rbegin(); i != vars.rend(); ++i)
         if (i->first == S)
           return i->second;
-      if (!cnfMode)
+      if (!cnfmode)
         err("Unknown variable", ts);
       auto x = var(t_individual, vars.n);
       vars.push(std::make_pair(S, x));
@@ -791,8 +793,7 @@ struct TptpParser : parser {
     lex();
   }
 
-  TptpParser(const char *file, const Select &select)
-      : parser(file), select(select) {
+  TptpParser(const char *file, const select &sel) : parser(file), sel(sel) {
     try {
       lex();
       while (tok) {
@@ -811,7 +812,7 @@ struct TptpParser : parser {
           expect(',');
 
           // Literals
-          cnfMode = true;
+          cnfmode = true;
           neg.n = pos.n = 0;
           auto parens = eat('(');
           do {
@@ -827,7 +828,7 @@ struct TptpParser : parser {
             expect(')');
 
           // Select
-          if (!select.count(formulaName))
+          if (!sel.count(formulaName))
             break;
 
           // Clause
@@ -877,12 +878,12 @@ struct TptpParser : parser {
           }
 
           // Formula
-          cnfMode = false;
+          cnfmode = false;
           auto a = logicFormula();
           assert(!vars.n);
 
           // Select
-          if (!select.count(formulaName))
+          if (!sel.count(formulaName))
             break;
 
           // CNF
@@ -905,16 +906,16 @@ struct TptpParser : parser {
           // Select and read
           if (eat(',')) {
             expect('[');
-            Select select1(false);
+            select sel1(false);
             do {
               auto formulaName = name();
-              if (select.count(formulaName))
-                select1.insert(formulaName);
+              if (sel.count(formulaName))
+                sel1.insert(formulaName);
             } while (eat(','));
             expect(']');
-            TptpParser p(file1, select1);
+            TptpParser p(file1, sel1);
           } else {
-            TptpParser p(file1, select);
+            TptpParser p(file1, sel);
           }
           break;
         }
@@ -943,5 +944,5 @@ void tptp(const char *file) {
 #ifdef DEBUG
   header = 2;
 #endif
-  TptpParser p(file, Select(true));
+  TptpParser p(file, select(true));
 }

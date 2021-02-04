@@ -36,7 +36,7 @@ bool assertfail(const char *file, w line, const char *s) {
   fprintf(stderr, "%s:%zu: assert failed: %s\n", file, line, s);
   stacktrace();
   exit(1);
-  // Keep the compiler happy about the use of || in the assert macro
+  // keep the compiler happy about the use of || in the assert macro
   return false;
 }
 #endif
@@ -59,7 +59,7 @@ const char *basename(const char *file) {
 }
 
 size_t fnv(const void *p, w n) {
-  // Fowler-Noll-Vo-1a
+  // fowler-noll-vo-1a
   auto p1 = (const char *)p;
   size_t h = 2166136261u;
   while (n--) {

@@ -1,3 +1,5 @@
+#include "stdafx.h"
+// stdafx.h must be first
 #include "main.h"
 #include <fcntl.h>
 #include <sys/stat.h>

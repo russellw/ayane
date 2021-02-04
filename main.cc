@@ -1,10 +1,12 @@
+#include "stdafx.h"
+// stdafx.h must be first
 #include "main.h"
 #include <new>
 
 #ifdef _WIN32
 #include <io.h>
 #include <windows.h>
-// The following must be after windows.h
+// windows.h must be first
 #include <psapi.h>
 static VOID CALLBACK timeout(PVOID a, BOOLEAN b) { ExitProcess(1); }
 #else

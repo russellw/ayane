@@ -1,9 +1,11 @@
+#include "stdafx.h"
+// stdafx.h must be first
 #include "main.h"
 
 #ifdef DEBUG
 #ifdef _WIN32
 #include <windows.h>
-// The following must be after windows.h
+// windows.h must be first
 #include <dbghelp.h>
 #endif
 

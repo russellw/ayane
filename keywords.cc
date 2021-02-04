@@ -1,4 +1,6 @@
 // AUTO GENERATED FILE - DO NOT MODIFY
+#include "stdafx.h"
+// stdafx.h must be first
 #include "main.h"
 Sym keywords[] = {
     {0, 0, "V"},           {0, 0, "ceiling"},     {0, 0, "cnf"},

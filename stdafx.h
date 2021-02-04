@@ -8,9 +8,12 @@
 
 #include <algorithm>
 #include <iterator>
-#include <regex>
-#include <string>
 #include <unordered_set>
 #include <utility>
+
+#ifdef DEBUG
+#include <regex>
+#include <string>
+#endif
 
 #include <gmp.h>

@@ -866,8 +866,8 @@ struct TptpParser : Parser {
             } else {
               auto t = topLevelType();
               if (S->ft) {
-                if (t != typeof(S->ft))
-                  err("Type mismatch", ts);
+                if (t != S->ft)
+                  err("Type mismatch");
               } else
                 S->ft = t;
             }

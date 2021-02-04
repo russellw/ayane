@@ -374,7 +374,7 @@ struct TptpParser : Parser {
       case k_real:
         return t_real;
       }
-      err("Unknown word", ts);
+      throw Inappropriate();
     case o_word:
       return type(S);
     default:

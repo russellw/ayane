@@ -6,17 +6,6 @@
 
 typedef intptr_t w;
 
-// SORT
-inline void fpr(FILE *f, char c) { fputc(c, f); }
-inline void fpr(FILE *f, const char *s) { fputs(s, f); }
-inline void fpr(FILE *f, double a) { fprintf(f, "%f", a); }
-inline void fpr(FILE *f, int32_t a) { fprintf(f, "%" PRIi32, a); }
-inline void fpr(FILE *f, int64_t a) { fprintf(f, "%" PRIi64, a); }
-inline void fpr(FILE *f, uint32_t a) { fprintf(f, "%" PRIu32, a); }
-inline void fpr(FILE *f, uint64_t a) { fprintf(f, "%" PRIu64, a); }
-inline void fpr(FILE *f, void *p) { fprintf(f, "%p", p); }
-///
-
 #ifdef DEBUG
 
 void stacktrace();
@@ -52,6 +41,15 @@ size_t fnv(const void *p, w n);
 void quote(char q, const char *s);
 ///
 
+// SORT
+inline void fpr(FILE *f, char c) { fputc(c, f); }
+inline void fpr(FILE *f, const char *s) { fputs(s, f); }
+inline void fpr(FILE *f, double a) { fprintf(f, "%f", a); }
+inline void fpr(FILE *f, int32_t a) { fprintf(f, "%" PRIi32, a); }
+inline void fpr(FILE *f, int64_t a) { fprintf(f, "%" PRIi64, a); }
+inline void fpr(FILE *f, uint32_t a) { fprintf(f, "%" PRIu32, a); }
+inline void fpr(FILE *f, uint64_t a) { fprintf(f, "%" PRIu64, a); }
+inline void fpr(FILE *f, void *p) { fprintf(f, "%p", p); }
 inline bool isdigit1(char c) { return '0' <= c && c <= '9'; }
-
 inline bool isspace1(char c) { return c <= ' ' && c; }
+///

@@ -41,7 +41,8 @@ bool assertfail(const char *file, w line, const char *s) {
 }
 #endif
 
-char buf[0x10000];
+// sized for largest tptp symbols
+char buf[20000];
 
 // SORT
 const char *basename(const char *file) {

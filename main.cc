@@ -13,7 +13,7 @@ static VOID CALLBACK timeout(PVOID a, BOOLEAN b) { ExitProcess(1); }
 
 #define version "3"
 
-enum Language {
+enum {
   unknown,
 
   dimacs,
@@ -34,6 +34,11 @@ struct LineParser : Parser {
     }
   }
 };
+
+// SORT
+vec<const char *> files;
+w lang;
+///
 
 void help() {
   printf("Usage: ayane [options] [files]\n"
@@ -88,9 +93,6 @@ double optdouble(int argc, const char **argv, int &i) {
   return a;
 }
 
-Language language;
-vec<const char *> files;
-
 void parse(int argc, const char **argv) {
   for (int i = 0; i != argc; ++i) {
     auto s = argv[i];
@@ -126,7 +128,7 @@ void parse(int argc, const char **argv) {
              sizeof(void *) * 8);
       exit(0);
     case k_dimacs:
-      language = dimacs;
+      lang = dimacs;
       break;
     case k_h:
     case k_help:
@@ -144,7 +146,7 @@ void parse(int argc, const char **argv) {
       break;
     }
     case k_tptp:
-      language = tptp;
+      lang = tptp;
       break;
     default:
       fprintf(stderr, "%s: Unknown option\n", argv[i]);
@@ -153,9 +155,9 @@ void parse(int argc, const char **argv) {
   }
 }
 
-Language getLanguage(const char *file) {
-  if (language)
-    return language;
+w language(const char *file) {
+  if (lang)
+    return lang;
   switch (keyword(intern(ext(file)))) {
   case k_cnf:
     return dimacs;
@@ -190,22 +192,22 @@ void print(w n, const char *caption) {
   printf("%s  %s\n", s, caption);
 }
 
-#define printItem(x) print(pmc.x, #x)
+#define printitem(x) print(pmc.x, #x)
 
-void printMem() {
+void printmem() {
   PROCESS_MEMORY_COUNTERS_EX pmc;
   GetProcessMemoryInfo(GetCurrentProcess(), (PPROCESS_MEMORY_COUNTERS)&pmc,
                        sizeof pmc);
-  printItem(PageFaultCount);
-  printItem(PeakWorkingSetSize);
-  printItem(WorkingSetSize);
-  printItem(QuotaPeakPagedPoolUsage);
-  printItem(QuotaPagedPoolUsage);
-  printItem(QuotaPeakNonPagedPoolUsage);
-  printItem(QuotaNonPagedPoolUsage);
-  printItem(PagefileUsage);
-  printItem(PeakPagefileUsage);
-  printItem(PrivateUsage);
+  printitem(PageFaultCount);
+  printitem(PeakWorkingSetSize);
+  printitem(WorkingSetSize);
+  printitem(QuotaPeakPagedPoolUsage);
+  printitem(QuotaPagedPoolUsage);
+  printitem(QuotaPeakNonPagedPoolUsage);
+  printitem(QuotaNonPagedPoolUsage);
+  printitem(PagefileUsage);
+  printitem(PeakPagefileUsage);
+  printitem(PrivateUsage);
 }
 #endif
 #endif
@@ -237,7 +239,7 @@ int main(int argc, const char **argv) {
     auto bname = basename(file);
     clear();
     try {
-      switch (getLanguage(file)) {
+      switch (language(file)) {
       case dimacs:
         readDimacs(file);
         break;
@@ -250,7 +252,7 @@ int main(int argc, const char **argv) {
 #ifdef DEBUG
 #ifdef _WIN32
       putchar('\n');
-      printMem();
+      printmem();
       putchar('\n');
 #endif
       printf("%zu seconds\n", (w)(time(0) - start));

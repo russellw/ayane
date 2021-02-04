@@ -177,7 +177,7 @@ inline Sym *intern(const char *s) { return intern(s, strlen(s)); }
 
 inline Int *intp(w a) {
   assert((a & 7) == a_int);
-  return (Int *)(a & ~(w)7);
+  return (Int *)(a - a_int);
 }
 
 inline size_t keyword(const Sym *S) {
@@ -201,7 +201,7 @@ inline w size(w a) { return compoundp(a)->n; }
 
 inline Sym *symp(w a) {
   assert((a & 7) == a_sym);
-  return (Sym *)(a & ~(w)7);
+  return (Sym *)(a - a_sym);
 }
 
 inline TCompound *tcompoundp(w t) {

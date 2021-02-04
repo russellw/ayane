@@ -25,7 +25,7 @@ if not version:
     print("main.cc: version not defined")
     exit(1)
 
-# Makefile.am
+# Makefile
 
 xs = read_lines("Makefile")
 xs[0] = f"version = {version}"

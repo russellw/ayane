@@ -1,4 +1,4 @@
-version = 0
+version = 3
 
 ayane: *.cc *.h
 	g++ -O3 -fno-rtti -funsigned-char -oayane -std=c++11 *.cc -lgmp

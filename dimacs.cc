@@ -74,7 +74,7 @@ struct DimacsParser : Parser {
     try {
       lex();
       if (tok == 'p') {
-        while (isspace(*text))
+        while (isspace1(*text))
           ++text;
 
         if (!(text[0] == 'c' && text[1] == 'n' && text[2] == 'f'))

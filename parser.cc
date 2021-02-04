@@ -81,17 +81,6 @@ Parser::Parser(const char *file) : file(file) {
 
 Parser::~Parser() { free((void *)textStart); }
 
-const char *szs[] = {
-#define _(s) #s,
-#include "szs.h"
-#undef _
-};
-
-bool conjecture;
-#ifdef DEBUG
-w status;
-#endif
-
 noret Parser::err(const char *msg, const char *ts) {
   // Line number
   w line = 1;

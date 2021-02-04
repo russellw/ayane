@@ -55,6 +55,13 @@ enum {
 };
 
 enum {
+#define _(s) s_##s,
+#include "szs.h"
+#undef _
+  n_szs
+};
+
+enum {
   t_none,
 
   t_bool,
@@ -125,9 +132,15 @@ struct TCompound {
 
 // SORT
 extern Sym keywords[];
+extern bool conjecture;
+extern const char *szs[];
 extern vec<TCompound *> tcompounds;
 extern vec<w> neg, pos;
 ///
+
+#ifdef DEBUG
+extern w status;
+#endif
 
 // SORT
 void clause();

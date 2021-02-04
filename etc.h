@@ -51,3 +51,7 @@ const char *basename(const char *file);
 size_t fnv(const void *p, w n);
 void quote(char q, const char *s);
 ///
+
+inline bool isdigit1(char c) { return '0' <= c && c <= '9'; }
+
+inline bool isspace1(char c) { return c <= ' ' && c; }

@@ -240,19 +240,34 @@ w put(const w *p, w n) {
 } // namespace compounds
 
 // SORT
+bool conjecture;
 vec<TCompound *> tcompounds(0);
 vec<w> neg, pos;
 ///
+
+const char *szs[] = {
+#define _(s) #s,
+#include "szs.h"
+#undef _
+};
+
+#ifdef DEBUG
+w status;
+#endif
 
 // SORT
 void clause() {}
 
 void clear() {
+  conjecture = 0;
   for (w i = 0; i != syms::cap; ++i) {
     auto S = syms::entries[i];
     if (S)
       S->ft = 0;
   }
+#ifdef DEBUG
+  status = 0;
+#endif
 }
 
 w imp(w a, w b) { return term(basic(b_or), term(basic(b_not), a), b); }

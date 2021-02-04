@@ -940,7 +940,6 @@ void readTptp(const char *file) {
   memset(isword + 'A', 1, 26);
   isword['_'] = 1;
   memset(isword + 'a', 1, 26);
-  conjecture = 0;
 #ifdef DEBUG
   header = 2;
 #endif

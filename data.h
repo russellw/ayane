@@ -83,11 +83,6 @@ inline w tag(void *p, w a) { return (w)p | a; }
 ///
 
 // SORT
-struct Compound {
-  uint16_t n;
-  w v[0];
-};
-
 struct Int {
   mpz_t val;
 
@@ -106,9 +101,9 @@ struct Rat {
   void clear() { mpq_clear(val); }
 };
 
-struct TCompound {
+struct compound {
   uint16_t n;
-  uint16_t v[0];
+  w v[0];
 };
 
 struct sym {
@@ -128,13 +123,18 @@ struct sym {
   // responsible for allocating enough space to hold the corresponding strings
   char v[0x20 - 2 * sizeof(uint16_t)];
 };
+
+struct tcompound {
+  uint16_t n;
+  uint16_t v[0];
+};
 ///
 
 // SORT
 extern bool conjecture;
 extern const char *szs[];
 extern sym keywords[];
-extern vec<TCompound *> tcompounds;
+extern vec<tcompound *> tcompounds;
 extern vec<w> neg, pos;
 ///
 
@@ -160,10 +160,10 @@ w type(sym *name);
 w type(w r, w t1);
 ///
 
-inline Compound *compoundp(w a) {
+inline compound *compoundp(w a) {
   assert((a & 7) == a_compound);
   assert(!a_compound);
-  return (Compound *)a;
+  return (compound *)a;
 }
 
 // SORT
@@ -204,7 +204,7 @@ inline sym *symp(w a) {
   return (sym *)(a - a_sym);
 }
 
-inline TCompound *tcompoundp(w t) {
+inline tcompound *tcompoundp(w t) {
   assert(istcompound(t));
   return tcompounds[t & ~t_compound];
 }

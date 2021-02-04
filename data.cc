@@ -13,7 +13,7 @@ w atoms = basic_types;
 w cap = 0x10;
 uint16_t *entries = (uint16_t *)xcalloc(cap, sizeof(uint16_t));
 
-bool eq(const TCompound *t, const uint16_t *p, w n) {
+bool eq(const tcompound *t, const uint16_t *p, w n) {
   if (t->n != n)
     return false;
   return !memcmp(t->v, p, n * sizeof *p);
@@ -42,8 +42,8 @@ void expand() {
   entries = entries1;
 }
 
-TCompound *store(const uint16_t *p, w n) {
-  auto r = (TCompound *)xmalloc(offsetof(TCompound, v) + n * sizeof *p);
+tcompound *store(const uint16_t *p, w n) {
+  auto r = (tcompound *)xmalloc(offsetof(tcompound, v) + n * sizeof *p);
   r->n = n;
   memcpy(r->v, p, n * sizeof *p);
   return r;
@@ -192,15 +192,15 @@ namespace compounds {
 // must be a power of 2
 w cap = 0x1000;
 w count;
-Compound **entries = (Compound **)xcalloc(cap, sizeof(Compound *));
+compound **entries = (compound **)xcalloc(cap, sizeof(compound *));
 
-bool eq(const Compound *x, const w *p, w n) {
+bool eq(const compound *x, const w *p, w n) {
   if (x->n != n)
     return false;
   return !memcmp(x->v, p, n * sizeof *p);
 }
 
-w slot(Compound **entries, w cap, const w *p, w n) {
+w slot(compound **entries, w cap, const w *p, w n) {
   auto mask = cap - 1;
   auto i = fnv(p, n * sizeof *p) & mask;
   while (entries[i] && !eq(entries[i], p, n))
@@ -210,7 +210,7 @@ w slot(Compound **entries, w cap, const w *p, w n) {
 
 void expand() {
   auto cap1 = cap * 2;
-  auto entries1 = (Compound **)xcalloc(cap1, sizeof *entries);
+  auto entries1 = (compound **)xcalloc(cap1, sizeof *entries);
   for (w i = 0; i != cap; ++i) {
     auto x = entries[i];
     if (x)
@@ -221,8 +221,8 @@ void expand() {
   entries = entries1;
 }
 
-Compound *store(const w *p, w n) {
-  auto r = (Compound *)xmalloc(offsetof(Compound, v) + n * sizeof *p);
+compound *store(const w *p, w n) {
+  auto r = (compound *)xmalloc(offsetof(compound, v) + n * sizeof *p);
   r->n = n;
   memcpy(r->v, p, n * sizeof *p);
   return r;
@@ -243,7 +243,7 @@ w put(const w *p, w n) {
 
 // SORT
 bool conjecture;
-vec<TCompound *> tcompounds(0);
+vec<tcompound *> tcompounds(0);
 vec<w> neg, pos;
 ///
 

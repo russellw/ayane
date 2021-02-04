@@ -537,6 +537,8 @@ struct TptpParser : parser {
 
   w atomicTerm() {
     switch (tok) {
+    case '!':
+      throw Inappropriate();
     case o_distinctobj: {
       auto a = tag(toksym, a_distinctobj);
       lex();

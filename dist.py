@@ -25,39 +25,11 @@ if not version:
     print("main.cc: version not defined")
     exit(1)
 
-# configure.ac
-
-xs = read_lines("configure.ac")
-xs[0] = (
-    "AC_INIT([Ayane], [%s], [russell.wallace@gmail.com], [ayane], [https://github.com/russellw/ayane])"
-    % version
-)
-write_lines("configure.ac", xs)
-
 # Makefile.am
 
-xs = read_lines("Makefile.am")
-
-i = 0
-while not xs[i].startswith("ayane_SOURCES "):
-    i += 1
-i += 1
-
-j = i
-while xs[j].startswith("\t"):
-    j += 1
-del xs[i:j]
-
-ys = []
-for root, dirs, files in os.walk("."):
-    for filename in files:
-        if os.path.splitext(filename)[1] in (".cc", ".h"):
-            ys.append("\t" + filename)
-for j in range(len(ys) - 1):
-    ys[j] += "\\"
-xs[i:i] = ys
-
-write_lines("Makefile.am", xs)
+xs = read_lines("Makefile")
+xs[0] = f"version = {version}"
+write_lines("Makefile", xs)
 
 # build
 

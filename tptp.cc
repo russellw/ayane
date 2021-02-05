@@ -599,7 +599,7 @@ struct parser1 : parser {
       case k_quotient: {
         auto a = defined_functor(basic(b_div), 2);
         if (typeof(at(a, 1)) == t_int)
-          err("Expected fraction term");
+          err("expected fraction term");
         return a;
       }
       case k_quotient_e:

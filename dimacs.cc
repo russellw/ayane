@@ -65,10 +65,10 @@ struct parser1 : parser {
 
   // terms
   w fn() {
-    auto S = toksym;
+    auto s = toksym;
     lex();
-    S->ft = t_bool;
-    return tag(S, a_sym);
+    s->ft = t_bool;
+    return tag(s, a_sym);
   }
 
   // top level

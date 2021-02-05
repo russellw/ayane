@@ -30,10 +30,10 @@ struct selection : std::unordered_set<sym *> {
 
   explicit selection(bool all) : all(all) {}
 
-  w count(sym *S) const {
+  w count(sym *s) const {
     if (all)
       return 1;
-    return std::unordered_set<sym *>::count(S);
+    return std::unordered_set<sym *>::count(s);
   }
 };
 
@@ -353,7 +353,7 @@ struct parser1 : parser {
   // types
   w atomic_type() {
     auto k = tok;
-    auto S = toksym;
+    auto s = toksym;
     auto ts = tokstart;
     lex();
     switch (k) {
@@ -366,7 +366,7 @@ struct parser1 : parser {
       return t;
     }
     case o_dollarword:
-      switch (keyword(S)) {
+      switch (keyword(s)) {
       case k_i:
         return t_individual;
       case k_int:
@@ -380,7 +380,7 @@ struct parser1 : parser {
       }
       throw inappropriate();
     case o_word:
-      return type(S);
+      return type(s);
     default:
       err("expected type", ts);
     }
@@ -547,11 +547,11 @@ struct parser1 : parser {
       return a;
     }
     case o_dollarword: {
-      auto S = toksym;
+      auto s = toksym;
       auto ts = tokstart;
       lex();
       vec<w> v;
-      switch (keyword(S)) {
+      switch (keyword(s)) {
       case k_ceiling:
         return defined_functor(basic(b_ceil), 1);
       case k_difference:
@@ -640,16 +640,16 @@ struct parser1 : parser {
     case o_real:
       return parse_real();
     case o_var: {
-      auto S = toksym;
+      auto s = toksym;
       auto ts = tokstart;
       lex();
       for (auto i = vars.rbegin(); i != vars.rend(); ++i)
-        if (i->first == S)
+        if (i->first == s)
           return i->second;
       if (!cnfmode)
         err("unknown variable", ts);
       auto x = var(t_individual, vars.n);
-      vars.push(std::make_pair(S, x));
+      vars.push(std::make_pair(s, x));
       return x;
     }
     case o_word: {
@@ -697,13 +697,13 @@ struct parser1 : parser {
     do {
       if (tok != o_var)
         err("expected variable");
-      auto S = toksym;
+      auto s = toksym;
       lex();
       w t = t_individual;
       if (eat(':'))
         t = atomic_type();
       auto x = var(t, vars.n);
-      vars.push(std::make_pair(S, x));
+      vars.push(std::make_pair(s, x));
       v.push(x);
     } while (eat(','));
     expect(']');
@@ -773,14 +773,14 @@ struct parser1 : parser {
   sym *name() {
     switch (tok) {
     case o_int: {
-      auto S = intern(tokstart, text - tokstart);
+      auto s = intern(tokstart, text - tokstart);
       lex();
-      return S;
+      return s;
     }
     case o_word: {
-      auto S = toksym;
+      auto s = toksym;
       lex();
-      return S;
+      return s;
     }
     }
     err("expected name");
@@ -863,7 +863,7 @@ struct parser1 : parser {
             w parens = 0;
             while (eat('('))
               ++parens;
-            auto S = name();
+            auto s = name();
             expect(':');
             ts = tokstart;
             if (tok == o_dollarword && toksym == keywords + k_tType) {
@@ -872,11 +872,11 @@ struct parser1 : parser {
                 throw inappropriate();
             } else {
               auto t = top_level_type();
-              if (S->ft) {
-                if (t != S->ft)
+              if (s->ft) {
+                if (t != s->ft)
                   err("type mismatch");
               } else
-                S->ft = t;
+                s->ft = t;
             }
             while (parens--)
               expect(')');

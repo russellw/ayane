@@ -171,7 +171,7 @@ inline w at(w a, w i) { return compoundp(a)->v[i]; }
 
 inline w basic(w op) { return op << 3 | a_basic; }
 
-inline void fpr(FILE *f, const sym *S) { fpr(f, S->v); }
+inline void fpr(FILE *f, const sym *s) { fpr(f, s->v); }
 
 inline sym *intern(const char *s) { return intern(s, strlen(s)); }
 
@@ -180,7 +180,7 @@ inline Int *intp(w a) {
   return (Int *)(a - a_int);
 }
 
-inline size_t keyword(const sym *S) {
+inline size_t keyword(const sym *s) {
   // turn a symbol into a keyword number by subtracting the base of the keyword
   // array and dividing by the declared size of a symbol structure (which is
   // efficient as long as that size is a power of 2)
@@ -188,7 +188,7 @@ inline size_t keyword(const sym *S) {
   // it's okay if the symbol is not a keyword; that just means the resulting
   // number will not correspond to any keyword and will not match any case in a
   // switch statement
-  size_t i = (const char *)S - (const char *)keywords;
+  size_t i = (const char *)s - (const char *)keywords;
   return i / sizeof(sym);
 }
 

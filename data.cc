@@ -92,9 +92,9 @@ void expand() {
   auto cap1 = cap * 2;
   auto entries1 = (sym **)xcalloc(cap1, sizeof *entries);
   for (w i = 0; i != cap; ++i) {
-    auto S = entries[i];
-    if (S)
-      entries1[slot(entries1, cap1, S->v, strlen(S->v))] = S;
+    auto s = entries[i];
+    if (s)
+      entries1[slot(entries1, cap1, s->v, strlen(s->v))] = s;
   }
   free(entries);
   cap = cap1;
@@ -104,13 +104,13 @@ void expand() {
 struct init {
   init() {
     for (w i = 0; i != nkeywords; ++i) {
-      auto S = keywords + i;
-      assert(strlen(S->v) < sizeof S->v);
+      auto s = keywords + i;
+      assert(strlen(s->v) < sizeof s->v);
       ++count;
       assert(count <= cap * 3 / 4);
-      auto j = slot(entries, cap, S->v, strlen(S->v));
+      auto j = slot(entries, cap, s->v, strlen(s->v));
       assert(!entries[j]);
-      entries[j] = S;
+      entries[j] = s;
     }
   }
 } init1;
@@ -263,9 +263,9 @@ void clause() {}
 void clear() {
   conjecture = 0;
   for (auto i = syms::entries, end = syms::entries + syms::cap; i != end; ++i) {
-    auto S = *i;
-    if (S)
-      S->ft = 0;
+    auto s = *i;
+    if (s)
+      s->ft = 0;
   }
 #ifdef DEBUG
   status = 0;

@@ -5,11 +5,11 @@
 #ifdef DEBUG
 namespace {
 // SORT
-w fn(w t, sym *S) {
-  if (!S->ft)
-    S->ft = t;
-  assert(S->ft == t);
-  return tag(S, a_sym);
+w fn(w t, sym *s) {
+  if (!s->ft)
+    s->ft = t;
+  assert(s->ft == t);
+  return tag(s, a_sym);
 }
 
 bool match0(w a, w b) {

@@ -61,6 +61,35 @@ void test_fn() {
   assert(bluep == intern("blue"));
 }
 
+void test_getfree() {
+  auto a = fn(t_individual, intern("a"));
+  auto x = var(t_individual, 0);
+  auto y = var(t_individual, 1);
+
+  getfree(a);
+  assert(freevars.n == 0);
+
+  getfree(x);
+  assert(freevars.n == 1);
+  assert(freevars[0] == x);
+
+  getfree(term(basic(b_eq), x, x));
+  assert(freevars.n == 1);
+  assert(freevars[0] == x);
+
+  getfree(term(basic(b_eq), x, y));
+  assert(freevars.n == 2);
+  assert(freevars[0] == x);
+  assert(freevars[1] == y);
+
+  getfree(term(basic(b_eq), a, a));
+  assert(freevars.n == 0);
+
+  getfree(term(basic(b_all), term(basic(b_eq), x, y), x));
+  assert(freevars.n == 1);
+  assert(freevars[0] == y);
+}
+
 void test_int() {
   Int x1;
   mpz_init_set_ui(x1.val, 1);
@@ -389,6 +418,7 @@ void test() {
   // SORT
   test_clause();
   test_fn();
+  test_getfree();
   test_int();
   test_match();
   test_rat();

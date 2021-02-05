@@ -302,6 +302,7 @@ clause *put(const w *p, w nn, w n) {
 bool complete;
 bool conjecture;
 vec<tcompound *> tcompounds(0);
+vec<w> freevars;
 vec<w> neg, pos;
 ///
 
@@ -314,6 +315,37 @@ const char *szs[] = {
 #ifdef DEBUG
 w status;
 #endif
+
+namespace {
+vec<w> boundvars;
+
+void getfree1(w a) {
+  switch (a & 7) {
+  case a_compound: {
+    if (at(a, 0) == basic(b_all) || at(a, 0) == basic(b_exists)) {
+      auto n = size(a);
+      auto old = boundvars.n;
+      for (w i = 2; i != n; ++i)
+        boundvars.push(at(a, i));
+      getfree1(at(a, 1));
+      boundvars.n = old;
+      break;
+    }
+    auto n = size(a);
+    for (w i = 1; i != n; ++i)
+      getfree1(at(a, i));
+    break;
+  }
+  case a_var:
+    if (find(boundvars.begin(), boundvars.end(), a) != boundvars.end())
+      break;
+    if (find(freevars.begin(), freevars.end(), a) != freevars.end())
+      break;
+    freevars.push(a);
+    break;
+  }
+}
+} // namespace
 
 // SORT
 clause *clause1() {
@@ -340,6 +372,12 @@ void clear() {
 #ifdef DEBUG
   status = 0;
 #endif
+}
+
+void getfree(w a) {
+  assert(!boundvars.n);
+  freevars.n = 0;
+  getfree1(a);
 }
 
 w imp(w a, w b) { return term(basic(b_or), term(basic(b_not), a), b); }

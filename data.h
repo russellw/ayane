@@ -152,6 +152,7 @@ extern bool conjecture;
 extern const char *szs[];
 extern sym keywords[];
 extern vec<tcompound *> tcompounds;
+extern vec<w> freevars;
 extern vec<w> neg, pos;
 ///
 
@@ -162,6 +163,7 @@ extern w status;
 // SORT
 clause *clause1();
 void clear();
+void getfree(w a);
 w imp(w a, w b);
 w int1(Int &x);
 sym *intern(const char *s, w n);

@@ -142,7 +142,7 @@ template <class T> class bank {
   w count;
   T **entries = (T **)xcalloc(cap, sizeof(T *));
 
-  w slot(T **entries, w cap, T *x) {
+  w slot(T **entries, w cap, const T *x) {
     auto mask = cap - 1;
     auto i = x->hash() & mask;
     while (entries[i] && !entries[i]->eq(x))
@@ -163,7 +163,7 @@ template <class T> class bank {
     entries = entries1;
   }
 
-  T *store(T *x) {
+  T *store(const T *x) {
     auto r = (T *)xmalloc(sizeof *x);
     *r = *x;
     return r;

@@ -86,18 +86,18 @@ inline w tag(void *p, w a) { return (w)p | a; }
 struct Int {
   mpz_t val;
 
-  unsigned hash() { return mpz_get_ui(val); }
-  bool eq(Int *x) { return !mpz_cmp(val, x->val); }
+  unsigned hash() const { return mpz_get_ui(val); }
+  bool eq(const Int *x) const { return !mpz_cmp(val, x->val); }
   void clear() { mpz_clear(val); }
 };
 
 struct Rat {
   mpq_t val;
 
-  unsigned hash() {
+  unsigned hash() const {
     return mpz_get_ui(mpq_numref(val)) ^ mpz_get_ui(mpq_denref(val));
   }
-  bool eq(Rat *x) const { return mpq_equal(val, x->val); }
+  bool eq(const Rat *x) const { return mpq_equal(val, x->val); }
   void clear() { mpq_clear(val); }
 };
 

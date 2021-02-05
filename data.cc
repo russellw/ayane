@@ -142,9 +142,9 @@ template <class T> class bank {
   w count;
   T **entries = (T **)xcalloc(cap, sizeof(T *));
 
-  w slot(T **entries, w cap, const T *x) {
+  w slot(T **entries, w cap, const T &x) {
     auto mask = cap - 1;
-    auto i = x->hash() & mask;
+    auto i = x.hash() & mask;
     while (entries[i] && !entries[i]->eq(x))
       i = (i + 1) & mask;
     return i;
@@ -156,24 +156,24 @@ template <class T> class bank {
     for (w i = 0; i != cap; ++i) {
       auto x = entries[i];
       if (x)
-        entries1[slot(entries1, cap1, x)] = x;
+        entries1[slot(entries1, cap1, *x)] = x;
     }
     free(entries);
     cap = cap1;
     entries = entries1;
   }
 
-  T *store(const T *x) {
-    auto r = (T *)xmalloc(sizeof *x);
-    *r = *x;
+  T *store(const T &x) {
+    auto r = (T *)xmalloc(sizeof x);
+    *r = x;
     return r;
   }
 
 public:
-  T *put(T *x) {
+  T *put(T &x) {
     auto i = slot(entries, cap, x);
     if (entries[i]) {
-      x->clear();
+      x.clear();
       return entries[i];
     }
     if (++count > cap * 3 / 4) {
@@ -274,13 +274,13 @@ void clear() {
 
 w imp(w a, w b) { return term(basic(b_or), term(basic(b_not), a), b); }
 
-w int1(Int *x) { return tag(nums::ints.put(x), a_int); }
+w int1(Int &x) { return tag(nums::ints.put(x), a_int); }
 
 sym *intern(const char *s, w n) { return syms::put(s, n); }
 
-w rat(Rat *x) { return tag(nums::rats.put(x), a_rat); }
+w rat(Rat &x) { return tag(nums::rats.put(x), a_rat); }
 
-w real(Rat *x) { return tag(nums::rats.put(x), a_real); }
+w real(Rat &x) { return tag(nums::rats.put(x), a_real); }
 
 w term(const vec<w> &v) { return compounds::put(v.p, v.n); }
 

@@ -87,7 +87,7 @@ struct Int {
   mpz_t val;
 
   unsigned hash() const { return mpz_get_ui(val); }
-  bool eq(const Int *x) const { return !mpz_cmp(val, x->val); }
+  bool eq(const Int &x) const { return !mpz_cmp(val, x.val); }
   void clear() { mpz_clear(val); }
 };
 
@@ -97,7 +97,7 @@ struct Rat {
   unsigned hash() const {
     return mpz_get_ui(mpq_numref(val)) ^ mpz_get_ui(mpq_denref(val));
   }
-  bool eq(const Rat *x) const { return mpq_equal(val, x->val); }
+  bool eq(const Rat &x) const { return mpq_equal(val, x.val); }
   void clear() { mpq_clear(val); }
 };
 
@@ -146,12 +146,12 @@ extern w status;
 void clause();
 void clear();
 w imp(w a, w b);
-w int1(Int *x);
+w int1(Int &x);
 sym *intern(const char *s, w n);
 Int *intp(w a);
-w rat(Rat *x);
+w rat(Rat &x);
 Rat *ratp(w a);
-w real(Rat *x);
+w real(Rat &x);
 w term(const vec<w> &v);
 w term(w op, w a);
 w term(w op, w a, w b);

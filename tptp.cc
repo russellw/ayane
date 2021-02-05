@@ -410,7 +410,7 @@ struct parser1 : parser {
     if (mpz_init_set_str(x.val, buf, 10))
       err("invalid number");
     lex();
-    return int1(&x);
+    return int1(x);
   }
 
   w parse_rat() {
@@ -421,7 +421,7 @@ struct parser1 : parser {
       err("invalid number");
     mpq_canonicalize(x.val);
     lex();
-    return rat(&x);
+    return rat(x);
   }
 
   w parse_real() {
@@ -508,7 +508,7 @@ struct parser1 : parser {
     // result
     lex();
     mpq_canonicalize(x.val);
-    return real(&x);
+    return real(x);
   }
 
   void args(vec<w> &v) {

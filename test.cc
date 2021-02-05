@@ -45,20 +45,20 @@ void test_fn() {
 void test_int() {
   Int x1;
   mpz_init_set_ui(x1.val, 1);
-  auto a1 = int1(&x1);
+  auto a1 = int1(x1);
   auto y1 = intp(a1);
   assert(!mpz_cmp_ui(y1->val, 1));
 
   Int x2;
   mpz_init_set_ui(x2.val, 2);
-  auto a2 = int1(&x2);
+  auto a2 = int1(x2);
   auto y2 = intp(a2);
   assert(!mpz_cmp_ui(y2->val, 2));
 
   Int x3;
   mpz_init(x3.val);
   mpz_add(x3.val, y1->val, y2->val);
-  auto a3 = int1(&x3);
+  auto a3 = int1(x3);
   auto y3 = intp(a3);
   assert(!mpz_cmp_ui(y3->val, 3));
 }
@@ -149,21 +149,21 @@ void test_rat() {
   Rat x1;
   mpq_init(x1.val);
   mpq_set_ui(x1.val, 1, 1);
-  auto a1 = rat(&x1);
+  auto a1 = rat(x1);
   auto y1 = ratp(a1);
   assert(!mpq_cmp_ui(y1->val, 1, 1));
 
   Rat x2;
   mpq_init(x2.val);
   mpq_set_ui(x2.val, 2, 1);
-  auto a2 = rat(&x2);
+  auto a2 = rat(x2);
   auto y2 = ratp(a2);
   assert(!mpq_cmp_ui(y2->val, 2, 1));
 
   Rat x3;
   mpq_init(x3.val);
   mpq_add(x3.val, y1->val, y2->val);
-  auto a3 = rat(&x3);
+  auto a3 = rat(x3);
   auto y3 = ratp(a3);
   assert(!mpq_cmp_ui(y3->val, 3, 1));
 }
@@ -240,13 +240,13 @@ void test_typeof() {
 
   Int i1;
   mpz_init_set_ui(i1.val, 1);
-  assert(typeof(int1(&i1)) == t_int);
+  assert(typeof(int1(i1)) == t_int);
 
   Rat r1;
   mpq_init(r1.val);
   mpq_set_ui(r1.val, 1, 3);
-  assert(typeof(rat(&r1)) == t_rat);
-  assert(typeof(real(&r1)) == t_real);
+  assert(typeof(rat(r1)) == t_rat);
+  assert(typeof(real(r1)) == t_real);
 
   auto red = fn(t_bool, intern("red"));
   assert(typeof(red) == t_bool);

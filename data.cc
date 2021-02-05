@@ -10,6 +10,7 @@ namespace types {
 // 16-bit words rather than pointers
 w atoms = basic_types;
 
+// must be a power of 2
 w cap = 0x10;
 uint16_t *entries = (uint16_t *)xcalloc(cap, sizeof(uint16_t));
 
@@ -241,7 +242,64 @@ w put(const w *p, w n) {
 }
 } // namespace compounds
 
+namespace clauses {
+// must be a power of 2
+w cap = 0x1000;
+w count;
+clause **entries = (clause **)xcalloc(cap, sizeof(clause *));
+
+bool eq(const clause *c, const w *p, w nn, w n) {
+  if (c->nn != nn)
+    return false;
+  if (c->n != n)
+    return false;
+  return !memcmp(c->v, p, n * sizeof *p);
+}
+
+w slot(clause **entries, w cap, const w *p, w nn, w n) {
+  auto mask = cap - 1;
+  auto i = (fnv(p, n * sizeof *p) ^ nn) & mask;
+  while (entries[i] && !eq(entries[i], p, nn, n))
+    i = (i + 1) & mask;
+  return i;
+}
+
+void expand() {
+  auto cap1 = cap * 2;
+  auto entries1 = (clause **)xcalloc(cap1, sizeof *entries);
+  for (w i = 0; i != cap; ++i) {
+    auto c = entries[i];
+    if (c)
+      entries1[slot(entries1, cap1, c->v, c->nn, c->n)] = c;
+  }
+  free(entries);
+  cap = cap1;
+  entries = entries1;
+}
+
+clause *store(const w *p, w nn, w n) {
+  auto r = (clause *)xmalloc(offsetof(clause, v) + n * sizeof *p);
+  memset(r, 0, offsetof(clause, v));
+  r->nn = nn;
+  r->n = n;
+  memcpy(r->v, p, n * sizeof *p);
+  return r;
+}
+
+clause *put(const w *p, w nn, w n) {
+  auto i = slot(entries, cap, p, nn, n);
+  if (entries[i])
+    return entries[i];
+  if (++count > cap * 3 / 4) {
+    expand();
+    i = slot(entries, cap, p, nn, n);
+  }
+  return entries[i] = store(p, nn, n);
+}
+} // namespace clauses
+
 // SORT
+bool complete;
 bool conjecture;
 vec<tcompound *> tcompounds(0);
 vec<w> neg, pos;
@@ -258,10 +316,11 @@ w status;
 #endif
 
 // SORT
-void cnf() {}
-
 void clear() {
+  // SORT
   conjecture = 0;
+  complete = true;
+  ///
   for (auto i = syms::entries, end = syms::entries + syms::cap; i != end; ++i) {
     auto s = *i;
     if (s)
@@ -270,6 +329,19 @@ void clear() {
 #ifdef DEBUG
   status = 0;
 #endif
+}
+
+void cnf() {
+  auto nn = neg.n;
+  auto n = nn + pos.n;
+  if (n > 0xff) {
+    complete = false;
+    return;
+  }
+  static w v[0x100];
+  memcpy(v, neg.p, nn * sizeof *v);
+  memcpy(v + nn, pos.p, pos.n * sizeof *v);
+  clauses::put(v, nn, n);
 }
 
 w imp(w a, w b) { return term(basic(b_or), term(basic(b_not), a), b); }

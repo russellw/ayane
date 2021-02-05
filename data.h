@@ -101,8 +101,24 @@ struct Rat {
   void clear() { mpq_clear(val); }
 };
 
+struct clause {
+  // is this a first-order formula rather than an actual clause?
+  // a first-order formula is represented like a clause with just one positive
+  // literal, but the literal can be any first-order predicate
+  bool fof;
+
+  // number of negative and total literals
+  // the literals are laid out in an array, negative then positive
+  // cannot represent a clause with more than 255 literals; this is okay because
+  // such a clause would make no useful contribution to a proof search anyway
+  uint8_t nn, n;
+
+  // literals
+  w v[0];
+};
+
 struct compound {
-  uint16_t n;
+  w n;
   w v[0];
 };
 
@@ -131,6 +147,7 @@ struct tcompound {
 ///
 
 // SORT
+extern bool complete;
 extern bool conjecture;
 extern const char *szs[];
 extern sym keywords[];
@@ -143,8 +160,8 @@ extern w status;
 #endif
 
 // SORT
-void cnf();
 void clear();
+void cnf();
 w imp(w a, w b);
 w int1(Int &x);
 sym *intern(const char *s, w n);

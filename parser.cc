@@ -50,7 +50,7 @@ parser::parser(const char *file) : file(file) {
       // expand buffer as necessary, allowing space for extra newline if
       // required, and null terminator
       if (n + chunk + 2 > cap) {
-        cap = std::max(n + chunk + 2, cap * 2);
+        cap = max(n + chunk + 2, cap * 2);
         s = (char *)xrealloc(s, cap);
       }
 

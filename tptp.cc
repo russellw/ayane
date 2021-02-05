@@ -25,7 +25,7 @@ char isword[0x100];
 w header;
 #endif
 
-struct selection : std::unordered_set<sym *> {
+struct selection : unordered_set<sym *> {
   bool all;
 
   explicit selection(bool all) : all(all) {}
@@ -33,7 +33,7 @@ struct selection : std::unordered_set<sym *> {
   w count(sym *s) const {
     if (all)
       return 1;
-    return std::unordered_set<sym *>::count(s);
+    return unordered_set<sym *>::count(s);
   }
 };
 
@@ -47,7 +47,7 @@ struct parser1 : parser {
   // SORT
   bool cnfmode;
   selection sel;
-  vec<std::pair<sym *, w>> vars;
+  vec<pair<sym *, w>> vars;
   ///
 
   // tokenizer
@@ -169,9 +169,9 @@ struct parser1 : parser {
       text = strchr(s, '\n');
 #ifdef DEBUG
       if (!status) {
-        std::string s1(s, text);
-        std::smatch m;
-        if (std::regex_match(s1, m, std::regex(R"(% Status\s*:\s*(\w+)\s*)"))) {
+        string s1(s, text);
+        smatch m;
+        if (regex_match(s1, m, regex(R"(% Status\s*:\s*(\w+)\s*)"))) {
           for (w i = 1; i != n_szs; ++i)
             if (m[1] == szs[i]) {
               status = i;
@@ -649,7 +649,7 @@ struct parser1 : parser {
       if (!cnfmode)
         err("unknown variable", ts);
       auto x = var(t_individual, vars.n);
-      vars.push(std::make_pair(s, x));
+      vars.push(make_pair(s, x));
       return x;
     }
     case o_word: {
@@ -703,7 +703,7 @@ struct parser1 : parser {
       if (eat(':'))
         t = atomic_type();
       auto x = var(t, vars.n);
-      vars.push(std::make_pair(s, x));
+      vars.push(make_pair(s, x));
       v.push(x);
     } while (eat(','));
     expect(']');

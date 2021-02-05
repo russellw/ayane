@@ -7,13 +7,30 @@
 #include <time.h>
 
 #include <algorithm>
+using std::find;
+using std::max;
+using std::min;
+
 #include <iterator>
+// using std::reverse_iterator;
+// not actually using'd because it is used in container contexts where it has to
+// be prefixed with std:: to disambiguate from a local use of the name anyway
+
 #include <unordered_set>
+using std::unordered_set;
+
 #include <utility>
+using std::make_pair;
+using std::pair;
 
 #ifdef DEBUG
 #include <regex>
+using std::regex;
+using std::regex_match;
+using std::smatch;
+
 #include <string>
+using std::string;
 #endif
 
 #include <gmp.h>

@@ -47,10 +47,9 @@ struct parser1 : parser {
     case 'c': {
       text = strchr(s, '\n');
 #ifdef DEBUG
-      std::string line(s, text);
-      std::smatch m;
-      if (!status &&
-          std::regex_match(line, m, std::regex(R"(c .* (SAT|UNSAT) .*)")))
+      string line(s, text);
+      smatch m;
+      if (!status && regex_match(line, m, regex(R"(c .* (SAT|UNSAT) .*)")))
         status = m[1] == "SAT" ? s_Satisfiable : s_Unsatisfiable;
 #endif
       goto loop;

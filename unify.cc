@@ -2,7 +2,7 @@
 // stdafx.h must be first
 #include "main.h"
 
-vec<std::pair<w, w>> unified;
+vec<pair<w, w>> unified;
 
 bool match(w a, w b) {
   // equal
@@ -22,7 +22,7 @@ bool match(w a, w b) {
     }
 
     // new mapping
-    unified.push(std::make_pair(a, b));
+    unified.push(make_pair(a, b));
     return 1;
   }
 
@@ -83,7 +83,7 @@ bool unifyvar(w a, w b) {
     return 0;
 
   // new mapping
-  unified.push(std::make_pair(a, b));
+  unified.push(make_pair(a, b));
   return 1;
 }
 } // namespace

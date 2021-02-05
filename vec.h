@@ -70,7 +70,7 @@ template <class T, w small = 4> struct vec {
   void reserve(w m) {
     if (m <= cap)
       return;
-    cap = std::max(m, (w)cap * 2);
+    cap = max(m, (w)cap * 2);
     if (p == u) {
       p = (T *)xmalloc(cap * sizeof(T));
       memcpy(p, u, n * sizeof(T));

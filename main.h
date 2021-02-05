@@ -37,6 +37,7 @@
 #include "tptp.h"
 
 // algorithms
+#include "cnf.h"
 #include "types.h"
 #include "unify.h"
 

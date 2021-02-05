@@ -331,9 +331,9 @@ struct parser1 : parser {
   bool eat(char o) {
     if (tok == o) {
       lex();
-      return true;
+      return 1;
     }
-    return false;
+    return 0;
   }
 
   void expect(char o) {
@@ -428,10 +428,10 @@ struct parser1 : parser {
     auto p = tokstart;
 
     // sign
-    auto sign = false;
+    auto sign = 0;
     if (*p == '-') {
       ++p;
-      sign = true;
+      sign = 1;
     }
 
     // integer part
@@ -475,13 +475,13 @@ struct parser1 : parser {
     mpq_set_den(x.val, powscale);
 
     // exponent
-    auto exponentsign = false;
+    auto exponentsign = 0;
     w exponent = 0;
     if (*p == 'e' || *p == 'e') {
       ++p;
       switch (*p) {
       case '-':
-        exponentsign = true;
+        exponentsign = 1;
       case '+':
         ++p;
         break;
@@ -818,7 +818,7 @@ struct parser1 : parser {
           expect(',');
 
           // literals
-          cnfmode = true;
+          cnfmode = 1;
           neg.n = pos.n = 0;
           auto parens = eat('(');
           do {
@@ -884,7 +884,7 @@ struct parser1 : parser {
           }
 
           // formula
-          cnfmode = false;
+          cnfmode = 0;
           auto a = logic_formula();
           assert(!vars.n);
 
@@ -895,7 +895,7 @@ struct parser1 : parser {
           // cnf
           if (role == k_conjecture) {
             a = term(basic(b_not), a);
-            conjecture = true;
+            conjecture = 1;
           }
           break;
         }
@@ -912,7 +912,7 @@ struct parser1 : parser {
           // select and read
           if (eat(',')) {
             expect('[');
-            selection sel1(false);
+            selection sel1(0);
             do {
               auto forname = name();
               if (sel.count(forname))
@@ -950,5 +950,5 @@ void tptp(const char *file) {
 #ifdef DEBUG
   header = 2;
 #endif
-  parser1 p(file, selection(true));
+  parser1 p(file, selection(1));
 }

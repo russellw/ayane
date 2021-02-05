@@ -157,7 +157,7 @@ template <class T, w small = 4> struct vec {
   // compare
   bool operator==(const vec &x) {
     if (n != x.n)
-      return false;
+      return 0;
     return !memcmp(p, x.p, n * sizeof(T));
   }
 };

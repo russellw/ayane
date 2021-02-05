@@ -16,7 +16,7 @@ uint16_t *entries = (uint16_t *)xcalloc(cap, sizeof(uint16_t));
 
 bool eq(const tcompound *t, const uint16_t *p, w n) {
   if (t->n != n)
-    return false;
+    return 0;
   return !memcmp(t->v, p, n * sizeof *p);
 }
 
@@ -77,7 +77,7 @@ sym **entries = (sym **)xcalloc(cap, sizeof(sym *));
 bool strmemeq(const char *s, const char *p, w n) {
   while (n--)
     if (*s++ != *p++)
-      return false;
+      return 0;
   return !*s;
 }
 
@@ -197,7 +197,7 @@ compound **entries = (compound **)xcalloc(cap, sizeof(compound *));
 
 bool eq(const compound *x, const w *p, w n) {
   if (x->n != n)
-    return false;
+    return 0;
   return !memcmp(x->v, p, n * sizeof *p);
 }
 
@@ -250,9 +250,9 @@ clause **entries = (clause **)xcalloc(cap, sizeof(clause *));
 
 bool eq(const clause *c, const w *p, w nn, w n) {
   if (c->nn != nn)
-    return false;
+    return 0;
   if (c->n != n)
-    return false;
+    return 0;
   return !memcmp(c->v, p, n * sizeof *p);
 }
 
@@ -320,7 +320,7 @@ clause *clause1() {
   auto nn = neg.n;
   auto n = nn + pos.n;
   if (n > 0xff) {
-    complete = false;
+    complete = 0;
     return 0;
   }
   static w v[0x100];
@@ -330,7 +330,7 @@ clause *clause1() {
 }
 
 void clear() {
-  complete = true;
+  complete = 1;
   conjecture = 0;
   for (auto i = syms::entries, end = syms::entries + syms::cap; i != end; ++i) {
     auto s = *i;

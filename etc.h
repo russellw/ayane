@@ -11,7 +11,7 @@ typedef intptr_t w;
 void stacktrace();
 bool assertfail(const char *file, w line, const char *s);
 #define assert(a) (a) || assertfail(__FILE__, __LINE__, #a)
-#define unreachable assert(false)
+#define unreachable assert(0)
 #define debug(a)                                                               \
   do {                                                                         \
     fprintf(stderr, "%s:%d: %s: ", __FILE__, __LINE__, #a);                    \
@@ -24,7 +24,7 @@ bool assertfail(const char *file, w line, const char *s);
 #define stacktrace()
 #ifdef _MSC_VER
 #define assert(a) __assume(a)
-#define unreachable __assume(false)
+#define unreachable __assume(0)
 #else
 #define assert(a)
 #define unreachable __builtin_unreachable()

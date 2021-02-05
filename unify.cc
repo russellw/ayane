@@ -7,11 +7,11 @@ vec<std::pair<w, w>> unified;
 bool match(w a, w b) {
   // equal
   if (a == b)
-    return true;
+    return 1;
 
   // type mismatch
   if (typeof(a) != typeof(b))
-    return false;
+    return 0;
 
   // variable
   if ((a & 7) == a_var) {
@@ -23,25 +23,25 @@ bool match(w a, w b) {
 
     // new mapping
     unified.push(std::make_pair(a, b));
-    return true;
+    return 1;
   }
 
   // atoms
   if ((a & 7) != a_compound)
-    return false;
+    return 0;
   if ((b & 7) != a_compound)
-    return false;
+    return 0;
 
   // compounds
   auto n = size(a);
   if (n != size(b))
-    return false;
+    return 0;
   if (at(a, 0) != at(b, 0))
-    return false;
+    return 0;
   for (w i = 1; i != n; ++i)
     if (!match(at(a, i), at(b, i)))
-      return false;
-  return true;
+      return 0;
+  return 1;
 }
 
 namespace {
@@ -52,18 +52,18 @@ bool occurs(w a, w b) {
     auto n = size(b);
     for (w i = 0; i != n; ++i)
       if (occurs(a, at(b, i)))
-        return true;
+        return 1;
     break;
   }
   case a_var:
     if (a == b)
-      return true;
+      return 1;
     for (auto p : unified)
       if (p.first == b)
         return occurs(a, p.second);
     break;
   }
-  return false;
+  return 0;
 }
 
 bool unifyvar(w a, w b) {
@@ -80,22 +80,22 @@ bool unifyvar(w a, w b) {
 
   // occurs check
   if (occurs(a, b))
-    return false;
+    return 0;
 
   // new mapping
   unified.push(std::make_pair(a, b));
-  return true;
+  return 1;
 }
 } // namespace
 
 bool unify(w a, w b) {
   // equal
   if (a == b)
-    return true;
+    return 1;
 
   // type mismatch
   if (typeof(a) != typeof(b))
-    return false;
+    return 0;
 
   // variables
   if ((a & 7) == a_var)
@@ -105,20 +105,20 @@ bool unify(w a, w b) {
 
   // atoms
   if ((a & 7) != a_compound)
-    return false;
+    return 0;
   if ((b & 7) != a_compound)
-    return false;
+    return 0;
 
   // compounds
   auto n = size(a);
   if (n != size(b))
-    return false;
+    return 0;
   if (at(a, 0) != at(b, 0))
-    return false;
+    return 0;
   for (w i = 1; i != n; ++i)
     if (!unify(at(a, i), at(b, i)))
-      return false;
-  return true;
+      return 0;
+  return 1;
 }
 
 w replace(w a) {

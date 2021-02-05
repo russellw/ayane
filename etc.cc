@@ -12,7 +12,7 @@
 void stacktrace() {
 #ifdef _WIN32
   auto process = GetCurrentProcess();
-  SymInitialize(process, 0, true);
+  SymInitialize(process, 0, 1);
   static void *stack[1000];
   auto nframes =
       CaptureStackBackTrace(1, sizeof stack / sizeof *stack, stack, 0);
@@ -37,7 +37,7 @@ bool assertfail(const char *file, w line, const char *s) {
   stacktrace();
   exit(1);
   // keep the compiler happy about the use of || in the assert macro
-  return false;
+  return 0;
 }
 #endif
 

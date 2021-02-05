@@ -322,8 +322,8 @@ vec<w> boundvars;
 void getfree1(w a) {
   switch (a & 7) {
   case a_compound: {
+    auto n = size(a);
     if (at(a, 0) == basic(b_all) || at(a, 0) == basic(b_exists)) {
-      auto n = size(a);
       auto old = boundvars.n;
       for (w i = 2; i != n; ++i)
         boundvars.push(at(a, i));
@@ -331,7 +331,6 @@ void getfree1(w a) {
       boundvars.n = old;
       break;
     }
-    auto n = size(a);
     for (w i = 1; i != n; ++i)
       getfree1(at(a, i));
     break;

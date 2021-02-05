@@ -195,9 +195,13 @@ def sortSwitches(i, j):
 def blockSpan(i):
     if re.match(r"\s*}", text[i]):
         err(i, "bad block")
+    if re.match(r"\s*// SORT$", text[i]):
+        err(i, "nested SORT blocks not supported")
     indent = getIndent(i)
     i += 1
     while getIndent(i) > indent:
+        if re.match(r"\s*// SORT$", text[i]):
+            err(i, "nested SORT blocks not supported")
         i += 1
     if re.match(r"\s*}", text[i]):
         i += 1

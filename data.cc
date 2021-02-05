@@ -317,10 +317,8 @@ w status;
 
 // SORT
 void clear() {
-  // SORT
-  conjecture = 0;
   complete = true;
-  ///
+  conjecture = 0;
   for (auto i = syms::entries, end = syms::entries + syms::cap; i != end; ++i) {
     auto s = *i;
     if (s)

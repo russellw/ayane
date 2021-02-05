@@ -6,50 +6,50 @@ template <class T, w small = 4> struct vec {
 
   uint32_t cap = small;
   uint32_t n;
-  T *p = v;
-  T v[small];
+  T *p = u;
+  T u[small];
 
   // construct/copy/destroy
   vec() : n(0) {}
 
   explicit vec(T a) : n(1) {
     assert(n <= small);
-    v[0] = a;
+    u[0] = a;
   }
 
   vec(T a, T b) : n(2) {
     assert(n <= small);
-    v[0] = a;
-    v[1] = b;
+    u[0] = a;
+    u[1] = b;
   }
 
   vec(T a, T b, T c) : n(3) {
     assert(n <= small);
-    v[0] = a;
-    v[1] = b;
-    v[2] = c;
+    u[0] = a;
+    u[1] = b;
+    u[2] = c;
   }
 
   vec(T a, T b, T c, T d) : n(4) {
     assert(n <= small);
-    v[0] = a;
-    v[1] = b;
-    v[2] = c;
-    v[3] = d;
+    u[0] = a;
+    u[1] = b;
+    u[2] = c;
+    u[3] = d;
   }
 
   vec(vec &x) : n(x.n) {
-    if (x.p == x.v) {
-      memcpy(v, x.v, n * sizeof(T));
+    if (x.p == x.u) {
+      memcpy(u, x.u, n * sizeof(T));
       return;
     }
     cap = x.cap;
     p = x.p;
-    x.p = x.v;
+    x.p = x.u;
   }
 
   ~vec() {
-    if (p != v)
+    if (p != u)
       free(p);
   }
 
@@ -71,9 +71,9 @@ template <class T, w small = 4> struct vec {
     if (m <= cap)
       return;
     cap = std::max(m, (w)cap * 2);
-    if (p == v) {
+    if (p == u) {
       p = (T *)xmalloc(cap * sizeof(T));
-      memcpy(p, v, n * sizeof(T));
+      memcpy(p, u, n * sizeof(T));
       return;
     }
     p = (T *)xrealloc(p, cap * sizeof(T));

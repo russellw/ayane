@@ -143,7 +143,7 @@ extern w status;
 #endif
 
 // SORT
-void clause();
+void cnf();
 void clear();
 w imp(w a, w b);
 w int1(Int &x);

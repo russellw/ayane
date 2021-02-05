@@ -258,7 +258,7 @@ w status;
 #endif
 
 // SORT
-void clause() {}
+void cnf() {}
 
 void clear() {
   conjecture = 0;

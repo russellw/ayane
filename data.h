@@ -160,8 +160,8 @@ extern w status;
 #endif
 
 // SORT
+clause *clause1();
 void clear();
-void cnf();
 w imp(w a, w b);
 w int1(Int &x);
 sym *intern(const char *s, w n);

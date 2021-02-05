@@ -99,14 +99,14 @@ struct parser1 : parser {
           break;
         case 0:
           if (neg.n | pos.n)
-            cnf();
+            clause1();
           return;
         case o_num:
           pos.push(fn());
           break;
         case o_zero:
           lex();
-          cnf();
+          clause1();
           break;
         default:
           throw "syntax error";

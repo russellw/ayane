@@ -316,6 +316,19 @@ w status;
 #endif
 
 // SORT
+clause *clause1() {
+  auto nn = neg.n;
+  auto n = nn + pos.n;
+  if (n > 0xff) {
+    complete = false;
+    return 0;
+  }
+  static w v[0x100];
+  memcpy(v, neg.p, nn * sizeof *v);
+  memcpy(v + nn, pos.p, pos.n * sizeof *v);
+  return clauses::put(v, nn, n);
+}
+
 void clear() {
   complete = true;
   conjecture = 0;
@@ -327,19 +340,6 @@ void clear() {
 #ifdef DEBUG
   status = 0;
 #endif
-}
-
-void cnf() {
-  auto nn = neg.n;
-  auto n = nn + pos.n;
-  if (n > 0xff) {
-    complete = false;
-    return;
-  }
-  static w v[0x100];
-  memcpy(v, neg.p, nn * sizeof *v);
-  memcpy(v + nn, pos.p, pos.n * sizeof *v);
-  clauses::put(v, nn, n);
 }
 
 w imp(w a, w b) { return term(basic(b_or), term(basic(b_not), a), b); }

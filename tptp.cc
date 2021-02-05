@@ -838,7 +838,7 @@ struct parser1 : parser {
             break;
 
           // clause
-          cnf();
+          clause1();
           break;
         }
         case k_fof:

@@ -24,6 +24,25 @@ w type(w r, w t1, w t2) {
 ///
 
 // SORT
+void test_clause() {
+  auto x = var(t_int, 0);
+  auto y = var(t_int, 1);
+
+  neg.n = pos.n = 0;
+  neg.push(term(basic(b_eq), x, y));
+  auto c = clause1();
+
+  neg.n = pos.n = 0;
+  neg.push(term(basic(b_eq), x, y));
+  auto d = clause1();
+  assert(c == d);
+
+  neg.n = pos.n = 0;
+  pos.push(term(basic(b_eq), x, y));
+  d = clause1();
+  assert(c != d);
+}
+
 void test_fn() {
   auto red = fn(t_bool, intern("red"));
   auto redp = symp(red);
@@ -368,6 +387,7 @@ void test_vec() {
 
 void test() {
   // SORT
+  test_clause();
   test_fn();
   test_int();
   test_match();

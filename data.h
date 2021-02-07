@@ -152,11 +152,11 @@ struct tcompound {
 ///
 
 // SORT
-extern unordered_map<clause *, sym *> clausenames;
 extern bool complete;
 extern clause *conjecture;
 extern const char *szs[];
 extern sym keywords[];
+extern unordered_map<clause *, sym *> clausenames;
 extern vec<tcompound *> tcompounds;
 extern vec<w> freevars;
 extern vec<w> neg, pos;
@@ -169,8 +169,8 @@ extern w status;
 
 // SORT
 clause *clause1(clause *from = 0, clause *from1 = 0);
-clause *formula(w a, clause *from);
 void clear();
+clause *formula(w a, clause *from);
 void getfree(w a);
 w imp(w a, w b);
 w int1(Int &x);
@@ -243,12 +243,13 @@ inline w var(w t, w i) {
   return i << (1 + 16 + 3) | t << 3 | a_var;
 }
 
-inline w vartype(w a) {
-  assert((a & 7) == a_var);
-  return a >> 3 & 0xffff;
-}
 inline w vari(w a) {
   assert((a & 7) == a_var);
   return a >> (1 + 16 + 3);
+}
+
+inline w vartype(w a) {
+  assert((a & 7) == a_var);
+  return a >> 3 & 0xffff;
 }
 ///

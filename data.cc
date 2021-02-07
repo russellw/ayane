@@ -302,13 +302,13 @@ clause *put(const w *p, w nn, w n, clause *from, clause *from1) {
 } // namespace clauses
 
 // SORT
-w skolemi;
 bool complete;
 clause *conjecture;
 unordered_map<clause *, sym *> clausenames;
 vec<tcompound *> tcompounds(0);
 vec<w> freevars;
 vec<w> neg, pos;
+w skolemi;
 ///
 
 const char *szs[] = {
@@ -369,18 +369,6 @@ clause *clause1(clause *from, clause *from1) {
   return clauses::put(v, nn, n, from, from1);
 }
 
-clause *formula(w a, clause *from) {
-  auto r = (clause *)formulas.alloc(offsetof(clause, v) + sizeof(w));
-  memset(r, 0, offsetof(clause, v));
-  r->fof = 1;
-  r->nn = 0;
-  r->n = 1;
-  r->from[0] = from;
-  r->from[1] = 0;
-  r->v[0] = a;
-  return r;
-}
-
 void clear() {
   for (auto i = syms::entries, e = syms::entries + syms::cap; i != e; ++i) {
     auto s = *i;
@@ -395,6 +383,18 @@ void clear() {
 #ifdef DEBUG
   status = 0;
 #endif
+}
+
+clause *formula(w a, clause *from) {
+  auto r = (clause *)formulas.alloc(offsetof(clause, v) + sizeof(w));
+  memset(r, 0, offsetof(clause, v));
+  r->fof = 1;
+  r->nn = 0;
+  r->n = 1;
+  r->from[0] = from;
+  r->from[1] = 0;
+  r->v[0] = a;
+  return r;
 }
 
 void getfree(w a) {

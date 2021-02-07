@@ -10,7 +10,6 @@ namespace types {
 // 16-bit words rather than pointers
 w atoms = basic_types;
 
-// must be a power of 2
 w cap = 0x10;
 uint16_t *entries = (uint16_t *)xcalloc(cap, sizeof(uint16_t));
 
@@ -29,6 +28,7 @@ w slot(uint16_t *entries, w cap, const uint16_t *p, w n) {
 }
 
 void expand() {
+	assert(ispow2(cap));
   auto cap1 = cap * 2;
   auto entries1 = (uint16_t *)xcalloc(cap1, sizeof *entries);
   for (w i = 0; i != cap; ++i) {
@@ -90,6 +90,7 @@ w slot(sym **entries, w cap, const char *p, w n) {
 }
 
 void expand() {
+	assert(ispow2(cap));
   auto cap1 = cap * 2;
   auto entries1 = (sym **)xcalloc(cap1, sizeof *entries);
   for (w i = 0; i != cap; ++i) {
@@ -138,7 +139,6 @@ sym *put(const char *p, w n) {
 
 namespace nums {
 template <class T> class bank {
-  // must be a power of 2
   w cap = 0x10;
   w count;
   T **entries = (T **)xcalloc(cap, sizeof(T *));
@@ -152,6 +152,7 @@ template <class T> class bank {
   }
 
   void expand() {
+	assert(ispow2(cap));
     auto cap1 = cap * 2;
     auto entries1 = (T **)xcalloc(cap1, sizeof *entries);
     for (w i = 0; i != cap; ++i) {
@@ -190,7 +191,6 @@ bank<Rat> rats;
 } // namespace nums
 
 namespace compounds {
-// must be a power of 2
 w cap = 0x1000;
 w count;
 compound **entries = (compound **)xcalloc(cap, sizeof(compound *));
@@ -210,6 +210,7 @@ w slot(compound **entries, w cap, const w *p, w n) {
 }
 
 void expand() {
+	assert(ispow2(cap));
   auto cap1 = cap * 2;
   auto entries1 = (compound **)xcalloc(cap1, sizeof *entries);
   for (w i = 0; i != cap; ++i) {
@@ -243,7 +244,6 @@ w put(const w *p, w n) {
 } // namespace compounds
 
 namespace clauses {
-// must be a power of 2
 w cap = 0x1000;
 w count;
 clause **entries = (clause **)xcalloc(cap, sizeof(clause *));
@@ -265,6 +265,7 @@ w slot(clause **entries, w cap, const w *p, w nn, w n) {
 }
 
 void expand() {
+	assert(ispow2(cap));
   auto cap1 = cap * 2;
   auto entries1 = (clause **)xcalloc(cap1, sizeof *entries);
   for (w i = 0; i != cap; ++i) {
@@ -277,16 +278,18 @@ void expand() {
   entries = entries1;
 }
 
-clause *store(const w *p, w nn, w n) {
+clause *store(const w *p, w nn, w n,clause*from,clause*from1) {
   auto r = (clause *)xmalloc(offsetof(clause, v) + n * sizeof *p);
   memset(r, 0, offsetof(clause, v));
   r->nn = nn;
   r->n = n;
+  r->from[0]=from;
+  r->from[1]=from1;
   memcpy(r->v, p, n * sizeof *p);
   return r;
 }
 
-clause *put(const w *p, w nn, w n) {
+clause *put(const w *p, w nn, w n,clause*from,clause*from1) {
   auto i = slot(entries, cap, p, nn, n);
   if (entries[i])
     return entries[i];
@@ -294,13 +297,15 @@ clause *put(const w *p, w nn, w n) {
     expand();
     i = slot(entries, cap, p, nn, n);
   }
-  return entries[i] = store(p, nn, n);
+  return entries[i] = store(p, nn, n,from,from1);
 }
 } // namespace clauses
 
 // SORT
+w skolemi;
 bool complete;
-bool conjecture;
+clause*conjecture;
+unordered_map<clause*,sym*>clausenames;
 vec<tcompound *> tcompounds(0);
 vec<w> freevars;
 vec<w> neg, pos;
@@ -317,7 +322,10 @@ w status;
 #endif
 
 namespace {
+// SORT
+pool formulas;
 vec<w> boundvars;
+///
 
 void getfree1(w a) {
   switch (a & 7) {
@@ -347,27 +355,43 @@ void getfree1(w a) {
 } // namespace
 
 // SORT
-clause *clause1() {
+clause *clause1(clause*from,clause*from1) {
   auto nn = neg.n;
   auto n = nn + pos.n;
-  if (n > 0xff) {
+  //must be <= 0xff
+  w v[0xff];
+  if (n > sizeof v/sizeof*v) {
     complete = 0;
     return 0;
   }
-  static w v[0x100];
   memcpy(v, neg.p, nn * sizeof *v);
   memcpy(v + nn, pos.p, pos.n * sizeof *v);
-  return clauses::put(v, nn, n);
+  return clauses::put(v, nn, n,from,from1);
+}
+
+clause *formula(w a,clause*from){
+  auto r = (clause *)formulas.alloc(offsetof(clause, v) +  sizeof (w));
+  memset(r, 0, offsetof(clause, v));
+r->fof=1;
+  r->nn = 0;
+  r->n = 1;
+  r->from[0]=from;
+  r->from[1]=0;
+  r->v[0]=a;
+return r;
 }
 
 void clear() {
-  complete = 1;
-  conjecture = 0;
-  for (auto i = syms::entries, end = syms::entries + syms::cap; i != end; ++i) {
+  for (auto i = syms::entries, e = syms::entries + syms::cap; i != e; ++i) {
     auto s = *i;
     if (s)
       s->ft = 0;
   }
+  clausenames.clear();
+  complete = 1;
+  conjecture = 0;
+  formulas.clear();
+  skolemi=0;
 #ifdef DEBUG
   status = 0;
 #endif

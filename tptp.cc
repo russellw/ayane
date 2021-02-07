@@ -37,8 +37,8 @@ struct selection : unordered_set<sym *> {
   }
 };
 
-void strmemcpy(char *dest, const char *src, const char *end) {
-  auto n = end - src;
+void strmemcpy(char *dest, const char *src, const char *e) {
+  auto n = e - src;
   memcpy(dest, src, n);
   dest[n] = 0;
 }
@@ -838,7 +838,8 @@ struct parser1 : parser {
             break;
 
           // clause
-          clause1();
+          auto c=clause1();
+          clausenames[c]=forname;
           break;
         }
         case k_fof:
@@ -892,11 +893,15 @@ struct parser1 : parser {
           if (!sel.count(forname))
             break;
 
-          // cnf
+		auto f=formula(a);
           if (role == k_conjecture) {
             a = term(basic(b_not), a);
-            conjecture = 1;
+            f=formula(a,f);
+            conjecture = f;
           }
+
+          // cnf
+          cnf(f);
           break;
         }
         case k_include: {

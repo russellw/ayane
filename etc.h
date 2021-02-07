@@ -52,4 +52,9 @@ inline void fpr(FILE *f, uint64_t a) { fprintf(f, "%" PRIu64, a); }
 inline void fpr(FILE *f, void *p) { fprintf(f, "%p", p); }
 inline bool isdigit1(char c) { return '0' <= c && c <= '9'; }
 inline bool isspace1(char c) { return c <= ' ' && c; }
+inline bool ispow2(w n){
+	//doesn't work for 0
+	assert(n);
+	return !(n&n-1);
+}
 ///

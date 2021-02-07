@@ -99,7 +99,7 @@ w typeof(w a) {
   case a_sym:
     return symp(a)->ft;
   case a_var:
-    return a >> 3 & 0xffff;
+  	return vartype(a);
   }
   unreachable;
   return 0;

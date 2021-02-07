@@ -28,7 +28,7 @@ w slot(uint16_t *entries, w cap, const uint16_t *p, w n) {
 }
 
 void expand() {
-	assert(ispow2(cap));
+  assert(ispow2(cap));
   auto cap1 = cap * 2;
   auto entries1 = (uint16_t *)xcalloc(cap1, sizeof *entries);
   for (w i = 0; i != cap; ++i) {
@@ -90,7 +90,7 @@ w slot(sym **entries, w cap, const char *p, w n) {
 }
 
 void expand() {
-	assert(ispow2(cap));
+  assert(ispow2(cap));
   auto cap1 = cap * 2;
   auto entries1 = (sym **)xcalloc(cap1, sizeof *entries);
   for (w i = 0; i != cap; ++i) {
@@ -152,7 +152,7 @@ template <class T> class bank {
   }
 
   void expand() {
-	assert(ispow2(cap));
+    assert(ispow2(cap));
     auto cap1 = cap * 2;
     auto entries1 = (T **)xcalloc(cap1, sizeof *entries);
     for (w i = 0; i != cap; ++i) {
@@ -210,7 +210,7 @@ w slot(compound **entries, w cap, const w *p, w n) {
 }
 
 void expand() {
-	assert(ispow2(cap));
+  assert(ispow2(cap));
   auto cap1 = cap * 2;
   auto entries1 = (compound **)xcalloc(cap1, sizeof *entries);
   for (w i = 0; i != cap; ++i) {
@@ -265,7 +265,7 @@ w slot(clause **entries, w cap, const w *p, w nn, w n) {
 }
 
 void expand() {
-	assert(ispow2(cap));
+  assert(ispow2(cap));
   auto cap1 = cap * 2;
   auto entries1 = (clause **)xcalloc(cap1, sizeof *entries);
   for (w i = 0; i != cap; ++i) {
@@ -278,18 +278,18 @@ void expand() {
   entries = entries1;
 }
 
-clause *store(const w *p, w nn, w n,clause*from,clause*from1) {
+clause *store(const w *p, w nn, w n, clause *from, clause *from1) {
   auto r = (clause *)xmalloc(offsetof(clause, v) + n * sizeof *p);
   memset(r, 0, offsetof(clause, v));
   r->nn = nn;
   r->n = n;
-  r->from[0]=from;
-  r->from[1]=from1;
+  r->from[0] = from;
+  r->from[1] = from1;
   memcpy(r->v, p, n * sizeof *p);
   return r;
 }
 
-clause *put(const w *p, w nn, w n,clause*from,clause*from1) {
+clause *put(const w *p, w nn, w n, clause *from, clause *from1) {
   auto i = slot(entries, cap, p, nn, n);
   if (entries[i])
     return entries[i];
@@ -297,15 +297,15 @@ clause *put(const w *p, w nn, w n,clause*from,clause*from1) {
     expand();
     i = slot(entries, cap, p, nn, n);
   }
-  return entries[i] = store(p, nn, n,from,from1);
+  return entries[i] = store(p, nn, n, from, from1);
 }
 } // namespace clauses
 
 // SORT
 w skolemi;
 bool complete;
-clause*conjecture;
-unordered_map<clause*,sym*>clausenames;
+clause *conjecture;
+unordered_map<clause *, sym *> clausenames;
 vec<tcompound *> tcompounds(0);
 vec<w> freevars;
 vec<w> neg, pos;
@@ -355,30 +355,30 @@ void getfree1(w a) {
 } // namespace
 
 // SORT
-clause *clause1(clause*from,clause*from1) {
+clause *clause1(clause *from, clause *from1) {
   auto nn = neg.n;
   auto n = nn + pos.n;
-  //must be <= 0xff
+  // must be <= 0xff
   w v[0xff];
-  if (n > sizeof v/sizeof*v) {
+  if (n > sizeof v / sizeof *v) {
     complete = 0;
     return 0;
   }
   memcpy(v, neg.p, nn * sizeof *v);
   memcpy(v + nn, pos.p, pos.n * sizeof *v);
-  return clauses::put(v, nn, n,from,from1);
+  return clauses::put(v, nn, n, from, from1);
 }
 
-clause *formula(w a,clause*from){
-  auto r = (clause *)formulas.alloc(offsetof(clause, v) +  sizeof (w));
+clause *formula(w a, clause *from) {
+  auto r = (clause *)formulas.alloc(offsetof(clause, v) + sizeof(w));
   memset(r, 0, offsetof(clause, v));
-r->fof=1;
+  r->fof = 1;
   r->nn = 0;
   r->n = 1;
-  r->from[0]=from;
-  r->from[1]=0;
-  r->v[0]=a;
-return r;
+  r->from[0] = from;
+  r->from[1] = 0;
+  r->v[0] = a;
+  return r;
 }
 
 void clear() {
@@ -391,7 +391,7 @@ void clear() {
   complete = 1;
   conjecture = 0;
   formulas.clear();
-  skolemi=0;
+  skolemi = 0;
 #ifdef DEBUG
   status = 0;
 #endif

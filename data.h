@@ -113,8 +113,10 @@ struct clause {
   // such a clause would make no useful contribution to a proof search anyway
   uint8_t nn, n;
 
-  //the majority of ways for a clause to be made, result in it deriving from zero or one other clauses, but the majority of clauses will be made by the superposition rule, so derived from two other clauses
-  clause*from[2];
+  // the majority of ways for a clause to be made, result in it deriving from
+  // zero or one other clauses, but the majority of clauses will be made by the
+  // superposition rule, so derived from two other clauses
+  clause *from[2];
 
   // literals
   w v[0];
@@ -150,9 +152,9 @@ struct tcompound {
 ///
 
 // SORT
-extern unordered_map<clause*,sym*>clausenames;
+extern unordered_map<clause *, sym *> clausenames;
 extern bool complete;
-extern clause* conjecture;
+extern clause *conjecture;
 extern const char *szs[];
 extern sym keywords[];
 extern vec<tcompound *> tcompounds;
@@ -166,8 +168,8 @@ extern w status;
 #endif
 
 // SORT
-clause *clause1(clause*from=0,clause*from1=0);
-clause *formula(w a,clause*from);
+clause *clause1(clause *from = 0, clause *from1 = 0);
+clause *formula(w a, clause *from);
 void clear();
 void getfree(w a);
 w imp(w a, w b);
@@ -243,7 +245,7 @@ inline w var(w t, w i) {
 
 inline w vartype(w a) {
   assert((a & 7) == a_var);
-    return a >> 3 & 0xffff;
+  return a >> 3 & 0xffff;
 }
 inline w vari(w a) {
   assert((a & 7) == a_var);

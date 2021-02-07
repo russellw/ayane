@@ -838,8 +838,8 @@ struct parser1 : parser {
             break;
 
           // clause
-          auto c=clause1();
-          clausenames[c]=forname;
+          auto c = clause1();
+          clausenames[c] = forname;
           break;
         }
         case k_fof:
@@ -893,10 +893,10 @@ struct parser1 : parser {
           if (!sel.count(forname))
             break;
 
-		auto f=formula(a);
+          auto f = formula(a);
           if (role == k_conjecture) {
             a = term(basic(b_not), a);
-            f=formula(a,f);
+            f = formula(a, f);
             conjecture = f;
           }
 

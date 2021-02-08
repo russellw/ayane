@@ -177,6 +177,7 @@ w int1(Int &x);
 sym *intern(const char *s, w n);
 Int *intp(w a);
 w rat(Rat &x);
+w tmp(w op, const vec<w> &v);
 Rat *ratp(w a);
 w real(Rat &x);
 w term(const vec<w> &v);

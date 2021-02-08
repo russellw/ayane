@@ -324,6 +324,7 @@ w status;
 namespace {
 // SORT
 pool formulas;
+pool tmps;
 vec<w> boundvars;
 ///
 
@@ -380,6 +381,7 @@ void clear() {
   conjecture = 0;
   formulas.clear();
   skolemi = 0;
+  tmps.clear();
 #ifdef DEBUG
   status = 0;
 #endif
@@ -421,7 +423,14 @@ w term(w op, w a) {
   v[1] = a;
   return compounds::put(v, sizeof v / sizeof *v);
 }
-
+w tmp(w op, const vec<w> &v) {
+  auto n = v.n;
+  auto r = (compound *)tmps.alloc(offsetof(compound, v) + (n + 1) * sizeof op);
+  r->n = n + 1;
+  r->v[0] = op;
+  memcpy(r->v + 1, v.p, n * sizeof op);
+  return tag(r, a_compound);
+}
 w term(w op, w a, w b) {
   w v[3];
   v[0] = op;

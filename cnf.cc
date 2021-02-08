@@ -5,30 +5,45 @@
 namespace {
 w skolem(w t) {
   auto n = sprintf(buf, "\1%zu", skolemi++);
-  return fn(t, intern(buf, n));
+  auto s = intern(buf, n);
+  s->ft = t;
+  return tag(s, a_sym);
 }
 
-w skolem(w t, const vec<w> &v) {
-  auto a = constant(t, 0);
+w skolem(w rt, const vec<w> &v) {
+  // atom
   if (!v.n)
-    return a;
-  // don't care about params because type check is already done
-  return make(t_call, a, v);
+    return skolem(rt);
+
+  // compound type
+  vec<uint16_t> t;
+  t.resize(v.n + 1);
+  t[0] = rt;
+  for (w i = 0; i != v.n; ++i)
+    t[i + 1] = vartype(v[i]);
+
+  // compound
+  return tmp(skolem(type(t)), v);
 }
 
-w skolem(w t, const vec<pair<w, w>> &v) {
-  vec<w> w(v.size());
-  for (int i = 0; i != v.size(); ++i)
-    w[i] = v[i].second;
-  return skolem(t, w);
+w skolem(w rt, const vec<pair<w, w>> &v) {
+  vec<w> v1;
+  v1.resize(v.n);
+  for (w i = 0; i != v.n; ++i)
+    v1[i] = v[i].second;
+  return skolem(rt, v1);
 }
 
 // rename a term to avoid exponential blowup
-
 bool iscomplex(w a) {
   while ((a & 7) == a_compound && at(a, 0) == basic(b_not))
     a = at(a, 1);
-  switch (a->tag) {
+  if ((a & 7) != a_compound)
+    return 0;
+  auto op = at(a, 0);
+  if ((op & 7) != a_basic)
+    return 0;
+  switch (op >> 3) {
   case b_all:
   case b_eqv:
   case b_exists:
@@ -104,41 +119,51 @@ struct nnf {
   }
 
   w convert(bool pol, w a) {
-    switch (a->tag) {
-    case t_and:
-      return args(pol, a, pol ? t_and : t_or);
-    case t_eqv: {
-      auto x = ren_eqv(convert(true, at(a, 0)));
-      auto y = ren_eqv(convert(true, at(a, 1)));
-      return make(t_and, make(t_or, literal(false, x), literal(pol, y)),
-                  make(t_or, literal(true, x), literal(!pol, y)));
-    }
-    case t_all:
-      if (pol)
-        return all(pol, a);
-      else
-        return exists(pol, a);
-    case t_exists:
-      if (pol)
-        return exists(pol, a);
-      else
-        return all(pol, a);
-    case t_false:
-      return make(!pol);
-    case t_or:
-      return args(pol, a, pol ? t_or : t_and);
-    case t_true:
-      return make(pol);
-    case t_var:
+    switch (a & 7) {
+    case a_var:
       for (auto p : allvars)
         if (p.first == a)
           return p.second;
       for (auto p : existsvars)
         if (p.first == a)
           return p.second;
-      assert(false);
-    case t_not:
-      return convert(!pol, at(a, 0));
+      unreachable;
+    case a_basic:
+      switch (a >> 3) {
+      case b_false:
+        return basic(!pol);
+      case b_true:
+        return basic(pol);
+      }
+      unreachable;
+    case a_compound: {
+      auto op = at(a, 0);
+      if ((op & 7) == a_basic)
+        switch (op >> 3) {
+        case b_and:
+          return args(pol, a, pol ? t_and : t_or);
+        case b_eqv: {
+          auto x = ren_eqv(convert(true, at(a, 0)));
+          auto y = ren_eqv(convert(true, at(a, 1)));
+          return make(t_and, make(t_or, literal(false, x), literal(pol, y)),
+                      make(t_or, literal(true, x), literal(!pol, y)));
+        }
+        case b_all:
+          if (pol)
+            return all(pol, a);
+          else
+            return exists(pol, a);
+        case b_exists:
+          if (pol)
+            return exists(pol, a);
+          else
+            return all(pol, a);
+        case b_or:
+          return args(pol, a, pol ? t_or : t_and);
+        case b_not:
+          return convert(!pol, at(a, 0));
+        }
+    }
     }
     if (a->n)
       a = args(true, a, a->tag);

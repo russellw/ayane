@@ -157,11 +157,11 @@ def caseBlockTerminated(i):
 
 
 def caseBlockFallthruSpan(i):
-    while True:
+    while re.match(r"\s*(case .*|default):", text[i]):
         i = caseBlockSpan(i)
         if caseBlockTerminated(i):
             return i
-
+    return i
 
 def caseBlockFallthruSpans(i):
     spans = []

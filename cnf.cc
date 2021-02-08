@@ -120,14 +120,6 @@ struct nnf {
 
   w convert(bool pol, w a) {
     switch (a & 7) {
-    case a_var:
-      for (auto p : allvars)
-        if (p.first == a)
-          return p.second;
-      for (auto p : existsvars)
-        if (p.first == a)
-          return p.second;
-      unreachable;
     case a_basic:
       switch (a >> 3) {
       case b_false:
@@ -158,12 +150,20 @@ struct nnf {
             return exists(pol, a);
           else
             return all(pol, a);
-        case b_or:
-          return args(pol, a, pol ? t_or : t_and);
         case b_not:
           return convert(!pol, at(a, 0));
+        case b_or:
+          return args(pol, a, pol ? t_or : t_and);
         }
     }
+    case a_var:
+      for (auto p : allvars)
+        if (p.first == a)
+          return p.second;
+      for (auto p : existsvars)
+        if (p.first == a)
+          return p.second;
+      unreachable;
     }
     if (a->n)
       a = args(true, a, a->tag);

@@ -70,29 +70,14 @@ struct nnf {
   vec<pair<w, w>> &existsvars;
   w r;
 
-  w args(bool pol, w a, tag_t tag) {
-    vec<w> v(a->n);
-    for (auto i : a)
+  w args(bool pol, w a, w op) {
+    auto n = size(a);
+    vec<w> v;
+    v.resize(n);
+    v[0] = op;
+    for (w i = 1; i != n; ++i)
       v[i] = convert(pol, at(a, i));
-    return make(tag, v);
-  }
-
-  w literal(bool pol, w a) {
-    switch (a->tag) {
-    case t_all:
-    case t_and:
-    case t_eqv:
-    case t_exists:
-    case t_or:
-      assert(false);
-    case t_false:
-      return make(!pol);
-    case t_not:
-      return literal(!pol, at(a, 0));
-    case t_true:
-      return make(pol);
-    }
-    return pol ? a : make(t_not, a);
+    return tmp(v);
   }
 
   w all(bool pol, w a) {
@@ -133,28 +118,24 @@ struct nnf {
       if ((op & 7) == a_basic)
         switch (op >> 3) {
         case b_and:
-          return args(pol, a, pol ? t_and : t_or);
+          return args(pol, a, pol ? basic(b_and) : basic(b_or));
         case b_eqv: {
-          auto x = ren_eqv(convert(true, at(a, 0)));
-          auto y = ren_eqv(convert(true, at(a, 1)));
-          return make(t_and, make(t_or, literal(false, x), literal(pol, y)),
-                      make(t_or, literal(true, x), literal(!pol, y)));
+          auto x = at(a, 1);
+          auto y = at(a, 2);
+          return tmp(basic(b_and),
+                     tmp(basic(b_or), convert(0, x), convert(pol, y)),
+                     tmp(basic(b_or), convert(1, x), convert(!pol, y)));
         }
         case b_all:
-          if (pol)
-            return all(pol, a);
-          else
-            return exists(pol, a);
+          return pol ? all(pol, a) : exists(pol, a);
         case b_exists:
-          if (pol)
-            return exists(pol, a);
-          else
-            return all(pol, a);
+          return pol ? exists(pol, a) : all(pol, a);
         case b_not:
           return convert(!pol, at(a, 0));
         case b_or:
-          return args(pol, a, pol ? t_or : t_and);
+          return args(pol, a, pol ? basic(b_or) : basic(b_and));
         }
+      return args(pol, a, op);
     }
     case a_var:
       for (auto p : allvars)
@@ -165,9 +146,7 @@ struct nnf {
           return p.second;
       unreachable;
     }
-    if (a->n)
-      a = args(true, a, a->tag);
-    return pol ? a : make(t_not, a);
+    return pol ? a : tmp(basic(b_not), a);
   }
 
   nnf(w a) { r = convert(true, a); }

@@ -163,6 +163,7 @@ def caseBlockFallthruSpan(i):
             return i
     return i
 
+
 def caseBlockFallthruSpans(i):
     spans = []
     while re.match(r"\s*(case .*|default):", text[i]):

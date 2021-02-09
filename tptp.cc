@@ -1060,6 +1060,82 @@ void prtype(w t) {
 
 void prterm(w a, w parent) {
   switch (a & 7) {
+  case a_basic:
+    switch (a >> 3) {
+    case b_add:
+      printf("$sum");
+      return;
+    case b_ceil:
+      printf("$ceiling");
+      return;
+    case b_div:
+      printf("$quotient");
+      return;
+    case b_dive:
+      printf("$quotient_e");
+      return;
+    case b_divf:
+      printf("$quotient_f");
+      return;
+    case b_divt:
+      printf("$quotient_t");
+      return;
+    case b_false:
+      printf("$false");
+      return;
+    case b_floor:
+      printf("$floor");
+      return;
+    case b_isint:
+      printf("$is_int");
+      return;
+    case b_israt:
+      printf("$is_rat");
+      return;
+    case b_le:
+      printf("$lesseq");
+      return;
+    case b_lt:
+      printf("$less");
+      return;
+    case b_minus:
+      printf("$uminus");
+      return;
+    case b_mul:
+      printf("$product");
+      return;
+    case b_reme:
+      printf("$remainder_e");
+      return;
+    case b_remf:
+      printf("$remainder_f");
+      return;
+    case b_remt:
+      printf("$remainder_t");
+      return;
+    case b_round:
+      printf("$round");
+      return;
+    case b_sub:
+      printf("$difference");
+      return;
+    case b_toint:
+      printf("$to_int");
+      return;
+    case b_torat:
+      printf("$to_rat");
+      return;
+    case b_toreal:
+      printf("$to_real");
+      return;
+    case b_true:
+      printf("$true");
+      return;
+    case b_trunc:
+      printf("$truncate");
+      return;
+    }
+    break;
   case a_compound: {
     auto op = at(a, 0);
     if ((op & 7) == a_basic)
@@ -1079,12 +1155,12 @@ void prterm(w a, w parent) {
       case b_exists:
         quant('?', a);
         return;
-      case b_or:
-        infix(" | ", a, parent);
-        return;
       case b_not:
         putchar('~');
         prterm(at(a, 1), a);
+        return;
+      case b_or:
+        infix(" | ", a, parent);
         return;
       }
     prterm(at(a, 0), a);
@@ -1098,16 +1174,6 @@ void prterm(w a, w parent) {
     putchar(')');
     return;
   }
-  case a_basic:
-    switch (a >> 3) {
-    case b_false:
-      printf("$false");
-      return;
-    case b_true:
-      printf("$true");
-      return;
-    }
-    break;
   case a_distinctobj:
     quote('"', symp(a)->v);
     return;

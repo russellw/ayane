@@ -302,12 +302,12 @@ clause *put(const w *p, w nn, w n, clause *from, clause *from1) {
 } // namespace clauses
 
 // SORT
+ary<w> neg, pos;
 bool complete;
 clause *conjecture;
 unordered_map<clause *, sym *> clausenames;
 vec<tcompound *> tcompounds(0);
 vec<w> freevars;
-vec<w> neg, pos;
 w skolemi;
 ///
 
@@ -323,9 +323,9 @@ w status;
 
 namespace {
 // SORT
+ary<w> boundvars;
 pool<> formulas;
 pool<> tmps;
-ary<w> boundvars;
 ///
 
 void getfree1(w a) {

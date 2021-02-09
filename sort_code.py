@@ -265,13 +265,6 @@ def sortFile():
     # Report which files we actually sorted
     print(filename)
 
-    # Final sanity check
-    # This program sorts lines, possibly adding or removing blanks
-    # So the output should be a permutation of the input, disregarding blanks
-    old1 = [s for s in old if s]
-    text1 = [s for s in text if s]
-    assert sorted(text1) == sorted(old1)
-
     with open(filename, "w") as f:
         for s in text:
             f.write(s + "\n")

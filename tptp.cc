@@ -972,18 +972,18 @@ bool needparens(w a, w parent) {
     return 0;
   switch (op >> 3) {
   case b_and:
-  case b_or:
-  case b_eqv: {
+  case b_eqv:
+  case b_or: {
     auto parentop = at(parent, 0);
     if ((parentop & 7) != a_basic)
       return 0;
     switch (parentop >> 3) {
+    case b_all:
     case b_and:
-    case b_or:
     case b_eqv:
     case b_exists:
-    case b_all:
     case b_not:
+    case b_or:
       return 1;
     }
     return 0;

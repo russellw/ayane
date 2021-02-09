@@ -120,11 +120,6 @@ template <class T, w small = 4> struct vec {
     p[n++] = a;
   }
 
-  void pop() {
-    assert(n > 0);
-    --n;
-  }
-
   void insert(const_iterator position, T a) {
     assert(p <= position);
     assert(position <= end());

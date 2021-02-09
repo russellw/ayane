@@ -270,7 +270,7 @@ void clausify(w a) {
 
 void cnf(clause *f) {
   assert(f->fof);
-  auto a = f->v[0];
+  auto a = *f->v;
 
   // variables must be bound only for the first step
 #ifdef DEBUG

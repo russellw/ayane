@@ -152,6 +152,7 @@ struct tcompound {
 ///
 
 // SORT
+extern ary<w> freevars;
 extern ary<w> neg, pos;
 extern bool complete;
 extern clause *conjecture;
@@ -159,7 +160,6 @@ extern const char *szs[];
 extern sym keywords[];
 extern unordered_map<clause *, sym *> clausenames;
 extern vec<tcompound *> tcompounds;
-extern vec<w> freevars;
 extern w skolemi;
 ///
 
@@ -179,6 +179,7 @@ Int *intp(w a);
 w rat(Rat &x);
 Rat *ratp(w a);
 w real(Rat &x);
+w term(const ary<w> &v);
 w term(const vec<w> &v);
 w term(w op, w a);
 w term(w op, w a, w b);

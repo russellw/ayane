@@ -12,7 +12,7 @@ w skolem(w t) {
   return tag(s, a_sym);
 }
 
-w skolem(w rt, vec<w> &v) {
+w skolemize(w rt, ary<w> &v) {
   // atom
   if (!v.n)
     return skolem(rt);
@@ -29,12 +29,11 @@ w skolem(w rt, vec<w> &v) {
   return term(v);
 }
 
-w skolem(w rt, const vec<pair<w, w>> &u) {
-  vec<w> v;
-  v.resize(u.n);
+w skolemize(w rt, const vec<pair<w, w>> &u) {
+  freevars.resize(u.n);
   for (w i = 0; i != u.n; ++i)
-    v[i] = u[i].second;
-  return skolem(rt, v);
+    freevars[i] = u[i].second;
+  return skolemize(rt, freevars);
 }
 
 // negation normal form
@@ -76,7 +75,7 @@ struct nnf {
     existsvars.resize(old + n - 2);
     for (int i = 2; i != n; ++i)
       existsvars[old + i - 2] =
-          make_pair(at(a, i), skolem(vartype(at(a, i)), allvars));
+          make_pair(at(a, i), skolemize(vartype(at(a, i)), allvars));
     a = convert(pol, at(a, 1));
     existsvars.n = old;
     return a;
@@ -137,7 +136,7 @@ struct nnf {
 // any number of layers of or
 w rename(w a) {
   getfree(a);
-  auto b = skolem(t_bool, freevars);
+  auto b = skolemize(t_bool, freevars);
   cnf(formula(imp(b, a)));
   return b;
 }

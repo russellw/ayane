@@ -20,6 +20,17 @@ template <class T, w cap = 1000> struct ary {
   reverse_iterator rend() { return reverse_iterator(p); }
   const_reverse_iterator rend() const { return const_reverse_iterator(p); }
 
+  // capacity
+  void reserve(w m) {
+    if (m > cap)
+      throw "array overflow";
+  }
+
+  void resize(w m) {
+    reserve(m);
+    n = m;
+  }
+
   // element access
   T &operator[](w i) {
     assert(i < n);
@@ -43,8 +54,18 @@ template <class T, w cap = 1000> struct ary {
 
   // modifiers
   void push(T a) {
-    if (n == cap)
-      throw "array overflow";
+    reserve(n + 1);
     p[n++] = a;
+  }
+
+  void insert(const_iterator position, T a) {
+    assert(p <= position);
+    assert(position <= end());
+    auto i = position - p;
+
+    reserve(n + 1);
+    memmove(p + i + 1, p + i, (n - i) * sizeof(T));
+    p[i] = a;
+    ++n;
   }
 };

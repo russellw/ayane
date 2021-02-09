@@ -302,12 +302,12 @@ clause *put(const w *p, w nn, w n, clause *from, clause *from1) {
 } // namespace clauses
 
 // SORT
+ary<w> freevars;
 ary<w> neg, pos;
 bool complete;
 clause *conjecture;
 unordered_map<clause *, sym *> clausenames;
 vec<tcompound *> tcompounds(0);
-vec<w> freevars;
 w skolemi;
 ///
 
@@ -414,6 +414,8 @@ sym *intern(const char *s, w n) { return syms::put(s, n); }
 w rat(Rat &x) { return tag(nums::rats.put(x), a_rat); }
 
 w real(Rat &x) { return tag(nums::rats.put(x), a_real); }
+
+w term(const ary<w> &v) { return compounds::put(v.p, v.n); }
 
 w term(const vec<w> &v) { return compounds::put(v.p, v.n); }
 

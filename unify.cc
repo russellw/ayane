@@ -2,7 +2,7 @@
 // stdafx.h must be first
 #include "main.h"
 
-vec<pair<w, w>> unified;
+ary<pair<w, w>> unified;
 
 bool match(w a, w b) {
   // equal

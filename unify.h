@@ -1,4 +1,4 @@
-extern vec<pair<w, w>> unified;
+extern ary<pair<w, w>> unified;
 
 bool match(w a, w b);
 bool unify(w a, w b);

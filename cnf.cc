@@ -23,7 +23,7 @@ w skolem(w rt, vec<w> &v) {
     t[i + 1] = vartype(v[i]);
 
   // compound
-  v.insert(0, skolem(type(t)));
+  v.insert(v.p, skolem(type(t)));
   return term(v);
 }
 
@@ -33,34 +33,6 @@ w skolem(w rt, const vec<pair<w, w>> &u) {
   for (w i = 0; i != u.n; ++i)
     v[i] = u[i].second;
   return skolem(rt, v);
-}
-
-// rename a term to avoid exponential blowup
-bool iscomplex(w a) {
-  while ((a & 7) == a_compound && at(a, 0) == basic(b_not))
-    a = at(a, 1);
-  if ((a & 7) != a_compound)
-    return 0;
-  auto op = at(a, 0);
-  if ((op & 7) != a_basic)
-    return 0;
-  switch (op >> 3) {
-  case b_all:
-  case b_eqv:
-  case b_exists:
-    unreachable;
-  case b_and:
-  case b_or:
-    return 1;
-  }
-  return 0;
-}
-
-w ren_pos(w a) {
-  getfree(a);
-  auto b = skolem(0, freevars);
-  cnf(implies(b, a));
-  return b;
 }
 
 // negation normal form
@@ -161,68 +133,130 @@ struct nnf {
 // return:
 // at most one layer of and
 // any number of layers of or
-
-int and_size(w a) {
-  if (a->tag == t_and)
-    return a->n;
-  return 1;
+bool iscomplex(w a) {
+  while ((a & 7) == a_compound && at(a, 0) == basic(b_not))
+    a = at(a, 1);
+  if ((a & 7) != a_compound)
+    return 0;
+  auto op = at(a, 0);
+  if ((op & 7) != a_basic)
+    return 0;
+  switch (op >> 3) {
+  case b_all:
+  case b_eqv:
+  case b_exists:
+    unreachable;
+  case b_and:
+  case b_or:
+    return 1;
+  }
+  return 0;
 }
 
-w and_at(w a, int i) {
-  if (a->tag == t_and)
-    return at(a, i);
-  assert(!i);
-  return a;
+w rename(w a) {
+  getfree(a);
+  auto b = skolem(0, freevars);
+  cnf(imp(b, a));
+  return b;
 }
 
 w distribute(w a) {
-  switch (a->tag) {
-  case t_and: {
-    vec<w> v;
-    for (auto i : a) {
+  if ((a & 7) != a_compound)
+    return a;
+  auto op = at(a, 0);
+  if (op == basic(b_and)) {
+    auto n = size(a);
+    vec<w> v(basic(b_and));
+    for (w i = 1; i != n; ++i) {
       auto b = distribute(at(a, i));
-      if (b->tag == t_and) {
-        v.insert(v.end(), b->args, b->args + b->n);
+      if ((b & 7) == a_compound && at(b, 0) == basic(b_and)) {
+        v.insert(v.end(), compoundp(b)->v + 1, compoundp(b)->v + size(b));
         continue;
       }
-      v.push_back(b);
+      v.push(b);
     }
-    return make(t_and, v);
+    return term(v);
   }
-  case t_or: {
-    // flat layer of ands
-    int64_t n = 1;
-    vec<w> ands(a->n);
-    for (auto i : a) {
+  if (op == basic(b_or)) {
+    // take possibly nested ands and turn them into a layer no more than one
+    // deep
+    // also look for where there is going to be exponential blowup
+    // and rename terms to avoid it
+    auto n = size(a);
+    uint64_t product = 1;
+    vec<w> ands;
+    for (w i = 1; i != n; ++i) {
       auto b = distribute(at(a, i));
-      if (n > 1 && and_size(b) > 1 && n * and_size(b) > 4)
-        b = ren_pos(b);
-      n *= and_size(b);
-      ands[i] = b;
+      if ((b & 7) == a_compound && at(b, 0) == basic(b_and)) {
+        auto m = size(b) - 1;
+        if (product > 1 && m > 1 && product * m > 4) {
+          ands.push(rename(b));
+          continue;
+        }
+        for (w j = 1; j != m + 1; ++j) {
+          ands.push(at(b, j));
+          product *= m;
+        }
+        continue;
+      }
+      ands.push(b);
     }
 
+    // a vector of indexes into and terms
+    // that will provide a slice through the and arguments
+    // to create a single or term
+    vec<w> j;
+    j.resize(ands.n);
+    memset(j.p, 0, j.n * sizeof *j.p);
+
+    // the components of a single or term
+    vec<w> or1;
+    or1.resize(ands.n + 1);
+    or1[0] = basic(b_or);
+
+    // all the or terms
+    // that will become the arguments to an and
+    vec<w> ors(basic(b_and));
+
     // cartesian product of ands
-    vec<int> j(ands.size());
-    memset(j.data(), 0, j.n * sizeof(int));
-    vec<w> or_args(ands.n);
-    vec<w> ors;
     for (;;) {
-      for (int i = 0; i != ands.n; ++i)
-        or_args[i] = and_at(ands[i], j[i]);
-      ors.push_back(make(t_or, or_args));
-      for (int i = ands.n;;) {
+      // make another or that takes a slice through the and args
+      for (w i = 0; i != ands.n; ++i) {
+        auto b = ands[i];
+        if ((b & 7) == a_compound && at(b, 0) == basic(b_and))
+          b = at(b, j[i] + 1);
+        else
+          assert(!j[i]);
+        or1[i] = b;
+      }
+      ors.push(term(or1));
+
+      // take the next slice
+      for (w i = ands.n;;) {
+        // if we have done all the slices, return and of ors
         if (!i)
-          return make(t_and, ors);
+          return term(ors);
+
+        // next element of the index vector
+        // this is equivalent to increment with carry, of a multi-precision
+        // integer except that the 'base', the maximum value of a 'digit', is
+        // different for each place, being the number of arguments to the and at
+        // that position
         --i;
-        if (++j[i] < and_size(ands[i]))
-          break;
-        j[i] = 0;
+        auto b = ands[i];
+        if ((b & 7) == a_compound && at(b, 0) == basic(b_and)) {
+          auto m = size(b) - 1;
+          if (++j[i] == m) {
+            j[i] = 0;
+            // carry
+            continue;
+          }
+        }
+        break;
       }
     }
   }
-  default:
-    return a;
-  }
+  return a;
 }
 
 // make clauses

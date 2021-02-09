@@ -325,7 +325,7 @@ namespace {
 // SORT
 pool<> formulas;
 pool<> tmps;
-vec<w> boundvars;
+ary<w> boundvars;
 ///
 
 void getfree1(w a) {

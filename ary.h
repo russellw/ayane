@@ -1,55 +1,50 @@
-template <class T, w cap> struct ary {
+template <class T, w cap = 1000> struct ary {
   typedef T *iterator;
   typedef const T *const_iterator;
   typedef std::reverse_iterator<iterator> reverse_iterator;
   typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
   uint32_t n;
-  T v[cap];
+  T p[cap];
 
   // iterators
-  iterator begin() { return v; }
-  const_iterator begin() const { return v; }
+  iterator begin() { return p; }
+  const_iterator begin() const { return p; }
 
-  iterator end() { return v + n; }
-  const_iterator end() const { return v + n; }
+  iterator end() { return p + n; }
+  const_iterator end() const { return p + n; }
 
-  reverse_iterator rbegin() { return reverse_iterator(v + n); }
-  const_reverse_iterator rbegin() const { return reverse_iterator(v + n); }
+  reverse_iterator rbegin() { return reverse_iterator(p + n); }
+  const_reverse_iterator rbegin() const { return reverse_iterator(p + n); }
 
-  reverse_iterator rend() { return reverse_iterator(v); }
-  const_reverse_iterator rend() const { return const_reverse_iterator(v); }
+  reverse_iterator rend() { return reverse_iterator(p); }
+  const_reverse_iterator rend() const { return const_reverse_iterator(p); }
 
   // element access
   T &operator[](w i) {
     assert(i < n);
-    return v[i];
+    return p[i];
   }
 
   const T &operator[](w i) const {
     assert(i < n);
-    return v[i];
+    return p[i];
   }
 
   T &back() {
     assert(n);
-    return v[n - 1];
+    return p[n - 1];
   }
 
   const T &back() const {
     assert(n);
-    return v[n - 1];
+    return p[n - 1];
   }
 
   // modifiers
   void push(T a) {
     if (n == cap)
-      throw "Array overflow";
-    v[n++] = a;
-  }
-
-  void pop() {
-    assert(n);
-    --n;
+      throw "array overflow";
+    p[n++] = a;
   }
 };

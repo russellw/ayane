@@ -964,9 +964,38 @@ void tptp(const char *file) {
 }
 
 namespace {
+bool needparens(w a, w parent) {
+  if (!parent)
+    return 0;
+  auto op = at(a, 0);
+  if ((op & 7) != a_basic)
+    return 0;
+  switch (op >> 3) {
+  case b_and:
+  case b_or:
+  case b_eqv: {
+    auto parentop = at(parent, 0);
+    if ((parentop & 7) != a_basic)
+      return 0;
+    switch (parentop >> 3) {
+    case b_and:
+    case b_or:
+    case b_eqv:
+    case b_exists:
+    case b_all:
+    case b_not:
+      return 1;
+    }
+    return 0;
+  }
+  }
+  return 0;
+}
+
 // SORT
 void infix(const char *op, w a, w parent) {
-  if (needparens(a, parent))
+  auto parens = needparens(a, parent);
+  if (parens)
     putchar('(');
   auto n = size(a);
   for (w i = 1; i != n; ++i) {
@@ -974,15 +1003,8 @@ void infix(const char *op, w a, w parent) {
       printf(op);
     prterm(at(a, i), a);
   }
-  if (needparens(a, parent))
+  if (parens)
     putchar(')');
-}
-
-bool needparens(w a, w parent) {
-  if (!parent)
-    return 0;
-  auto op = at(a, 0);
-  return 0;
 }
 
 bool weird(const char *s) {

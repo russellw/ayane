@@ -85,7 +85,7 @@ struct nnf {
     case a_basic:
       switch (a >> 3) {
       case b_false:
-        return basic(!pol);
+        return basic(pol ^ 1);
       case b_true:
         return basic(pol);
       }
@@ -101,14 +101,14 @@ struct nnf {
           auto y = at(a, 2);
           return term(basic(b_and),
                       term(basic(b_or), convert(0, x), convert(pol, y)),
-                      term(basic(b_or), convert(1, x), convert(!pol, y)));
+                      term(basic(b_or), convert(1, x), convert(pol ^ 1, y)));
         }
         case b_all:
           return pol ? all(pol, a) : exists(pol, a);
         case b_exists:
           return pol ? exists(pol, a) : all(pol, a);
         case b_not:
-          return convert(!pol, at(a, 0));
+          return convert(pol ^ 1, at(a, 0));
         case b_or:
           return args(pol, a, pol ? basic(b_or) : basic(b_and));
         }

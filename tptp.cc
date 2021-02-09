@@ -1007,6 +1007,24 @@ void infix(const char *op, w a, w parent) {
     putchar(')');
 }
 
+void quant(char op, w a) {
+  printf("%c[", op);
+  auto n = size(a);
+  for (w i = 2; i != n; ++i) {
+    if (i > 2)
+      putchar(',');
+    auto x = at(a, i);
+    prterm(x);
+    auto t = vartype(x);
+    if (t != t_individual) {
+      putchar(':');
+      prtype(t);
+    }
+  }
+  printf("]:");
+  prterm(at(a, 1), a);
+}
+
 bool weird(const char *s) {
   if (!islower1(*s))
     return 1;
@@ -1019,12 +1037,39 @@ bool weird(const char *s) {
 ///
 } // namespace
 
+void prtype(w t) {
+  switch (t) {
+  case t_bool:
+    printf("$o");
+    return;
+  case t_individual:
+    printf("$i");
+    return;
+  case t_int:
+    printf("$int");
+    return;
+  case t_rat:
+    printf("$rat");
+    return;
+  case t_real:
+    printf("$real");
+    return;
+  }
+  unreachable;
+}
+
 void prterm(w a, w parent) {
   switch (a & 7) {
   case a_compound: {
     auto op = at(a, 0);
     if ((op & 7) == a_basic)
       switch (op >> 3) {
+      case b_all:
+        quant('!', a);
+        return;
+      case b_exists:
+        quant('?', a);
+        return;
       case b_and:
         infix(" & ", a, parent);
         return;

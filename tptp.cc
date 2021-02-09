@@ -957,3 +957,63 @@ void tptp(const char *file) {
 #endif
   parser1 p(file, selection(1));
 }
+
+namespace {
+bool weird(const char *s) {
+  if (isdigit1(*s))
+    return 1;
+  do
+    if (!isword[*s++])
+      return 1;
+  while (*s);
+  return 0;
+}
+} // namespace
+
+void prterm(w a) {
+  switch (a & 7) {
+  case a_basic:
+    switch (a >> 3) {
+    case b_false:
+      printf("$false");
+      return;
+    case b_true:
+      printf("$true");
+      return;
+    }
+    break;
+  case a_distinctobj:
+    quote('"', symp(a)->v);
+    return;
+  case a_int:
+    mpz_out_str(stdout, 10, intp(a)->val);
+    return;
+  case a_rat:
+    mpq_out_str(stdout, 10, ratp(a)->val);
+    if (!mpz_cmp_ui(mpq_denref(ratp(a)->val), 1))
+      printf("/1");
+    return;
+  case a_real:
+    printf("%f", mpq_get_d(ratp(a)->val));
+    return;
+  case a_sym: {
+    auto s = symp(a)->v;
+    if (weird(s)) {
+      quote('\'', s);
+      return;
+    }
+    printf("%s", s);
+    return;
+  }
+  case a_var: {
+    auto i = vari(a);
+    if (i < 26) {
+      putchar('A' + i);
+      return;
+    }
+    printf("Z%zu", i - 25);
+    return;
+  }
+  }
+  unreachable;
+}

@@ -2,6 +2,8 @@
 // stdafx.h must be first
 #include "main.h"
 
+// open problem:
+// https://stackoverflow.com/questions/53718986/converting-first-order-logic-to-cnf-without-exponential-blowup
 namespace {
 w skolem(w t) {
   auto n = sprintf(buf, "\1%zu", skolemi++);

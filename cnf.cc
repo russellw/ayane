@@ -12,28 +12,28 @@ w skolem(w t) {
   return tag(s, a_sym);
 }
 
-w skolemize(w rt, ary<w> &v) {
+w skolemize(w rt) {
   // atom
-  if (!v.n)
+  if (!freevars.n)
     return skolem(rt);
 
   // compound type
   vec<uint16_t> t;
-  t.resize(v.n + 1);
+  t.resize(freevars.n + 1);
   t[0] = rt;
-  for (w i = 0; i != v.n; ++i)
-    t[i + 1] = vartype(v[i]);
+  for (w i = 0; i != freevars.n; ++i)
+    t[i + 1] = vartype(freevars[i]);
 
   // compound
-  v.insert(v.p, skolem(type(t)));
-  return term(v);
+  freevars.insert(freevars.p, skolem(type(t)));
+  return term(freevars);
 }
 
 w skolemize(w rt, const vec<pair<w, w>> &u) {
   freevars.resize(u.n);
   for (w i = 0; i != u.n; ++i)
     freevars[i] = u[i].second;
-  return skolemize(rt, freevars);
+  return skolemize(rt);
 }
 
 // negation normal form
@@ -136,7 +136,7 @@ struct nnf {
 // any number of layers of or
 w rename(w a) {
   getfree(a);
-  auto b = skolemize(t_bool, freevars);
+  auto b = skolemize(t_bool);
   cnf(formula(imp(b, a)));
   return b;
 }

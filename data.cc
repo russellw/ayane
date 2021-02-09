@@ -302,12 +302,12 @@ clause *put(const w *p, w nn, w n, clause *from, clause *from1) {
 } // namespace clauses
 
 // SORT
+ary<tcompound *> tcompounds(0);
 ary<w> freevars;
 ary<w> neg, pos;
 bool complete;
 clause *conjecture;
 unordered_map<clause *, sym *> clausenames;
-vec<tcompound *> tcompounds(0);
 w skolemi;
 ///
 

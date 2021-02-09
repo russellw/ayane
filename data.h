@@ -152,6 +152,7 @@ struct tcompound {
 ///
 
 // SORT
+extern ary<tcompound *> tcompounds;
 extern ary<w> freevars;
 extern ary<w> neg, pos;
 extern bool complete;
@@ -159,7 +160,6 @@ extern clause *conjecture;
 extern const char *szs[];
 extern sym keywords[];
 extern unordered_map<clause *, sym *> clausenames;
-extern vec<tcompound *> tcompounds;
 extern w skolemi;
 ///
 

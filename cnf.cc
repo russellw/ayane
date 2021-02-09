@@ -185,13 +185,14 @@ w distribute(w a) {
     // a vector of indexes into and terms
     // that will provide a slice through the and arguments
     // to create a single or term
+    n = ands.n;
     vec<w> j;
-    j.resize(ands.n);
-    memset(j.p, 0, j.n * sizeof *j.p);
+    j.resize(n);
+    memset(j.p, 0, n * sizeof *j.p);
 
     // the components of a single or term
     vec<w> or1;
-    or1.resize(ands.n + 1);
+    or1.resize(n + 1);
     or1[0] = basic(b_or);
 
     // all the or terms
@@ -201,7 +202,7 @@ w distribute(w a) {
     // cartesian product of ands
     for (;;) {
       // make another or that takes a slice through the and args
-      for (w i = 0; i != ands.n; ++i) {
+      for (w i = 0; i != n; ++i) {
         auto b = ands[i];
         if ((b & 7) == a_compound && at(b, 0) == basic(b_and))
           b = at(b, j[i] + 1);
@@ -212,7 +213,7 @@ w distribute(w a) {
       ors.push(term(or1));
 
       // take the next slice
-      for (w i = ands.n;;) {
+      for (w i = n;;) {
         // if we have done all the slices, return and of ors
         if (!i)
           return term(ors);

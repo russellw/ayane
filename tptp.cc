@@ -1082,7 +1082,21 @@ void prterm(w a, w parent) {
       case b_or:
         infix(" | ", a, parent);
         return;
+      case b_not:
+        putchar('~');
+        prterm(at(a, 1), a);
+        return;
       }
+    prterm(at(a, 0), a);
+    putchar('(');
+    auto n = size(a);
+    for (w i = 1; i != n; ++i) {
+      if (i > 1)
+        putchar(',');
+      prterm(at(a, i), a);
+    }
+    putchar(')');
+    return;
   }
   case a_basic:
     switch (a >> 3) {

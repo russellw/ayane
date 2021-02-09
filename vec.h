@@ -125,6 +125,17 @@ template <class T, w small = 4> struct vec {
     --n;
   }
 
+  void insert(const_iterator position, T a) {
+    assert(p <= position);
+    assert(position <= end());
+    auto i = position - p;
+
+    reserve(n + 1);
+    memmove(p + i + m, p + i, (n - i) * sizeof(T));
+    p[i] = a;
+    ++n;
+  }
+
   void insert(const_iterator position, T *first, T *last) {
     assert(p <= position);
     assert(position <= end());

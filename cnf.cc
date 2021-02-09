@@ -10,7 +10,7 @@ w skolem(w t) {
   return tag(s, a_sym);
 }
 
-w skolem(w rt, const vec<w> &v) {
+w skolem(w rt, vec<w> &v) {
   // atom
   if (!v.n)
     return skolem(rt);
@@ -23,15 +23,16 @@ w skolem(w rt, const vec<w> &v) {
     t[i + 1] = vartype(v[i]);
 
   // compound
-  return tmp(skolem(type(t)), v);
+  v.insert(0, skolem(type(t)));
+  return term(v);
 }
 
-w skolem(w rt, const vec<pair<w, w>> &v) {
-  vec<w> v1;
-  v1.resize(v.n);
-  for (w i = 0; i != v.n; ++i)
-    v1[i] = v[i].second;
-  return skolem(rt, v1);
+w skolem(w rt, const vec<pair<w, w>> &u) {
+  vec<w> v;
+  v.resize(u.n);
+  for (w i = 0; i != u.n; ++i)
+    v[i] = u[i].second;
+  return skolem(rt, v);
 }
 
 // rename a term to avoid exponential blowup
@@ -66,8 +67,9 @@ w ren_pos(w a) {
 // for-all vars map to fresh vars
 // exists vars map to skolem functions
 struct nnf {
-  vec<pair<w, w>> &allvars;
-  vec<pair<w, w>> &existsvars;
+  vec<pair<w, w>> allvars;
+  vec<pair<w, w>> existsvars;
+  unordered_map<w, w> newvars;
   w r;
 
   w args(bool pol, w a, w op) {
@@ -77,15 +79,18 @@ struct nnf {
     v[0] = op;
     for (w i = 1; i != n; ++i)
       v[i] = convert(pol, at(a, i));
-    return tmp(v);
+    return term(v);
   }
 
   w all(bool pol, w a) {
     auto n = size(a);
     auto old = allvars.n;
     allvars.resize(old + n - 2);
-    for (int i = 2; i != n; ++i)
-      allvars[old + i - 2] = make_pair(at(a, i), var(vartype(at(a, i))));
+    for (int i = 2; i != n; ++i) {
+      auto t = vartype(at(a, i));
+      auto &j = newvars[t];
+      allvars[old + i - 2] = make_pair(at(a, i), var(t, j++));
+    }
     a = convert(pol, at(a, 1));
     allvars.n = old;
     return a;
@@ -122,9 +127,9 @@ struct nnf {
         case b_eqv: {
           auto x = at(a, 1);
           auto y = at(a, 2);
-          return tmp(basic(b_and),
-                     tmp(basic(b_or), convert(0, x), convert(pol, y)),
-                     tmp(basic(b_or), convert(1, x), convert(!pol, y)));
+          return term(basic(b_and),
+                      term(basic(b_or), convert(0, x), convert(pol, y)),
+                      term(basic(b_or), convert(1, x), convert(!pol, y)));
         }
         case b_all:
           return pol ? all(pol, a) : exists(pol, a);
@@ -146,7 +151,7 @@ struct nnf {
           return p.second;
       unreachable;
     }
-    return pol ? a : tmp(basic(b_not), a);
+    return pol ? a : term(basic(b_not), a);
   }
 
   nnf(w a) { r = convert(true, a); }

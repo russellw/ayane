@@ -131,7 +131,7 @@ template <class T, w small = 4> struct vec {
     auto i = position - p;
 
     reserve(n + 1);
-    memmove(p + i + m, p + i, (n - i) * sizeof(T));
+    memmove(p + i + 1, p + i, (n - i) * sizeof(T));
     p[i] = a;
     ++n;
   }

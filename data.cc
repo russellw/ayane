@@ -323,8 +323,8 @@ w status;
 
 namespace {
 // SORT
-pool formulas;
-pool tmps;
+pool<> formulas;
+pool<> tmps;
 vec<w> boundvars;
 ///
 

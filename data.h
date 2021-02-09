@@ -170,7 +170,7 @@ extern w status;
 // SORT
 clause *clause1(clause *from = 0, clause *from1 = 0);
 void clear();
-clause *formula(w a, clause *from);
+clause *formula(w a, clause *from = 0);
 void getfree(w a);
 w imp(w a, w b);
 w int1(Int &x);

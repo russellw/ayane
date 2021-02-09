@@ -1,5 +1,5 @@
 template <w cap = 1000000> class pool {
-  w p = v;
+  char *p = v;
   char v[cap];
 
 public:

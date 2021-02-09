@@ -133,30 +133,10 @@ struct nnf {
 // return:
 // at most one layer of and
 // any number of layers of or
-bool iscomplex(w a) {
-  while ((a & 7) == a_compound && at(a, 0) == basic(b_not))
-    a = at(a, 1);
-  if ((a & 7) != a_compound)
-    return 0;
-  auto op = at(a, 0);
-  if ((op & 7) != a_basic)
-    return 0;
-  switch (op >> 3) {
-  case b_all:
-  case b_eqv:
-  case b_exists:
-    unreachable;
-  case b_and:
-  case b_or:
-    return 1;
-  }
-  return 0;
-}
-
 w rename(w a) {
   getfree(a);
-  auto b = skolem(0, freevars);
-  cnf(imp(b, a));
+  auto b = skolem(t_bool, freevars);
+  cnf(formula(imp(b, a)));
   return b;
 }
 
@@ -260,30 +240,30 @@ w distribute(w a) {
 }
 
 // make clauses
-
-void clausify(w a) {
-  switch (a->tag) {
-  case t_and:
-    assert(false);
-  case t_not:
-    neg.push_back(at(a, 0));
-    break;
-  case t_or:
-    for (auto i : a)
-      clausify(at(a, i));
-    break;
-  default:
-    pos.push_back(a);
-    break;
+void split(w a) {
+  if ((a & 7) == a_compound) {
+    auto op = at(a, 0);
+    assert(op != basic(b_and));
+    if (op == basic(b_not)) {
+      neg.push(at(a, 1));
+      return;
+    }
+    if (op == basic(b_or)) {
+      auto n = size(a);
+      for (w i = 1; i != n; ++i)
+        split(at(a, i));
+      return;
+    }
   }
+  pos.push(a);
 }
 
-void clausify_ors(w a) {
-  assert(a->tag != t_and);
-  assert(neg.empty());
-  assert(pos.empty());
-  clausify(a);
-  make_clause();
+void clausify(w a) {
+  assert(!((a & 7) == a_compound && at(a, 0) == basic(b_and)));
+  assert(!neg.n);
+  assert(!pos.n);
+  split(a);
+  clause();
 }
 } // namespace
 
@@ -299,15 +279,25 @@ void cnf(clause *f) {
 
   // negation normal form
   nnf nnf1(a);
-  a = nnf1.r;
+  auto b = nnf1.r;
+  if (b != a) {
+    a = b;
+    f = formula(a, f);
+  }
 
   // distribute or into and
-  a = distribute(a);
+  b = distribute(a);
+  if (b != a) {
+    a = b;
+    f = formula(a, f);
+  }
 
   // make clauses
-  if (a->tag == t_and)
-    for (auto i : a)
-      clausify_ors(at(a, i));
-  else
-    clausify_ors(a);
+  if ((a & 7) == a_compound && at(a, 0) == basic(b_and)) {
+    auto n = size(a);
+    for (w i = 1; i != n; ++i)
+      clausify(at(a, i));
+    return;
+  }
+  clausify(a);
 }

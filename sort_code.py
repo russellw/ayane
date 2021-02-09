@@ -6,6 +6,7 @@
 import argparse
 import os
 import re
+import tempfile
 
 parser = argparse.ArgumentParser(description="Sort elements of C++ code")
 parser.add_argument("files", nargs="+")
@@ -265,6 +266,12 @@ def sortFile():
     # Report which files we actually sorted
     print(filename)
 
+    # Backup
+    with open(tempfile.gettempdir() + "/" + os.path.split(filename)[1], "w") as f:
+        for s in old:
+            f.write(s + "\n")
+
+    # Changed file
     with open(filename, "w") as f:
         for s in text:
             f.write(s + "\n")

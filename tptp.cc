@@ -1067,9 +1067,6 @@ void prterm(w a, w parent) {
       case b_all:
         quant('!', a);
         return;
-      case b_exists:
-        quant('?', a);
-        return;
       case b_and:
         infix(" & ", a, parent);
         return;
@@ -1078,6 +1075,9 @@ void prterm(w a, w parent) {
         return;
       case b_eqv:
         infix(" <=> ", a, parent);
+        return;
+      case b_exists:
+        quant('?', a);
         return;
       case b_or:
         infix(" | ", a, parent);

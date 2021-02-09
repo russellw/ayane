@@ -79,7 +79,7 @@ inline bool istcompound(w t) {
   return t & t_compound;
 }
 
-inline w tag(void *p, w a) { return (w)p | a; }
+inline w tag(void *p, w a) { return (w)p + a; }
 ///
 
 // SORT

@@ -61,6 +61,8 @@ inline void fpr(FILE *f, void *p) { fprintf(f, "%p", p); }
 
 inline bool isdigit1(char c) { return '0' <= c && c <= '9'; }
 
+inline bool islower1(char c) { return 'a' <= c && c <= 'z'; }
+
 inline bool ispow2(w n) {
   // doesn't work for 0
   assert(n);

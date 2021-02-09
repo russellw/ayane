@@ -25,6 +25,15 @@ char isword[0x100];
 w header;
 #endif
 
+struct init {
+  init() {
+    memset(isword + '0', 1, 10);
+    memset(isword + 'A', 1, 26);
+    isword['_'] = 1;
+    memset(isword + 'a', 1, 26);
+  }
+} init1;
+
 struct selection : unordered_set<sym *> {
   bool all;
 
@@ -948,10 +957,6 @@ struct parser1 : parser {
 } // namespace
 
 void tptp(const char *file) {
-  memset(isword + '0', 1, 10);
-  memset(isword + 'A', 1, 26);
-  isword['_'] = 1;
-  memset(isword + 'a', 1, 26);
 #ifdef DEBUG
   header = 2;
 #endif
@@ -959,19 +964,59 @@ void tptp(const char *file) {
 }
 
 namespace {
-bool weird(const char *s) {
-  if (isdigit1(*s))
-    return 1;
-  do
-    if (!isword[*s++])
-      return 1;
-  while (*s);
+// SORT
+void infix(const char *op, w a, w parent) {
+  if (needparens(a, parent))
+    putchar('(');
+  auto n = size(a);
+  for (w i = 1; i != n; ++i) {
+    if (i > 1)
+      printf(op);
+    prterm(at(a, i), a);
+  }
+  if (needparens(a, parent))
+    putchar(')');
+}
+
+bool needparens(w a, w parent) {
+  if (!parent)
+    return 0;
+  auto op = at(a, 0);
   return 0;
 }
+
+bool weird(const char *s) {
+  if (!islower1(*s))
+    return 1;
+  do
+    if (!isword[*s])
+      return 1;
+  while (*++s);
+  return 0;
+}
+///
 } // namespace
 
-void prterm(w a) {
+void prterm(w a, w parent) {
   switch (a & 7) {
+  case a_compound: {
+    auto op = at(a, 0);
+    if ((op & 7) == a_basic)
+      switch (op >> 3) {
+      case b_and:
+        infix(" & ", a, parent);
+        return;
+      case b_eq:
+        infix("=", a, parent);
+        return;
+      case b_eqv:
+        infix(" <=> ", a, parent);
+        return;
+      case b_or:
+        infix(" | ", a, parent);
+        return;
+      }
+  }
   case a_basic:
     switch (a >> 3) {
     case b_false:

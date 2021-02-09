@@ -56,7 +56,7 @@ w put(const uint16_t *p, w n) {
     return entries[i] | t_compound;
   if (tcompounds.n >= cap * 3 / 4) {
     if (tcompounds.n >= t_compound)
-      throw "too many compound types";
+      err("too many compound types");
     expand();
     i = slot(entries, cap, p, n);
   }
@@ -449,7 +449,7 @@ w type(sym *name) {
   if (name->t)
     return name->t;
   if (istcompound(types::atoms))
-    throw "too many atomic types";
+    err("too many atomic types");
   return name->t = types::atoms++;
 }
 

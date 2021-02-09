@@ -37,6 +37,7 @@ extern char buf[20000];
 
 // SORT
 const char *basename(const char *file);
+noret err(const char *msg);
 size_t fnv(const void *p, w n);
 void quote(char q, const char *s);
 ///

@@ -9,11 +9,8 @@ public:
     n = n + 7 & ~(w)7;
     auto r = p;
     p += n;
-    if (p > v + cap) {
-      fprintf(stderr, "pool overflow");
-      stacktrace();
-      exit(1);
-    }
+    if (p > v + cap)
+      err("pool overflow");
 #ifdef DEBUG
     memset(r, 0xcc, n);
 #endif

@@ -79,16 +79,16 @@ struct parser1 : parser {
           ++text;
 
         if (!(text[0] == 'c' && text[1] == 'n' && text[2] == 'f'))
-          throw "expected 'cnf'";
+          err("expected 'cnf'");
         text += 3;
         lex();
 
         if (tok != o_num)
-          throw "expected count";
+          err("expected count");
         lex();
 
         if (tok != o_num)
-          throw "expected count";
+          err("expected count");
         lex();
       }
       for (;;)
@@ -108,7 +108,7 @@ struct parser1 : parser {
           clause1();
           break;
         default:
-          throw "syntax error";
+          err("syntax error");
         }
     } catch (const char *e) {
       err(e);

@@ -31,7 +31,7 @@ template <class T, w cap = 1000> struct ary {
   // capacity
   void reserve(w m) {
     if (m > cap)
-      throw "array overflow";
+      err("array overflow");
   }
 
   void resize(w m) {

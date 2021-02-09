@@ -59,6 +59,11 @@ const char *basename(const char *file) {
   return file;
 }
 
+noret err(const char *msg) {
+  fprintf(stderr, "%s\n", msg);
+  exit(1);
+}
+
 size_t fnv(const void *p, w n) {
   // fowler-noll-vo-1a
   auto p1 = (const char *)p;

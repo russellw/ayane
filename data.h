@@ -241,7 +241,7 @@ inline tcompound *tcompoundp(w t) {
 inline w var(w t, w i) {
   assert(!istcompound(t));
   if (sizeof(w) == 4 && i >= 1 << 12)
-    throw "too many variables";
+    err("too many variables");
   return i << (1 + 16 + 3) | t << 3 | a_var;
 }
 

@@ -1209,3 +1209,31 @@ void prterm(w a, w parent) {
   }
   unreachable;
 }
+
+void prclause(clause *c) {
+  printf(c->fof ? "fof" : "cnf");
+
+  // name
+  auto name = clausenames[c];
+  printf("(%s, ", name ? name->v : "?");
+
+  // role
+  if (c == conjecture)
+    printf("conjecture");
+  else if (*c->from == conjecture)
+    printf("negated_conjecture");
+  else
+    printf("plain");
+  printf(", ");
+
+  // literals
+  for (w i = 0; i != c->n; ++i) {
+    if (i)
+      printf(" | ");
+    if (i >= c->nn)
+      putchar('~');
+  }
+  printf(", ");
+
+  puts(").");
+}

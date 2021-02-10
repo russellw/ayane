@@ -1,4 +1,4 @@
-template <class T, w cap = 1000> struct ary {
+template <class T, w cap = 100000> struct ary {
   typedef T *iterator;
   typedef const T *const_iterator;
   typedef std::reverse_iterator<iterator> reverse_iterator;

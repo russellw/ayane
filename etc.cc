@@ -61,6 +61,7 @@ const char *basename(const char *file) {
 
 noret err(const char *msg) {
   fprintf(stderr, "%s\n", msg);
+  stacktrace();
   exit(1);
 }
 

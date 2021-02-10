@@ -224,8 +224,7 @@ w distribute(w a) {
         // integer except that the 'base', the maximum value of a 'digit', is
         // different for each place, being the number of arguments to the and at
         // that position
-        --i;
-        auto b = ands[i];
+        auto b = ands[--i];
         if ((b & 7) == a_compound && at(b, 0) == basic(b_and)) {
           auto m = size(b) - 1;
           if (++j[i] == m) {
@@ -233,8 +232,8 @@ w distribute(w a) {
             // carry
             continue;
           }
+          break;
         }
-        break;
       }
     }
   }

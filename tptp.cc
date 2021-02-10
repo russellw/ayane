@@ -1242,7 +1242,7 @@ void prclause(clause *c) {
   if (file) {
     printf("file(");
     quote('\'', basename(file));
-    printf(",%s)", clausename(c));
+    printf(",%s", clausename(c));
   } else if (*c->from) {
     printf("inference(%s,[status(", infernames[c->infer]);
     if (*c->from == conjecture)
@@ -1252,9 +1252,8 @@ void prclause(clause *c) {
     printf(")],[%s", clausename(*c->from));
     if (c->from[1])
       printf(",%s", clausename(c->from[1]));
-    printf("])");
+    putchar(']');
   } else
-    printf("introduced(definition)");
-
-  puts(").");
+    printf("introduced(definition");
+  puts(")).");
 }

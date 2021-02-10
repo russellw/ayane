@@ -1222,7 +1222,7 @@ void prclause(clause *c) {
   // role
   if (c == conjecture)
     printf("conjecture");
-  else if (*c->from && *c->from == conjecture)
+  else if (c->infer == i_negate)
     printf("negated_conjecture");
   else
     printf("plain");

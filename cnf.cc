@@ -137,12 +137,13 @@ struct nnf {
 w rename(w a) {
   getfree(a);
   auto b = skolemize(t_bool);
+  a = imp(b, a);
   if (freevars.n) {
     freevars[0] = basic(b_all);
     freevars.insert(freevars.p + 1, a);
     a = term(freevars);
   }
-  cnf(formula(0, imp(b, a)));
+  cnf(formula(0, a));
   return b;
 }
 

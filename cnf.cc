@@ -137,6 +137,11 @@ struct nnf {
 w rename(w a) {
   getfree(a);
   auto b = skolemize(t_bool);
+  if (freevars.n) {
+    freevars[0] = basic(b_all);
+    freevars.insert(freevars.p + 1, a);
+    a = term(freevars);
+  }
   cnf(formula(0, imp(b, a)));
   return b;
 }
@@ -264,7 +269,7 @@ void clausify(w a) {
   assert(!neg.n);
   assert(!pos.n);
   split(a);
-  clause();
+  clause1(i_clause);
 }
 } // namespace
 

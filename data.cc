@@ -354,6 +354,7 @@ clause *clause1(w infer, clause *from, clause *from1) {
   }
   memcpy(v, neg.p, nn * sizeof *v);
   memcpy(v + nn, pos.p, pos.n * sizeof *v);
+  neg.n = pos.n = 0;
 
   auto i = clauses::slot(clauses::entries, clauses::cap, v, nn, n);
   if (clauses::entries[i])

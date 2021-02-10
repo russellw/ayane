@@ -30,16 +30,16 @@ void test_clause() {
 
   neg.n = pos.n = 0;
   neg.push(term(basic(b_eq), x, y));
-  auto c = clause1();
+  auto c = clause1(0);
 
   neg.n = pos.n = 0;
   neg.push(term(basic(b_eq), x, y));
-  auto d = clause1();
+  auto d = clause1(0);
   assert(c == d);
 
   neg.n = pos.n = 0;
   pos.push(term(basic(b_eq), x, y));
-  d = clause1();
+  d = clause1(0);
   assert(c != d);
 }
 

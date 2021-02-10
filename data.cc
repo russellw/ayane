@@ -277,28 +277,6 @@ void expand() {
   cap = cap1;
   entries = entries1;
 }
-
-clause *store(const w *p, w nn, w n, clause *from, clause *from1) {
-  auto r = (clause *)xmalloc(offsetof(clause, v) + n * sizeof *p);
-  memset(r, 0, offsetof(clause, v));
-  r->nn = nn;
-  r->n = n;
-  r->from[0] = from;
-  r->from[1] = from1;
-  memcpy(r->v, p, n * sizeof *p);
-  return r;
-}
-
-clause *put(const w *p, w nn, w n, clause *from, clause *from1) {
-  auto i = slot(entries, cap, p, nn, n);
-  if (entries[i])
-    return entries[i];
-  if (++count > cap * 3 / 4) {
-    expand();
-    i = slot(entries, cap, p, nn, n);
-  }
-  return entries[i] = store(p, nn, n, from, from1);
-}
 } // namespace clauses
 
 // SORT
@@ -376,7 +354,25 @@ clause *clause1(w infer, clause *from, clause *from1) {
   }
   memcpy(v, neg.p, nn * sizeof *v);
   memcpy(v + nn, pos.p, pos.n * sizeof *v);
-  return clauses::put(v, nn, n, from, from1);
+
+  auto i = clauses::slot(clauses::entries, clauses::cap, v, nn, n);
+  if (clauses::entries[i])
+    return clauses::entries[i];
+  if (++clauses::count > clauses::cap * 3 / 4) {
+    clauses::expand();
+    i = clauses::slot(clauses::entries, clauses::cap, v, nn, n);
+  }
+
+  auto c = clauses::entries[i] =
+      (clause *)xmalloc(offsetof(clause, v) + n * sizeof *v);
+  memset(c, 0, offsetof(clause, v));
+  c->infer = infer;
+  c->nn = nn;
+  c->n = n;
+  c->from[0] = from;
+  c->from[1] = from1;
+  memcpy(c->v, v, n * sizeof *v);
+  return c;
 }
 
 const char *clausename(const clause *c) {

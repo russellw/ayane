@@ -908,7 +908,7 @@ struct parser1 : parser {
           clausenames[f] = forname->v;
           if (role == k_conjecture) {
             a = term(basic(b_not), a);
-            f = formula(0, a, f);
+            f = formula(i_negate, a, f);
             conjecture = f;
           }
 
@@ -1244,8 +1244,15 @@ void prclause(clause *c) {
     quote('\'', basename(file));
     printf(",%s)", clausename(c));
   } else if (*c->from) {
+    printf("inference(%s,[status(", infernames[c->infer]);
     if (*c->from == conjecture)
-      printf("inference(negate,[status(ceq)],[%s])", clausename(*c->from));
+      printf("ceq");
+    else
+      printf("thm");
+    printf(")],[%s", clausename(*c->from));
+    if (c->from[1])
+      printf(",%s", clausename(c->from[1]));
+    printf("])");
   } else
     printf("introduced(definition)");
 

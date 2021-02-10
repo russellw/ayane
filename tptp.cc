@@ -847,7 +847,7 @@ struct parser1 : parser {
             break;
 
           // clause
-          auto c = clause1();
+          auto c = clause1(0);
           clausefiles[c] = file;
           clausenames[c] = forname->v;
           break;
@@ -903,12 +903,12 @@ struct parser1 : parser {
           if (!sel.count(forname))
             break;
 
-          auto f = formula(a);
+          auto f = formula(0, a);
           clausefiles[f] = file;
           clausenames[f] = forname->v;
           if (role == k_conjecture) {
             a = term(basic(b_not), a);
-            f = formula(a, f);
+            f = formula(0, a, f);
             conjecture = f;
           }
 

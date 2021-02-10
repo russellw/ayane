@@ -55,6 +55,14 @@ enum {
 };
 
 enum {
+  i_none,
+#define _(s) i_##s,
+#include "infer.h"
+#undef _
+};
+
+enum {
+  s_none,
 #define _(s) s_##s,
 #include "szs.h"
 #undef _
@@ -107,6 +115,9 @@ struct clause {
   // literal, but the literal can be any first-order predicate
   bool fof;
 
+  // which inference rule derived it?
+  uint8_t infer;
+
   // number of negative and total literals
   // the literals are laid out in an array, negative then positive
   // cannot represent a clause with more than 255 literals; this is okay because
@@ -158,6 +169,7 @@ extern ary<w> neg, pos;
 extern bool complete;
 extern clause *conjecture;
 extern const char *szs[];
+extern const char *infernames[];
 extern sym keywords[];
 extern unordered_map<const clause *, const char *> clausefiles;
 extern unordered_map<const clause *, const char *> clausenames;
@@ -169,10 +181,10 @@ extern w status;
 #endif
 
 // SORT
-clause *clause1(clause *from = 0, clause *from1 = 0);
+clause *clause1(w infer, clause *from = 0, clause *from1 = 0);
 const char *clausename(const clause *c);
 void clear();
-clause *formula(w a, clause *from = 0);
+clause *formula(w infer, w a, clause *from = 0);
 void getfree(w a);
 w imp(w a, w b);
 w int1(Int &x);

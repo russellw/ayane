@@ -1,5 +1,3 @@
-_(None)
-
 // SORT
 _(ContradictoryAxioms)
 _(CounterSatisfiable)

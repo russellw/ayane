@@ -312,7 +312,15 @@ unordered_map<const clause *, const char *> clausenames;
 w skolemi;
 ///
 
+const char *infernames[] = {
+    0,
+#define _(s) #s,
+#include "infer.h"
+#undef _
+};
+
 const char *szs[] = {
+    0,
 #define _(s) #s,
 #include "szs.h"
 #undef _
@@ -357,7 +365,7 @@ void getfree1(w a) {
 } // namespace
 
 // SORT
-clause *clause1(clause *from, clause *from1) {
+clause *clause1(w infer, clause *from, clause *from1) {
   auto nn = neg.n;
   auto n = nn + pos.n;
   // must be <= 0xff
@@ -394,10 +402,11 @@ void clear() {
 #endif
 }
 
-clause *formula(w a, clause *from) {
+clause *formula(w infer, w a, clause *from) {
   auto r = (clause *)formulas.alloc(offsetof(clause, v) + sizeof(w));
   memset(r, 0, offsetof(clause, v));
   r->fof = 1;
+  r->infer = infer;
   r->nn = 0;
   r->n = 1;
   r->from[0] = from;

@@ -137,7 +137,7 @@ struct nnf {
 w rename(w a) {
   getfree(a);
   auto b = skolemize(t_bool);
-  cnf(formula(imp(b, a)));
+  cnf(formula(0, imp(b, a)));
   return b;
 }
 
@@ -284,14 +284,14 @@ void cnf(clause *f) {
   auto b = nnf1.r;
   if (b != a) {
     a = b;
-    f = formula(a, f);
+    f = formula(i_nnf, a, f);
   }
 
   // distribute or into and
   b = distribute(a);
   if (b != a) {
     a = b;
-    f = formula(a, f);
+    f = formula(i_split, a, f);
   }
 
   // make clauses

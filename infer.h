@@ -1,4 +1,4 @@
 // SORT
-_(split)
 _(nnf)
+_(split)
 ///

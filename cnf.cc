@@ -109,7 +109,7 @@ struct nnf {
         case b_exists:
           return pol ? exists(pol, a) : all(pol, a);
         case b_not:
-          return convert(pol ^ 1, at(a, 0));
+          return convert(pol ^ 1, at(a, 1));
         case b_or:
           return args(pol, a, pol ? basic(b_or) : basic(b_and));
         }

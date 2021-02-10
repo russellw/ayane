@@ -1232,8 +1232,9 @@ void prclause(clause *c) {
   for (w i = 0; i != c->n; ++i) {
     if (i)
       printf(" | ");
-    if (i >= c->nn)
+    if (i < c->nn)
       putchar('~');
+    prterm(c->v[i]);
   }
   printf(", ");
 

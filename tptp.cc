@@ -848,7 +848,8 @@ struct parser1 : parser {
 
           // clause
           auto c = clause1();
-          clausenames[c] = forname;
+          clausefiles[c] = file;
+          clausenames[c] = forname->v;
           break;
         }
         case k_fof:
@@ -903,6 +904,8 @@ struct parser1 : parser {
             break;
 
           auto f = formula(a);
+          clausefiles[f] = file;
+          clausenames[f] = forname->v;
           if (role == k_conjecture) {
             a = term(basic(b_not), a);
             f = formula(a, f);
@@ -1214,13 +1217,12 @@ void prclause(clause *c) {
   printf(c->fof ? "fof" : "cnf");
 
   // name
-  auto name = clausenames[c];
-  printf("(%s, ", name ? name->v : "?");
+  printf("(%s, ", clausename(c));
 
   // role
   if (c == conjecture)
     printf("conjecture");
-  else if (*c->from == conjecture)
+  else if (*c->from && *c->from == conjecture)
     printf("negated_conjecture");
   else
     printf("plain");
@@ -1234,6 +1236,18 @@ void prclause(clause *c) {
       putchar('~');
   }
   printf(", ");
+
+  // source
+  auto file = clausefiles[c];
+  if (file) {
+    printf("file(");
+    quote('\'', basename(file));
+    printf(",%s)", clausename(c));
+  } else if (*c->from) {
+    if (*c->from == conjecture)
+      printf("inference(negate,[status(ceq)],[%s])", clausename(*c->from));
+  } else
+    printf("introduced(definition)");
 
   puts(").");
 }

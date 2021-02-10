@@ -307,7 +307,8 @@ ary<w> freevars;
 ary<w> neg, pos;
 bool complete;
 clause *conjecture;
-unordered_map<clause *, sym *> clausenames;
+unordered_map<const clause *, const char *> clausefiles;
+unordered_map<const clause *, const char *> clausenames;
 w skolemi;
 ///
 
@@ -370,12 +371,18 @@ clause *clause1(clause *from, clause *from1) {
   return clauses::put(v, nn, n, from, from1);
 }
 
+const char *clausename(const clause *c) {
+  auto name = clausenames[c];
+  return name ? name : "?";
+}
+
 void clear() {
   for (auto i = syms::entries, e = syms::entries + syms::cap; i != e; ++i) {
     auto s = *i;
     if (s)
       s->ft = 0;
   }
+  clausefiles.clear();
   clausenames.clear();
   complete = 1;
   conjecture = 0;

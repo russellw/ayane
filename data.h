@@ -159,7 +159,8 @@ extern bool complete;
 extern clause *conjecture;
 extern const char *szs[];
 extern sym keywords[];
-extern unordered_map<clause *, sym *> clausenames;
+extern unordered_map<const clause *, const char *> clausefiles;
+extern unordered_map<const clause *, const char *> clausenames;
 extern w skolemi;
 ///
 
@@ -169,6 +170,7 @@ extern w status;
 
 // SORT
 clause *clause1(clause *from = 0, clause *from1 = 0);
+const char *clausename(const clause *c);
 void clear();
 clause *formula(w a, clause *from = 0);
 void getfree(w a);

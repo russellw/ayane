@@ -1005,7 +1005,7 @@ void infix(const char *op, w a, w parent) {
   auto n = size(a);
   for (w i = 1; i != n; ++i) {
     if (i > 1)
-      printf(op);
+      printf("%s", op);
     prterm(at(a, i), a);
   }
   if (parens)

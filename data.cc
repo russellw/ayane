@@ -502,8 +502,10 @@ void cksym(sym *s) {
   ckptr(s);
   assert(*s->v);
   assert(strlen(s->v) < sizeof buf);
+  if (s->t)
+    cktype(s->t);
   if (s->ft)
-    ckterm(s->ft);
+    cktype(s->ft);
 }
 } // namespace
 

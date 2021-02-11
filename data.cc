@@ -404,10 +404,8 @@ clause *formula(w infer, w a, clause *from) {
   memset(r, 0, offsetof(clause, v));
   r->fof = 1;
   r->infer = infer;
-  r->nn = 0;
   r->n = 1;
   r->from[0] = from;
-  r->from[1] = 0;
   r->v[0] = a;
   return r;
 }

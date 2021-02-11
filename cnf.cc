@@ -215,7 +215,7 @@ w distribute(w a) {
           b = at(b, j[i] + 1);
         else
           assert(!j[i]);
-        or1[i] = b;
+        or1[i + 1] = b;
       }
       ors.push(term(or1));
 

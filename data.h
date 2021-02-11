@@ -214,8 +214,6 @@ inline w at(w a, w i) { return compoundp(a)->v[i]; }
 
 inline w basic(w op) { return op << 3 | a_basic; }
 
-inline void fpr(FILE *f, const sym *s) { fpr(f, s->v); }
-
 inline sym *intern(const char *s) { return intern(s, strlen(s)); }
 
 inline Int *intp(w a) {

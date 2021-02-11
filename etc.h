@@ -13,11 +13,7 @@ bool assertfail(const char *file, w line, const char *s);
 #define assert(a) (a) || assertfail(__FILE__, __LINE__, #a)
 #define unreachable assert(0)
 #define debug(a)                                                               \
-  do {                                                                         \
-    fprintf(stderr, "%s:%d: %s: ", __FILE__, __LINE__, #a);                    \
-    fpr(stderr, a);                                                            \
-    fputc('\n', stderr);                                                       \
-  } while (0)
+  fprintf(stderr, "%s:%d: %s: %zx\n", __FILE__, __LINE__, #a, (w)a)
 
 #else
 
@@ -43,22 +39,6 @@ void quote(char q, const char *s);
 ///
 
 // SORT
-inline void fpr(FILE *f, char c) { fputc(c, f); }
-
-inline void fpr(FILE *f, const char *s) { fputs(s, f); }
-
-inline void fpr(FILE *f, double a) { fprintf(f, "%f", a); }
-
-inline void fpr(FILE *f, int32_t a) { fprintf(f, "%" PRIi32, a); }
-
-inline void fpr(FILE *f, int64_t a) { fprintf(f, "%" PRIi64, a); }
-
-inline void fpr(FILE *f, uint32_t a) { fprintf(f, "%" PRIu32, a); }
-
-inline void fpr(FILE *f, uint64_t a) { fprintf(f, "%" PRIu64, a); }
-
-inline void fpr(FILE *f, void *p) { fprintf(f, "%p", p); }
-
 inline bool isdigit1(char c) { return '0' <= c && c <= '9'; }
 
 inline bool islower1(char c) { return 'a' <= c && c <= 'z'; }

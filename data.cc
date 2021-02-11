@@ -481,15 +481,49 @@ void ckptr(void *p) {
     assert((w)p < (w)1 << 50);
   *buf = *(char *)p;
 }
+
+void cktype(w t) {
+  if (istcompound(t)) {
+    auto p = tcompoundp(t);
+    ckptr(p);
+    auto n = p->n;
+    assert(1 < n);
+    assert(n < 1000);
+    for (w i = 0; i != n; ++i)
+      cktype(p->v[i]);
+    return;
+  }
+  assert(t);
+  assert(t < basic_types);
+}
+
+void cksym(sym *s) {
+  ckptr(s);
+  assert(*s->v);
+  assert(strlen(s->v) < sizeof buf);
+  if (s->ft)
+    ckterm(s->ft);
+}
 } // namespace
 
 void ckterm(w a) {
+  cktype(typeof(a));
   switch (a & 7) {
   case a_basic:
     assert(a >> 3 <= b_true);
     return;
+  case a_compound: {
+    auto p = compoundp(a);
+    ckptr(p);
+    auto n = p->n;
+    assert(1 < n);
+    assert(n < 1000);
+    for (w i = 1; i != n; ++i)
+      ckterm(p->v[i]);
+    return;
+  }
   case a_distinctobj:
-    ckptr(symp(a));
+    cksym(symp(a));
     return;
   case a_int:
     ckptr(intp(a));
@@ -500,6 +534,17 @@ void ckterm(w a) {
     ckptr(p);
     ckptr(mpq_numref(p->val));
     ckptr(mpq_denref(p->val));
+    assert(mpz_cmp_ui(mpq_denref(p->val), 0) > 0);
+    return;
+  }
+  case a_sym:
+    cksym(symp(a));
+    return;
+  case a_var: {
+    assert(!istcompound(vartype(a)));
+    auto i = vari(a);
+    assert(0 <= i);
+    assert(i < 1000000);
     return;
   }
   }

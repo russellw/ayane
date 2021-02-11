@@ -345,34 +345,32 @@ void getfree1(w a) {
 // SORT
 clause *clause1(w infer, clause *from, clause *from1) {
   auto nn = neg.n;
-  auto n = nn + pos.n;
-  // must be <= 0xff
-  w v[0xff];
-  if (n > sizeof v / sizeof *v) {
+  auto pn = pos.n;
+  auto n = nn + pn;
+  neg.n = pos.n = 0;
+  if (n > sizeof neg.p / sizeof *neg.p) {
     complete = 0;
     return 0;
   }
-  memcpy(v, neg.p, nn * sizeof *v);
-  memcpy(v + nn, pos.p, pos.n * sizeof *v);
-  neg.n = pos.n = 0;
+  memcpy(neg.p + nn, pos.p, pn * sizeof *pos.p);
 
-  auto i = clauses::slot(clauses::entries, clauses::cap, v, nn, n);
+  auto i = clauses::slot(clauses::entries, clauses::cap, neg.p, nn, n);
   if (clauses::entries[i])
     return clauses::entries[i];
   if (++clauses::count > clauses::cap * 3 / 4) {
     clauses::expand();
-    i = clauses::slot(clauses::entries, clauses::cap, v, nn, n);
+    i = clauses::slot(clauses::entries, clauses::cap, neg.p, nn, n);
   }
 
   auto c = clauses::entries[i] =
-      (clause *)xmalloc(offsetof(clause, v) + n * sizeof *v);
+      (clause *)xmalloc(offsetof(clause, v) + n * sizeof *neg.p);
   memset(c, 0, offsetof(clause, v));
   c->infer = infer;
   c->nn = nn;
   c->n = n;
   c->from[0] = from;
   c->from[1] = from1;
-  memcpy(c->v, v, n * sizeof *v);
+  memcpy(c->v, neg.p, n * sizeof *neg.p);
   return c;
 }
 

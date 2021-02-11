@@ -473,3 +473,35 @@ w type(w r, w t1) {
   return types::put(v, sizeof v / sizeof *v);
 }
 ///
+
+#ifdef DEBUG
+namespace {
+void ckptr(void *p) {
+  if (sizeof p > 4)
+    assert((w)p < (w)1 << 50);
+  *buf = *(char *)p;
+}
+} // namespace
+
+void ckterm(w a) {
+  switch (a & 7) {
+  case a_basic:
+    assert(a >> 3 <= b_true);
+    return;
+  case a_distinctobj:
+    ckptr(symp(a));
+    return;
+  case a_int:
+    ckptr(intp(a));
+    return;
+  case a_rat:
+  case a_real: {
+    auto p = ratp(a);
+    ckptr(p);
+    ckptr(mpq_numref(p->val));
+    ckptr(mpq_denref(p->val));
+    return;
+  }
+  }
+}
+#endif

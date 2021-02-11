@@ -277,6 +277,7 @@ void clausify(w a) {
 void cnf(clause *f) {
   assert(f->fof);
   auto a = *f->v;
+  ckterm(a);
 
   // variables must be bound only for the first step
 #ifdef DEBUG
@@ -289,6 +290,7 @@ void cnf(clause *f) {
   auto b = nnf1.r;
   if (b != a) {
     a = b;
+    ckterm(a);
     f = formula(i_nnf, a, f);
   }
 
@@ -296,6 +298,7 @@ void cnf(clause *f) {
   b = distribute(a);
   if (b != a) {
     a = b;
+    ckterm(a);
     f = formula(i_split, a, f);
   }
 

@@ -269,3 +269,9 @@ inline w vartype(w a) {
   return a >> 3 & 0xffff;
 }
 ///
+
+#ifdef DEBUG
+void ckterm(w a);
+#else
+#define ckterm(a)
+#endif

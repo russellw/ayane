@@ -477,6 +477,7 @@ w type(w r, w t1) {
 #ifdef DEBUG
 namespace {
 void ckptr(void *p) {
+  assert(p);
   if (sizeof p > 4)
     assert((w)p < (w)1 << 50);
   *buf = *(char *)p;

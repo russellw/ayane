@@ -3,3 +3,4 @@ move *.asm \temp
 cl /DDEBUG /EHsc /Feayane /I\mpir /J /MP4 /MTd /Yustdafx.h /Zi *.cc stdafx.obj \mpir\dll\x64\Debug\mpir.lib dbghelp.lib
 if errorlevel 1 goto :eof
 ayane %*
+echo %errorlevel%

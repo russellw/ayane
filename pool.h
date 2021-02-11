@@ -1,4 +1,4 @@
-template <w cap = 1000000> class pool {
+template <w cap = 200000000> class pool {
   char *p = v;
   char v[cap];
 

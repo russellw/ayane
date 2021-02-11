@@ -491,7 +491,7 @@ void cktype(w t) {
     return;
   }
   assert(t);
-  assert(t < basic_types);
+  assert(t < types::atoms);
 }
 
 void cksym(sym *s) {

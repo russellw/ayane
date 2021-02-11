@@ -485,7 +485,7 @@ void cktype(w t) {
     ckptr(p);
     auto n = p->n;
     assert(1 < n);
-    assert(n < 1000);
+    assert(n < 1000000);
     for (w i = 0; i != n; ++i)
       cktype(p->v[i]);
     return;
@@ -516,7 +516,7 @@ void ckterm(w a) {
     ckptr(p);
     auto n = p->n;
     assert(1 < n);
-    assert(n < 1000);
+    assert(n < 1000000);
     for (w i = 1; i != n; ++i)
       ckterm(p->v[i]);
     return;

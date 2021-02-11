@@ -522,7 +522,7 @@ void ckterm(w a) {
     return;
   }
   case a_distinctobj:
-    cksym(symp(a));
+    cksym(distinctobjp(a));
     return;
   case a_int:
     ckptr(intp(a));

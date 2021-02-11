@@ -1180,7 +1180,7 @@ void prterm(w a, w parent) {
     return;
   }
   case a_distinctobj:
-    quote('"', symp(a)->v);
+    quote('"', distinctobjp(a)->v);
     return;
   case a_int:
     mpz_out_str(stdout, 10, intp(a)->val);

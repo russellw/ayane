@@ -348,7 +348,7 @@ clause *clause1(w infer, clause *from, clause *from1) {
   auto pn = pos.n;
   auto n = nn + pn;
   neg.n = pos.n = 0;
-  if (n > sizeof neg.p / sizeof *neg.p) {
+  if (n > min(sizeof neg.p / sizeof *neg.p, (size_t)0xffff)) {
     complete = 0;
     return 0;
   }

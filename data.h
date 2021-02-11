@@ -120,9 +120,7 @@ struct clause {
 
   // number of negative and total literals
   // the literals are laid out in an array, negative then positive
-  // cannot represent a clause with more than 255 literals; this is okay because
-  // such a clause would make no useful contribution to a proof search anyway
-  uint8_t nn, n;
+  uint16_t nn, n;
 
   // the majority of ways for a clause to be made, result in it deriving from
   // zero or one other clauses, but the majority of clauses will be made by the

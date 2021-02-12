@@ -252,6 +252,8 @@ void split(w a) {
     auto op = at(a, 0);
     assert(op != basic(b_and));
     if (op == basic(b_not)) {
+      if (neg.n == 0xffff)
+        throw 0;
       neg.push(at(a, 1));
       return;
     }
@@ -262,6 +264,8 @@ void split(w a) {
       return;
     }
   }
+  if (pos.n == 0xffff)
+    throw 0;
   pos.push(a);
 }
 
@@ -303,11 +307,15 @@ void cnf(clause *f) {
   }
 
   // make clauses
-  if ((a & 7) == a_compound && at(a, 0) == basic(b_and)) {
-    auto n = size(a);
-    for (w i = 1; i != n; ++i)
-      clausify(at(a, i));
-    return;
+  try {
+    if ((a & 7) == a_compound && at(a, 0) == basic(b_and)) {
+      auto n = size(a);
+      for (w i = 1; i != n; ++i)
+        clausify(at(a, i));
+    } else
+      clausify(a);
+  } catch (int e) {
+    neg.n = pos.n = 0;
+    complete = 0;
   }
-  clausify(a);
 }

@@ -216,6 +216,216 @@ void test_rat() {
   assert(!mpq_cmp_ui(y3->val, 3, 1));
 }
 
+void test_subsume() {
+  auto a = fn(t_individual, intern("a"));
+  auto a1 = fn(type(t_individual, t_individual), intern("a1"));
+  auto b = fn(t_individual, intern("b"));
+  auto p = fn(t_bool, intern("p"));
+  auto p1 = fn(type(t_bool, t_individual), intern("p1"));
+  auto p2 = fn(type(t_bool, t_individual, t_individual), intern("p2"));
+  auto q = fn(t_bool, intern("q"));
+  auto q1 = fn(type(t_bool, t_individual), intern("q1"));
+  auto x = var(t_individual, 0);
+  auto y = var(t_individual, 1);
+  clause *c;
+  clause *d;
+
+  // false <= false
+  c = clause1(0);
+  d = clause1(0);
+  assert(subsumes(c, d));
+
+  // false <= p
+  c = clause1(0);
+  pos.push(p);
+  d = clause1(0);
+  assert(subsumes(c, d));
+  assert(!subsumes(d, c));
+
+  // p <= p
+  pos.push(p);
+  c = clause1(0);
+  pos.push(p);
+  d = clause1(0);
+  assert(subsumes(c, d));
+
+  // !p <= !p
+  neg.push(p);
+  c = clause1(0);
+  neg.push(p);
+  d = clause1(0);
+  assert(subsumes(c, d));
+
+  // p <= p | p
+  pos.push(p);
+  c = clause1(0);
+  pos.push(p);
+  pos.push(p);
+  d = clause1(0);
+  assert(subsumes(c, d));
+  assert(!subsumes(d, c));
+
+  // p !<= !p
+  pos.push(p);
+  c = clause1(0);
+  neg.push(p);
+  d = clause1(0);
+  assert(!subsumes(c, d));
+  assert(!subsumes(d, c));
+
+  // p | q <= q | p
+  pos.push(p);
+  pos.push(q);
+  c = clause1(0);
+  pos.push(q);
+  pos.push(p);
+  d = clause1(0);
+  assert(subsumes(c, d));
+  assert(subsumes(d, c));
+
+  // p | q <= p | q | p
+  pos.push(p);
+  pos.push(q);
+  c = clause1(0);
+  pos.push(p);
+  pos.push(q);
+  pos.push(p);
+  d = clause1(0);
+  assert(subsumes(c, d));
+  assert(!subsumes(d, c));
+
+  // p(a) | p(b) | q(a) | q(b) | <= p(a) | q(a) | p(b) | q(b)
+  pos.push(term(p1, a));
+  pos.push(term(p1, b));
+  pos.push(term(q1, a));
+  pos.push(term(q1, b));
+  c = clause1(0);
+  pos.push(term(p1, a));
+  pos.push(term(q1, a));
+  pos.push(term(p1, b));
+  pos.push(term(q1, b));
+  d = clause1(0);
+  assert(subsumes(c, d));
+  assert(subsumes(d, c));
+
+  // p(x,y) <= p(a,b)
+  pos.push(term(p2, x, y));
+  c = clause1(0);
+  pos.push(term(p2, a, b));
+  d = clause1(0);
+  assert(subsumes(c, d));
+  assert(!subsumes(d, c));
+
+  // p(x,x) !<= p(a,b)
+  pos.push(term(p2, x, x));
+  c = clause1(0);
+  pos.push(term(p2, a, b));
+  d = clause1(0);
+  assert(!subsumes(c, d));
+  assert(!subsumes(d, c));
+
+  // p(x) <= p(y)
+  pos.push(term(p1, x));
+  c = clause1(0);
+  pos.push(term(p1, y));
+  d = clause1(0);
+  assert(subsumes(c, d));
+  assert(subsumes(d, c));
+
+  // p(x) | p(a(x)) | p(a(a(x))) <= p(y) | p(a(y)) | p(a(a(y)))
+  pos.push(term(p1, x));
+  pos.push(term(p1, term(a1, x)));
+  pos.push(term(p1, term(a1, term(a1, x))));
+  c = clause1(0);
+  pos.push(term(p1, y));
+  pos.push(term(p1, term(a1, y)));
+  pos.push(term(p1, term(a1, term(a1, y))));
+  d = clause1(0);
+  assert(subsumes(c, d));
+  assert(subsumes(d, c));
+
+  // p(x) | p(a) <= p(a) | p(b)
+  pos.push(term(p1, x));
+  pos.push(term(p1, a));
+  c = clause1(0);
+  pos.push(term(p1, a));
+  pos.push(term(p1, b));
+  d = clause1(0);
+  assert(subsumes(c, d));
+  assert(!subsumes(d, c));
+
+  // p(x) | p(a(x)) <= p(a(y)) | p(y)
+  pos.push(term(p1, x));
+  pos.push(term(p1, term(a1, x)));
+  c = clause1(0);
+  pos.push(term(p1, term(a1, y)));
+  pos.push(term(p1, y));
+  d = clause1(0);
+  assert(subsumes(c, d));
+  assert(subsumes(d, c));
+
+  // p(x) | p(a(x)) | p(a(a(x))) <= p(a(a(y))) | p(a(y)) | p(y)
+  pos.push(term(p1, x));
+  pos.push(term(p1, term(a1, x)));
+  pos.push(term(p1, term(a1, term(a1, x))));
+  c = clause1(0);
+  pos.push(term(p1, term(a1, term(a1, y))));
+  pos.push(term(p1, term(a1, y)));
+  pos.push(term(p1, y));
+  d = clause1(0);
+  assert(subsumes(c, d));
+  assert(subsumes(d, c));
+
+  // (a = x) <= (a = b)
+  pos.push(term(basic(b_eq), a, x));
+  c = clause1(0);
+  pos.push(term(basic(b_eq), a, b));
+  d = clause1(0);
+  assert(subsumes(c, d));
+  assert(!subsumes(d, c));
+
+  // (x = a) <= (a = b)
+  pos.push(term(basic(b_eq), x, a));
+  c = clause1(0);
+  pos.push(term(basic(b_eq), a, b));
+  d = clause1(0);
+  assert(subsumes(c, d));
+  assert(!subsumes(d, c));
+
+  // !p(y) | !p(x) | q(x) <= !p(a) | !p(b) | q(b)
+  neg.push(term(p1, y));
+  neg.push(term(p1, x));
+  pos.push(term(q1, x));
+  c = clause1(0);
+  neg.push(term(p1, a));
+  neg.push(term(p1, b));
+  pos.push(term(q1, b));
+  d = clause1(0);
+  assert(subsumes(c, d));
+  assert(!subsumes(d, c));
+
+  // !p(x) | !p(y) | q(x) <= !p(a) | !p(b) | q(b)
+  neg.push(term(p1, x));
+  neg.push(term(p1, y));
+  pos.push(term(q1, x));
+  c = clause1(0);
+  neg.push(term(p1, a));
+  neg.push(term(p1, b));
+  pos.push(term(q1, b));
+  d = clause1(0);
+  assert(subsumes(c, d));
+  assert(!subsumes(d, c));
+
+  // p(x,a(x)) !<= p(a(y),a(y))
+
+  pos.push(term(p2, x, term(a1, x)));
+  c = clause1(0);
+  pos.push(term(p2, term(a1, y), term(a1, y)));
+  d = clause1(0);
+  assert(!subsumes(c, d));
+  assert(!subsumes(d, c));
+}
+
 void test_sym() {
   assert(keyword(intern("cnf")) == k_cnf);
   assert(keyword(intern("cnf....", 3)) == k_cnf);
@@ -422,6 +632,7 @@ void test() {
   test_int();
   test_match();
   test_rat();
+  test_subsume();
   test_sym();
   test_term();
   test_type();

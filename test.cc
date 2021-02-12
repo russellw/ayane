@@ -417,7 +417,6 @@ void test_subsume() {
   assert(!subsumes(d, c));
 
   // p(x,a(x)) !<= p(a(y),a(y))
-
   pos.push(term(p2, x, term(a1, x)));
   c = clause1(0);
   pos.push(term(p2, term(a1, y), term(a1, y)));

@@ -53,12 +53,10 @@ bool subsume(w *ci) {
   for (auto di = dbegin; di != dend; ++di) {
     if (used[di])
       continue;
-
     auto b = eqn(d1->v[di]);
+    auto old = unified.n;
     if (!matche(a, b))
       continue;
-
-    auto old = unified.n;
     used[di] = 1;
     if (subsume(ci))
       return 1;

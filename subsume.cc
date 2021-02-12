@@ -36,10 +36,10 @@ bool match(const eqn &a, const eqn &b) {
   return 0;
 }
 
-clause *c;
+clause *c1;
 w *cend;
 
-clause *d;
+clause *d1;
 w dbegin;
 w dend;
 
@@ -54,7 +54,7 @@ bool subsume(w *ci) {
     if (used[di])
       continue;
 
-    auto b = eqn(d->v[di]);
+    auto b = eqn(d1->v[di]);
     if (!match(a, b))
       continue;
 
@@ -69,25 +69,25 @@ bool subsume(w *ci) {
 }
 } // namespace
 
-bool subsumes(clause *c0, clause *d0) {
-  if (c0->n > d0->n)
+bool subsumes(clause *c, clause *d) {
+  if (c->n > d->n)
     return 0;
 
-  c = c0;
-  d = d0;
-  memset(used, 0, d0->n);
+  c1 = c;
+  d1 = d;
+  memset(used, 0, d->n);
   unified.n = 0;
 
-  cend = c0->v + c0->nn;
+  cend = c->v + c->nn;
   dbegin = 0;
-  dend = d0->nn;
-  if (!subsume(c0->v))
+  dend = d->nn;
+  if (!subsume(c->v))
     return 0;
 
-  cend = c0->v + c0->n;
-  dbegin = d0->nn;
-  dend = d0->n;
-  if (!subsume(c0->v + c0->nn))
+  cend = c->v + c->n;
+  dbegin = d->nn;
+  dend = d->n;
+  if (!subsume(c->v + c->nn))
     return 0;
 
   return 1;

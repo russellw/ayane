@@ -1,1 +1,1 @@
-bool subsumes(clause *c0, clause *d0);
+bool subsumes(clause *c, clause *d);

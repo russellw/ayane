@@ -6,7 +6,7 @@ namespace {
 struct eqn {
   w left, right;
 
-  eqn(w a) {
+  explicit eqn(w a) {
     assert(typeof(a) == t_bool);
     if ((a & 7) == a_compound && at(a, 0) == basic(b_eq)) {
       left = at(a, 1);
@@ -19,7 +19,7 @@ struct eqn {
   }
 };
 
-bool match(const eqn &a, const eqn &b) {
+bool matche(const eqn &a, const eqn &b) {
   if (typeof(a.left) != typeof(a.right))
     return 0;
 
@@ -55,15 +55,15 @@ bool subsume(w *ci) {
       continue;
 
     auto b = eqn(d1->v[di]);
-    if (!match(a, b))
+    if (!matche(a, b))
       continue;
 
     auto old = unified.n;
     used[di] = 1;
     if (subsume(ci))
       return 1;
-    used[di] = 0;
     unified.n = old;
+    used[di] = 0;
   }
   return 0;
 }

@@ -78,16 +78,16 @@ bool subsumes(clause *c0, clause *d0) {
   memset(used, 0, d0->n);
   unified.n = 0;
 
-  cend = c->v + c->nn;
+  cend = c0->v + c0->nn;
   dbegin = 0;
-  dend = d->nn;
-  if (!subsume(c->v))
+  dend = d0->nn;
+  if (!subsume(c0->v))
     return 0;
 
-  cend = c->v + c->n;
-  dbegin = d->nn;
-  dend = d->n;
-  if (!subsume(c->v + c->nn))
+  cend = c0->v + c0->n;
+  dbegin = d0->nn;
+  dend = d0->n;
+  if (!subsume(c0->v + c0->nn))
     return 0;
 
   return 1;

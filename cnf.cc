@@ -247,7 +247,7 @@ w distrib(w a) {
 }
 
 // make clauses
-void split(w a) {
+void toliterals(w a) {
   if ((a & 7) == a_compound) {
     auto op = at(a, 0);
     assert(op != basic(b_and));
@@ -260,7 +260,7 @@ void split(w a) {
     if (op == basic(b_or)) {
       auto n = size(a);
       for (w i = 1; i != n; ++i)
-        split(at(a, i));
+        toliterals(at(a, i));
       return;
     }
   }
@@ -269,11 +269,11 @@ void split(w a) {
   pos.push(a);
 }
 
-void clausify(w a) {
+void toclause(w a) {
   assert(!((a & 7) == a_compound && at(a, 0) == basic(b_and)));
   assert(!neg.n);
   assert(!pos.n);
-  split(a);
+  toliterals(a);
   clause1(i_split);
 }
 } // namespace
@@ -311,9 +311,9 @@ void cnf(clause *f) {
     if ((a & 7) == a_compound && at(a, 0) == basic(b_and)) {
       auto n = size(a);
       for (w i = 1; i != n; ++i)
-        clausify(at(a, i));
+        toclause(at(a, i));
     } else
-      clausify(a);
+      toclause(a);
   } catch (int e) {
     neg.n = pos.n = 0;
     complete = 0;

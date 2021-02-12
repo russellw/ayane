@@ -6,16 +6,6 @@ namespace {
 struct eqn {
   w left, right;
 
-  eqn(w left, w right) : left(left), right(right) {
-#ifdef DEBUG
-    assert(!((left & 7) == a_compound && at(left, 0) == basic(b_eq)));
-    assert(!((right & 7) == a_compound && at(right, 0) == basic(b_eq)));
-    assert(typeof(left) == typeof(right));
-    if (typeof(left) == t_bool)
-      assert(left == basic(b_true) || right == basic(b_true));
-#endif
-  }
-
   eqn(w a) {
     assert(typeof(a) == t_bool);
     if ((a & 7) == a_compound && at(a, 0) == basic(b_eq)) {

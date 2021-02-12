@@ -1,5 +1,5 @@
 // SORT
-_(clause)
+_(distrib)
 _(negate)
 _(nnf)
 _(split)

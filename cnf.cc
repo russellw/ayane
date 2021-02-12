@@ -147,7 +147,7 @@ w rename(w a) {
   return b;
 }
 
-w distribute(w a) {
+w distrib(w a) {
   if ((a & 7) != a_compound)
     return a;
   auto op = at(a, 0);
@@ -155,7 +155,7 @@ w distribute(w a) {
     auto n = size(a);
     vec<w> v(basic(b_and));
     for (w i = 1; i != n; ++i) {
-      auto b = distribute(at(a, i));
+      auto b = distrib(at(a, i));
       if ((b & 7) == a_compound && at(b, 0) == basic(b_and)) {
         v.insert(v.end(), compoundp(b)->v + 1, compoundp(b)->v + size(b));
         continue;
@@ -173,7 +173,7 @@ w distribute(w a) {
     uint64_t product = 1;
     vec<w> ands;
     for (w i = 1; i != n; ++i) {
-      auto b = distribute(at(a, i));
+      auto b = distrib(at(a, i));
       if ((b & 7) == a_compound && at(b, 0) == basic(b_and)) {
         auto m = size(b) - 1;
         if (product > 1 && m > 1 && product * m > 4) {
@@ -274,7 +274,7 @@ void clausify(w a) {
   assert(!neg.n);
   assert(!pos.n);
   split(a);
-  clause1(i_clause);
+  clause1(i_split);
 }
 } // namespace
 
@@ -299,11 +299,11 @@ void cnf(clause *f) {
   }
 
   // distribute or into and
-  b = distribute(a);
+  b = distrib(a);
   if (b != a) {
     a = b;
     ckterm(a);
-    f = formula(i_split, a, f);
+    f = formula(i_distrib, a, f);
   }
 
   // make clauses

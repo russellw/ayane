@@ -19,7 +19,7 @@ struct eqn {
   }
 };
 
-bool match(eqn a, eqn b) {
+bool match(const eqn &a, const eqn &b) {
   if (typeof(a.left) != typeof(a.right))
     return 0;
 

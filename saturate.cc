@@ -33,5 +33,11 @@ w saturate() {
     passive.pop();
   for (auto c : clauses)
     passive.push(c);
-  return 0;
+  while (!passive.empty()) {
+    auto g = passive.top();
+    passive.pop();
+    if (!g->n)
+      return s_Unsatisfiable;
+  }
+  return complete ? s_Satisfiable : s_GaveUp;
 }

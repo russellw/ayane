@@ -36,29 +36,66 @@ priority_queue<clause *, vector<clause *>, cmp> passive;
 // needs to be done once each time around the outer loop, it is probably also
 // more efficient
 const w altvar = (w)1 << (16 + 3);
-pool<> tmps;
+pool<> alts;
 
-w tmp(w op, const vec<w> &v) {
-  auto n = v.n;
-  auto r = (compound *)tmps.alloc(offsetof(compound, v) + (n + 1) * sizeof op);
-  r->n = n + 1;
-  r->v[0] = op;
-  memcpy(r->v + 1, v.p, n * sizeof op);
-  return tag(r, a_compound);
+w altvars(w a) {
+  switch (a & 7) {
+  case a_var:
+    return a | altvar;
+  case a_compound: {
+    auto p = compoundp(a);
+    auto n = p->n;
+    auto q = (compound *)alts.alloc(offsetof(compound, v) + n * sizeof a);
+    q->n = p->n;
+    for (w i = 0; i != n; ++i)
+      q->v[i] = altvars(p->v[i]);
+    return tag(q, a_compound);
+  }
+  }
+  return a;
+}
+
+clause *altvars(clause *c) {
+  auto n = c->n;
+  auto d = (clause *)alts.alloc(offsetof(clause, v) + n * sizeof(w));
+  memcpy(d, c, offsetof(clause, v));
+  for (w i = 0; i != n; ++i)
+    d->v[i] = altvars(c->v[i]);
+  return d;
 }
 } // namespace
 
 w saturate() {
+  // passive clauses
   while (!passive.empty())
     passive.pop();
   for (auto c : clauses)
     passive.push(c);
+
+  // active clauses
+  vec<clause *> active;
+
+  // saturation proof procedure tries to perform all possible derivations until
+  // it derives false
   while (!passive.empty()) {
+    // given clause
     auto g = passive.top();
     passive.pop();
+
+    // empty clause = derived false = unsatisfiable
     if (!g->n)
       return s_Unsatisfiable;
-    tmps.clear();
+
+    // alternate variables
+    alts.clear();
+    auto c = altvars(g);
   }
+
+  // if a complete saturation proof procedure finds no more possible
+  // derivations, then the problem is satisfiable; in practice, this almost never
+  // happens for nontrivial problems, but serves as a good way to test the
+  // completeness of the prover on some trivial problems. however, if
+  // completeness was lost for any reason, such as having to discard some clauses
+  // because they were too big, then report failure
   return complete ? s_Satisfiable : s_GaveUp;
 }

@@ -8,6 +8,7 @@
 
 // data
 #include "data.h"
+#include "eqn.h"
 #include "keywords.h"
 
 // parsers

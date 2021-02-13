@@ -7,22 +7,6 @@
 static clause *d;
 
 namespace {
-struct eqn {
-  w left, right;
-
-  explicit eqn(w a) {
-    assert(typeof(a) == t_bool);
-    if ((a & 7) == a_compound && at(a, 0) == basic(b_eq)) {
-      left = at(a, 1);
-      right = at(a, 2);
-    } else {
-      left = a;
-      right = basic(b_true);
-    }
-    assert(typeof(left) == typeof(right));
-  }
-};
-
 bool matche(const eqn &a, const eqn &b) {
   if (typeof(a.left) != typeof(a.right))
     return 0;

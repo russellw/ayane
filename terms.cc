@@ -2,6 +2,11 @@
 // stdafx.h must be first
 #include "main.h"
 
+// SORT
+ary<w> freevars;
+w skolemi;
+///
+
 namespace syms {
 // must be a power of 2, and large enough to hold the largest collection of
 // entries that will be loaded at initialization time
@@ -177,11 +182,6 @@ w put(const w *p, w n) {
   return tag(entries[i], a_compound);
 }
 } // namespace compounds
-
-// SORT
-ary<w> freevars;
-w skolemi;
-///
 
 namespace {
 // SORT

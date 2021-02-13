@@ -287,7 +287,6 @@ void cktype(w t) {
     ckptr(p);
     auto n = p->n;
     assert(1 < n);
-    assert(n < 1000000);
     for (w i = 0; i != n; ++i)
       cktype(p->v[i]);
     return;

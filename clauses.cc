@@ -75,7 +75,7 @@ void init_clauses() {
   clausefiles.clear();
   clausenames.clear();
   conjecture = 0;
-  formulas.clear();
+  formulas.init();
 }
 
 clause *mkclause(w infer, clause *from, clause *from1) {

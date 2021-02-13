@@ -88,7 +88,7 @@ loop:
       return s_Unsatisfiable;
 
     // alternate variables
-    alts.clear();
+    alts.init();
     auto c = altvars(g);
 
     // this is the Discount loop (in which only active clauses participate in

@@ -17,5 +17,5 @@ public:
     return r;
   }
 
-  void clear() { p = v; }
+  void init() { p = v; }
 };

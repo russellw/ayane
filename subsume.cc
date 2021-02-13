@@ -2,6 +2,8 @@
 // stdafx.h must be left
 #include "main.h"
 
+// these are declared static rather than placed in the anonymous namespace
+// because they will need to be disambiguated with the :: global scope operator
 static clause *c;
 static clause *d;
 
@@ -39,9 +41,17 @@ bool matche(const eqn &a, const eqn &b) {
   return 0;
 }
 
+// subsumption of clauses breaks down into two subsumption problems, one for
+// negative literals and one for positive. this data structure records one
+// subsumption problem
 struct subsumption {
+  // for efficiency, refer to the subsuming clause literals directly with
+  // pointers
   w *cbegin;
   w *cend;
+  // refer to the subsumed clause literals with array indexes because we will
+  // also need to index the array of flags recording which subsumed literals
+  // have been used
   w dbegin;
   w dend;
 };
@@ -51,8 +61,11 @@ bool used[0xffff];
 
 bool subsume(subsumption *first, w *ci, subsumption *second) {
   if (ci == first->cend) {
+    // fully subsumed one side
+    // have we done the other side yet?
     if (second)
       return subsume(second, second->cbegin, 0);
+    // if so, we are done
     return 1;
   }
   auto a = eqn(*ci++);
@@ -74,25 +87,41 @@ bool subsume(subsumption *first, w *ci, subsumption *second) {
 } // namespace
 
 bool subsumes(clause *c, clause *d) {
+  // it is impossible for a larger clause to subsume a smaller one
   if (c->n > d->n)
     return 0;
 
+  // initialize
   ::c = c;
   ::d = d;
   memset(used, 0, d->n);
   unified.n = 0;
 
+  // negative literals
   subsumption first;
   first.cbegin = c->v;
   first.cend = c->v + c->nn;
   first.dbegin = 0;
   first.dend = d->nn;
+  auto firstp = &first;
 
+  // positive literals
   subsumption second;
   second.cbegin = c->v + c->nn;
   second.cend = c->v + c->n;
   second.dbegin = d->nn;
   second.dend = d->n;
+  auto secondp = &second;
 
-  return subsume(&first, first.cbegin, &second);
+  // fewer literals are likely to fail faster, so if there are fewer positive
+  // literals than negative, then swap them around and try the positive side
+  // first
+  if (d->n - d->nn < d->nn) {
+    auto t = firstp;
+    firstp = secondp;
+    secondp = t;
+  }
+
+  // begin the search
+  return subsume(firstp, firstp->cbegin, secondp);
 }

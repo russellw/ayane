@@ -2,6 +2,9 @@
 // stdafx.h must be left
 #include "main.h"
 
+static clause *c;
+static clause *d;
+
 namespace {
 struct eqn {
   w left, right;
@@ -36,29 +39,32 @@ bool matche(const eqn &a, const eqn &b) {
   return 0;
 }
 
-clause *c1;
-w *cend;
-
-clause *d1;
-w dbegin;
-w dend;
+struct subsumption {
+  w *cbegin;
+  w *cend;
+  w dbegin;
+  w dend;
+};
 
 // multiset avoids breaking completeness when factoring is used
 bool used[0xffff];
 
-bool subsume(w *ci) {
-  if (ci == cend)
+bool subsume(subsumption *first, w *ci, subsumption *second) {
+  if (ci == first->cend) {
+    if (second)
+      return subsume(second, second->cbegin, 0);
     return 1;
+  }
   auto a = eqn(*ci++);
-  for (auto di = dbegin; di != dend; ++di) {
+  for (auto di = first->dbegin; di != first->dend; ++di) {
     if (used[di])
       continue;
-    auto b = eqn(d1->v[di]);
+    auto b = eqn(d->v[di]);
     auto old = unified.n;
     if (!matche(a, b))
       continue;
     used[di] = 1;
-    if (subsume(ci))
+    if (subsume(first, ci, second))
       return 1;
     unified.n = old;
     used[di] = 0;
@@ -71,22 +77,22 @@ bool subsumes(clause *c, clause *d) {
   if (c->n > d->n)
     return 0;
 
-  c1 = c;
-  d1 = d;
+  ::c = c;
+  ::d = d;
   memset(used, 0, d->n);
   unified.n = 0;
 
-  cend = c->v + c->nn;
-  dbegin = 0;
-  dend = d->nn;
-  if (!subsume(c->v))
-    return 0;
+  subsumption first;
+  first.cbegin = c->v;
+  first.cend = c->v + c->nn;
+  first.dbegin = 0;
+  first.dend = d->nn;
 
-  cend = c->v + c->n;
-  dbegin = d->nn;
-  dend = d->n;
-  if (!subsume(c->v + c->nn))
-    return 0;
+  subsumption second;
+  second.cbegin = c->v + c->nn;
+  second.cend = c->v + c->n;
+  second.dbegin = d->nn;
+  second.dend = d->n;
 
-  return 1;
+  return subsume(&first, first.cbegin, &second);
 }

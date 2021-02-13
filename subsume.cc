@@ -32,6 +32,7 @@ struct subsumption {
   // pointers
   w *cbegin;
   w *cend;
+
   // refer to the subsumed clause literals with array indexes because we will
   // also need to index the array of flags recording which subsumed literals
   // have been used

@@ -19,6 +19,7 @@
 
 // algorithms
 #include "cnf.h"
+#include "saturate.h"
 #include "subsume.h"
 #include "types.h"
 #include "unify.h"

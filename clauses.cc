@@ -2,14 +2,14 @@
 // stdafx.h must be first
 #include "main.h"
 
-//SORT
+// SORT
+ary<w> neg, pos;
 clause *conjecture;
 unordered_map<const clause *, const char *> clausefiles;
 unordered_map<const clause *, const char *> clausenames;
-ary<w> neg, pos;
 ///
 
-namespace  {
+namespace {
 w cap = 0x1000;
 w count;
 clause **entries = (clause **)xcalloc(cap, sizeof(clause *));
@@ -45,9 +45,9 @@ void expand() {
 }
 
 pool<> formulas;
-} // namespace 
+} // namespace
 
-//SORT
+// SORT
 clause *clause1(w infer, clause *from, clause *from1) {
   auto nn = neg.n;
   auto pn = pos.n;
@@ -95,10 +95,10 @@ clause *formula(w infer, w a, clause *from) {
   return r;
 }
 
-void init_clauses(){
-  formulas.clear();
+void init_clauses() {
   clausefiles.clear();
   clausenames.clear();
   conjecture = 0;
+  formulas.clear();
 }
 ///

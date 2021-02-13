@@ -21,16 +21,16 @@ struct clause {
   w v[0];
 };
 
-//SORT
-extern unordered_map<const clause *, const char *> clausefiles;
-extern unordered_map<const clause *, const char *> clausenames;
+// SORT
 extern ary<w> neg, pos;
 extern clause *conjecture;
+extern unordered_map<const clause *, const char *> clausefiles;
+extern unordered_map<const clause *, const char *> clausenames;
 ///
 
-//SORT
-clause *formula(w infer, w a, clause *from = 0);
+// SORT
 clause *clause1(w infer, clause *from = 0, clause *from1 = 0);
 const char *clausename(const clause *c);
+clause *formula(w infer, w a, clause *from = 0);
 void init_clauses();
 ///

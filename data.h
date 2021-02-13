@@ -141,8 +141,8 @@ struct tcompound {
 // SORT
 extern ary<tcompound *> tcompounds;
 extern ary<w> freevars;
-extern const char *infernames[];
 extern bool complete;
+extern const char *infernames[];
 extern const char *szs[];
 extern sym keywords[];
 extern w skolemi;

@@ -10,7 +10,7 @@ namespace {
 // a variable to be read without an extra memory access. compound types are
 // therefore tracked with an unusual kind of memory bank in which entries are
 // 16-bit words rather than pointers
-w atoms = basic_types;
+w atoms = nbasictypes;
 
 w cap = 0x10;
 uint16_t *entries = (uint16_t *)xcalloc(cap, sizeof(uint16_t));

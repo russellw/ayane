@@ -7,7 +7,7 @@ enum {
   t_real,
   t_individual,
 
-  basic_types
+  nbasictypes
 };
 
 struct tcompound {

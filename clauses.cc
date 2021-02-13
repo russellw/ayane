@@ -55,6 +55,29 @@ pool<> formulas;
 } // namespace
 
 // SORT
+const char *clausename(const clause *c) {
+  auto name = clausenames[c];
+  return name ? name : "?";
+}
+
+clause *formula(w infer, w a, clause *from) {
+  auto r = (clause *)formulas.alloc(offsetof(clause, v) + sizeof(w));
+  memset(r, 0, offsetof(clause, v));
+  r->fof = 1;
+  r->infer = infer;
+  r->n = 1;
+  r->from[0] = from;
+  r->v[0] = a;
+  return r;
+}
+
+void init_clauses() {
+  clausefiles.clear();
+  clausenames.clear();
+  conjecture = 0;
+  formulas.clear();
+}
+
 clause *mkclause(w infer, clause *from, clause *from1) {
   auto nn = neg.n;
   auto pn = pos.n;
@@ -84,28 +107,5 @@ clause *mkclause(w infer, clause *from, clause *from1) {
   c->from[1] = from1;
   memcpy(c->v, neg.p, n * sizeof *neg.p);
   return c;
-}
-
-const char *clausename(const clause *c) {
-  auto name = clausenames[c];
-  return name ? name : "?";
-}
-
-clause *formula(w infer, w a, clause *from) {
-  auto r = (clause *)formulas.alloc(offsetof(clause, v) + sizeof(w));
-  memset(r, 0, offsetof(clause, v));
-  r->fof = 1;
-  r->infer = infer;
-  r->n = 1;
-  r->from[0] = from;
-  r->v[0] = a;
-  return r;
-}
-
-void init_clauses() {
-  clausefiles.clear();
-  clausenames.clear();
-  conjecture = 0;
-  formulas.clear();
 }
 ///

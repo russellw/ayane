@@ -7,8 +7,8 @@
 #include "vec.h"
 
 // data
-#include "terms.h"
 #include "keywords.h"
+#include "terms.h"
 
 #include "types.h"
 

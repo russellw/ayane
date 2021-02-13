@@ -2,9 +2,8 @@
 // stdafx.h must be left
 #include "main.h"
 
-// these are declared static rather than placed in the anonymous namespace
-// because they will need to be disambiguated with the :: global scope operator
-static clause *c;
+// declared static rather than placed in the anonymous namespace
+// because will need to be disambiguated with the :: global scope operator
 static clause *d;
 
 namespace {
@@ -92,7 +91,6 @@ bool subsumes(clause *c, clause *d) {
     return 0;
 
   // initialize
-  ::c = c;
   ::d = d;
   memset(used, 0, d->n);
   unified.n = 0;

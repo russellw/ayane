@@ -232,13 +232,15 @@ int main(int argc, const char **argv) {
 
   for (w i = 0; i != files.n; ++i) {
     auto file = files[i];
+    auto bname = basename(file);
 #ifdef DEBUG
     auto start = time(0);
 #endif
-    auto bname = basename(file);
-    clear();
+    // SORT
     init_clauses();
     init_problem();
+    init_terms();
+    ///
     try {
       switch (language(file)) {
       case l_dimacs:

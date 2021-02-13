@@ -101,9 +101,9 @@ extern w skolemi;
 ///
 
 // SORT
-void clear();
 void getfree(w a);
 w imp(w a, w b);
+void init_terms();
 w int1(Int &x);
 sym *intern(const char *s, w n);
 Int *intp(w a);

@@ -217,7 +217,15 @@ void getfree1(w a) {
 } // namespace
 
 // SORT
-void clear() {
+void getfree(w a) {
+  assert(!boundvars.n);
+  freevars.n = 0;
+  getfree1(a);
+}
+
+w imp(w a, w b) { return term(basic(b_or), term(basic(b_not), a), b); }
+
+void init_terms() {
   for (auto i = syms::entries, e = syms::entries + syms::cap; i != e; ++i) {
     auto s = *i;
     if (s)
@@ -226,14 +234,6 @@ void clear() {
   skolemi = 0;
   tmps.clear();
 }
-
-void getfree(w a) {
-  assert(!boundvars.n);
-  freevars.n = 0;
-  getfree1(a);
-}
-
-w imp(w a, w b) { return term(basic(b_or), term(basic(b_not), a), b); }
 
 w int1(Int &x) { return tag(nums::ints.put(x), a_int); }
 

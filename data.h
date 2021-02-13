@@ -121,6 +121,7 @@ struct clause {
   // number of negative and total literals
   // the literals are laid out in an array, negative then positive
   uint16_t nn, n;
+  w np() { return n - nn; }
 
   // the majority of ways for a clause to be made, result in it deriving from
   // zero or one other clauses, but the majority of clauses will be made by the

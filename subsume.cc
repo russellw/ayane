@@ -88,7 +88,7 @@ bool subsume(subsumption *first, w *ci, subsumption *second) {
 
 bool subsumes(clause *c, clause *d) {
   // it is impossible for a larger clause to subsume a smaller one
-  if (c->n > d->n)
+  if (c->nn > d->nn || c->np() > d->np())
     return 0;
 
   // initialize
@@ -116,7 +116,7 @@ bool subsumes(clause *c, clause *d) {
   // fewer literals are likely to fail faster, so if there are fewer positive
   // literals than negative, then swap them around and try the positive side
   // first
-  if (d->n - d->nn < d->nn) {
+  if (d->np() < d->nn) {
     auto t = firstp;
     firstp = secondp;
     secondp = t;

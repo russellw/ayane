@@ -184,10 +184,7 @@ w put(const w *p, w n) {
 } // namespace compounds
 
 namespace {
-// SORT
 ary<w> boundvars;
-pool<> tmps;
-///
 
 void getfree1(w a) {
   switch (a & 7) {
@@ -232,7 +229,6 @@ void init_terms() {
       s->ft = 0;
   }
   skolemi = 0;
-  tmps.clear();
 }
 
 w int1(Int &x) { return tag(nums::ints.put(x), a_int); }
@@ -260,15 +256,6 @@ w term(w op, w a, w b) {
   v[1] = a;
   v[2] = b;
   return compounds::put(v, sizeof v / sizeof *v);
-}
-
-w tmp(w op, const vec<w> &v) {
-  auto n = v.n;
-  auto r = (compound *)tmps.alloc(offsetof(compound, v) + (n + 1) * sizeof op);
-  r->n = n + 1;
-  r->v[0] = op;
-  memcpy(r->v + 1, v.p, n * sizeof op);
-  return tag(r, a_compound);
 }
 ///
 

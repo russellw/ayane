@@ -1,5 +1,3 @@
-const w alt = (w)1 << (16 + 3);
-
 enum {
   a_compound,
 
@@ -94,9 +92,10 @@ struct sym {
 };
 ///
 
+extern sym keywords[];
+
 // SORT
 extern ary<w> freevars;
-extern sym keywords[];
 extern w skolemi;
 ///
 
@@ -114,7 +113,6 @@ w term(const ary<w> &v);
 w term(const vec<w> &v);
 w term(w op, w a);
 w term(w op, w a, w b);
-w tmp(w op, const vec<w> &v);
 ///
 
 inline compound *compoundp(w a) {
@@ -174,6 +172,12 @@ inline w var(w t, w i) {
   assert(t < t_compound);
   if (sizeof(w) == 4 && i >= 1 << 12)
     err("too many variables");
+  // variable is composed of:
+  // 3 bits tag
+  // 16 bits type
+  // 1 bit flag e.g. for renamed variables
+  // and the rest of the bits in the word are for a number that identifies the
+  // variable
   return i << (1 + 16 + 3) | t << 3 | a_var;
 }
 

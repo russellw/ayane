@@ -109,29 +109,6 @@ struct Rat {
   void clear() { mpq_clear(val); }
 };
 
-struct clause {
-  // is this a first-order formula rather than an actual clause?
-  // a first-order formula is represented like a clause with just one positive
-  // literal, but the literal can be any first-order predicate
-  bool fof;
-
-  // which inference rule derived it?
-  uint8_t infer;
-
-  // number of negative and total literals
-  // the literals are laid out in an array, negative then positive
-  uint16_t nn, n;
-  w np() { return n - nn; }
-
-  // the majority of ways for a clause to be made, result in it deriving from
-  // zero or one other clauses, but the majority of clauses will be made by the
-  // superposition rule, so derived from two other clauses
-  clause *from[2];
-
-  // literals
-  w v[0];
-};
-
 struct compound {
   w n;
   w v[0];
@@ -164,14 +141,10 @@ struct tcompound {
 // SORT
 extern ary<tcompound *> tcompounds;
 extern ary<w> freevars;
-extern ary<w> neg, pos;
-extern bool complete;
-extern clause *conjecture;
 extern const char *infernames[];
+extern bool complete;
 extern const char *szs[];
 extern sym keywords[];
-extern unordered_map<const clause *, const char *> clausefiles;
-extern unordered_map<const clause *, const char *> clausenames;
 extern w skolemi;
 ///
 
@@ -180,10 +153,7 @@ extern w status;
 #endif
 
 // SORT
-clause *clause1(w infer, clause *from = 0, clause *from1 = 0);
-const char *clausename(const clause *c);
 void clear();
-clause *formula(w infer, w a, clause *from = 0);
 void getfree(w a);
 w imp(w a, w b);
 w int1(Int &x);

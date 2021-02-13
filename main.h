@@ -8,6 +8,8 @@
 
 // data
 #include "data.h"
+
+#include "clauses.h"
 #include "eqn.h"
 #include "keywords.h"
 

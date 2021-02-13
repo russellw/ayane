@@ -237,6 +237,7 @@ int main(int argc, const char **argv) {
 #endif
     auto bname = basename(file);
     clear();
+    init_clauses();
     try {
       switch (language(file)) {
       case l_dimacs:

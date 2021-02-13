@@ -4,7 +4,7 @@
 
 ary<tcompound *> tcompounds(0);
 
-namespace types {
+namespace {
 // the number of types is expected to be small. it is therefore possible to fit
 // a type reference into 16 bits, and desirable because this allows the type of
 // a variable to be read without an extra memory access. compound types are
@@ -67,7 +67,7 @@ w put(const uint16_t *p, w n) {
   tcompounds.push(store(p, n));
   return t | t_compound;
 }
-} // namespace types
+} // namespace
 
 // SORT
 void defaulttype(w t, w a) {
@@ -113,21 +113,21 @@ void requiretype(w t, w a) {
     throw "type mismatch";
 }
 
-w type(const vec<uint16_t> &v) { return types::put(v.p, v.n); }
+w type(const vec<uint16_t> &v) { return put(v.p, v.n); }
 
 w type(sym *name) {
   if (name->t)
     return name->t;
-  if (types::atoms >= t_compound)
+  if (atoms >= t_compound)
     err("too many atomic types");
-  return name->t = types::atoms++;
+  return name->t = atoms++;
 }
 
 w type(w r, w t1) {
   uint16_t v[2];
   v[0] = r;
   v[1] = t1;
-  return types::put(v, sizeof v / sizeof *v);
+  return put(v, sizeof v / sizeof *v);
 }
 
 w typeof(w a) {

@@ -250,13 +250,6 @@ bool complete;
 w skolemi;
 ///
 
-const char *infernames[] = {
-    0,
-#define _(s) #s,
-#include "infer.h"
-#undef _
-};
-
 const char *szs[] = {
     0,
 #define _(s) #s,

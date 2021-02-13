@@ -1,3 +1,10 @@
+enum {
+  i_none,
+#define _(s) i_##s,
+#include "infer.h"
+#undef _
+};
+
 struct clause {
   // is this a first-order formula rather than an actual clause?
   // a first-order formula is represented like a clause with just one positive

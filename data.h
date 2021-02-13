@@ -55,13 +55,6 @@ enum {
 };
 
 enum {
-  i_none,
-#define _(s) i_##s,
-#include "infer.h"
-#undef _
-};
-
-enum {
   s_none,
 #define _(s) s_##s,
 #include "szs.h"

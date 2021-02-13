@@ -9,6 +9,13 @@ unordered_map<const clause *, const char *> clausefiles;
 unordered_map<const clause *, const char *> clausenames;
 ///
 
+const char *infernames[] = {
+    0,
+#define _(s) #s,
+#include "infer.h"
+#undef _
+};
+
 namespace {
 w cap = 0x1000;
 w count;

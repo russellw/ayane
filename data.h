@@ -52,7 +52,6 @@ enum {
 };
 
 // SORT
-
 inline w tag(void *p, w a) { return (w)p + a; }
 ///
 
@@ -97,15 +96,9 @@ struct sym {
   // responsible for allocating enough space to hold the corresponding strings
   char v[0x20 - 2 * sizeof(uint16_t)];
 };
-
-struct tcompound {
-  uint16_t n;
-  uint16_t v[0];
-};
 ///
 
 // SORT
-extern ary<tcompound *> tcompounds;
 extern ary<w> freevars;
 extern sym keywords[];
 extern w skolemi;
@@ -126,9 +119,6 @@ w term(const vec<w> &v);
 w term(w op, w a);
 w term(w op, w a, w b);
 w tmp(w op, const vec<w> &v);
-w type(const vec<uint16_t> &v);
-w type(sym *name);
-w type(w r, w t1);
 ///
 
 inline compound *compoundp(w a) {
@@ -180,11 +170,6 @@ inline w size(w a) { return compoundp(a)->n; }
 inline sym *symp(w a) {
   assert((a & 7) == a_sym);
   return (sym *)(a - a_sym);
-}
-
-inline tcompound *tcompoundp(w t) {
-  assert(t & t_compound);
-  return tcompounds[t & ~t_compound];
 }
 
 inline w var(w t, w i) {

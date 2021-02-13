@@ -2,6 +2,73 @@
 // stdafx.h must be first
 #include "main.h"
 
+ary<tcompound *> tcompounds(0);
+
+namespace types {
+// the number of types is expected to be small. it is therefore possible to fit
+// a type reference into 16 bits, and desirable because this allows the type of
+// a variable to be read without an extra memory access. compound types are
+// therefore tracked with an unusual kind of memory bank in which entries are
+// 16-bit words rather than pointers
+w atoms = basic_types;
+
+w cap = 0x10;
+uint16_t *entries = (uint16_t *)xcalloc(cap, sizeof(uint16_t));
+
+bool eq(const tcompound *t, const uint16_t *p, w n) {
+  if (t->n != n)
+    return 0;
+  return !memcmp(t->v, p, n * sizeof *p);
+}
+
+w slot(uint16_t *entries, w cap, const uint16_t *p, w n) {
+  auto mask = cap - 1;
+  auto i = fnv(p, n * sizeof *p) & mask;
+  while (entries[i] && !eq(tcompounds[entries[i]], p, n))
+    i = (i + 1) & mask;
+  return i;
+}
+
+void expand() {
+  assert(ispow2(cap));
+  auto cap1 = cap * 2;
+  auto entries1 = (uint16_t *)xcalloc(cap1, sizeof *entries);
+  for (w i = 0; i != cap; ++i) {
+    auto t = entries[i];
+    if (t) {
+      auto tp = tcompounds[t];
+      entries1[slot(entries1, cap1, tp->v, tp->n)] = t;
+    }
+  }
+  free(entries);
+  cap = cap1;
+  entries = entries1;
+}
+
+tcompound *store(const uint16_t *p, w n) {
+  auto r = (tcompound *)xmalloc(offsetof(tcompound, v) + n * sizeof *p);
+  r->n = n;
+  memcpy(r->v, p, n * sizeof *p);
+  return r;
+}
+
+w put(const uint16_t *p, w n) {
+  auto i = slot(entries, cap, p, n);
+  if (entries[i])
+    return entries[i] | t_compound;
+  if (tcompounds.n >= cap * 3 / 4) {
+    if (tcompounds.n >= t_compound)
+      err("too many compound types");
+    expand();
+    i = slot(entries, cap, p, n);
+  }
+  auto t = tcompounds.n;
+  entries[i] = t;
+  tcompounds.push(store(p, n));
+  return t | t_compound;
+}
+} // namespace types
+
 // SORT
 void defaulttype(w t, w a) {
   assert(t < t_compound);
@@ -44,6 +111,23 @@ void requiretype(w t, w a) {
   defaulttype(t, a);
   if (t != typeof(a))
     throw "type mismatch";
+}
+
+w type(const vec<uint16_t> &v) { return types::put(v.p, v.n); }
+
+w type(sym *name) {
+  if (name->t)
+    return name->t;
+  if (types::atoms >= t_compound)
+    err("too many atomic types");
+  return name->t = types::atoms++;
+}
+
+w type(w r, w t1) {
+  uint16_t v[2];
+  v[0] = r;
+  v[1] = t1;
+  return types::put(v, sizeof v / sizeof *v);
 }
 
 w typeof(w a) {

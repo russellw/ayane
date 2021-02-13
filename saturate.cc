@@ -75,8 +75,9 @@ w saturate() {
   // active clauses
   vec<clause *> active;
 
-  // saturation proof procedure tries to perform all possible derivations until
-  // it derives false
+// saturation proof procedure tries to perform all possible derivations until
+// it derives false
+loop:
   while (!passive.empty()) {
     // given clause
     auto g = passive.top();
@@ -89,13 +90,37 @@ w saturate() {
     // alternate variables
     alts.clear();
     auto c = altvars(g);
+
+    // this is the Discount loop (in which only active clauses participate in
+    // subsumption checks); in tests, it performed slightly better than the
+    // alternative Otter loop (in which passive clauses also participate)
+
+    // forward subsumption
+    for (auto d : active) {
+      if (d->subsumed)
+        continue;
+      if (subsumes(d, c))
+        goto loop;
+    }
+
+    // backward subsumption
+    for (auto d : active) {
+      if (d->subsumed)
+        continue;
+      if (subsumes(c, d))
+        d->subsumed = 1;
+    }
+
+    // add g to active clauses before inference because we will sometimes need
+    // to combine g with (the alternate variable version of) itself
+    active.push(g);
   }
 
   // if a complete saturation proof procedure finds no more possible
-  // derivations, then the problem is satisfiable; in practice, this almost never
-  // happens for nontrivial problems, but serves as a good way to test the
+  // derivations, then the problem is satisfiable; in practice, this almost
+  // never happens for nontrivial problems, but serves as a good way to test the
   // completeness of the prover on some trivial problems. however, if
-  // completeness was lost for any reason, such as having to discard some clauses
-  // because they were too big, then report failure
+  // completeness was lost for any reason, such as having to discard some
+  // clauses because they were too big, then report failure
   return complete ? s_Satisfiable : s_GaveUp;
 }

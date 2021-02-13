@@ -13,6 +13,10 @@ struct clause {
   // literal, but the literal can be any first-order predicate
   bool fof;
 
+  // set if this clause has been subsumed and should be henceforth ignored (or
+  // perhaps eventually garbage collected)
+  bool subsumed;
+
   // which inference rule derived it?
   uint8_t infer;
 

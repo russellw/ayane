@@ -52,10 +52,6 @@ enum {
 };
 
 // SORT
-inline w tag(void *p, w a) { return (w)p + a; }
-///
-
-// SORT
 struct Int {
   mpz_t val;
 
@@ -171,6 +167,8 @@ inline sym *symp(w a) {
   assert((a & 7) == a_sym);
   return (sym *)(a - a_sym);
 }
+
+inline w tag(void *p, w a) { return (w)p + a; }
 
 inline w var(w t, w i) {
   assert(t < t_compound);

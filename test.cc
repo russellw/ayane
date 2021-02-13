@@ -457,11 +457,11 @@ void test_term() {
 void test_type() {
   auto bird = type(intern("bird"));
   assert(bird == type(intern("bird")));
-  assert(!istcompound(bird));
+  assert(bird < t_compound);
 
   auto plane = type(intern("plane"));
   assert(plane == type(intern("plane")));
-  assert(!istcompound(plane));
+  assert(plane < t_compound);
 
   assert(bird != plane);
 
@@ -471,7 +471,7 @@ void test_type() {
   v.push(t_int);
   auto t_predicate_int_int = type(v);
   assert(t_predicate_int_int == type(v));
-  assert(istcompound(t_predicate_int_int));
+  assert(t_predicate_int_int & t_compound);
   auto t = tcompoundp(t_predicate_int_int);
   assert(t->n == 3);
   assert(t->v[0] == t_bool);
@@ -484,7 +484,7 @@ void test_type() {
   v.push(t_rat);
   auto t_predicate_rat_rat = type(v);
   assert(t_predicate_rat_rat == type(v));
-  assert(istcompound(t_predicate_rat_rat));
+  assert(t_predicate_rat_rat & t_compound);
   t = tcompoundp(t_predicate_rat_rat);
   assert(t->n == 3);
   assert(t->v[0] == t_bool);

@@ -8,10 +8,13 @@
 
 // data
 #include "data.h"
+#include "keywords.h"
+
+#include "types.h"
+
+#include "eqn.h"
 
 #include "clauses.h"
-#include "eqn.h"
-#include "keywords.h"
 #include "problem.h"
 
 // parsers
@@ -24,7 +27,6 @@
 #include "cnf.h"
 #include "saturate.h"
 #include "subsume.h"
-#include "types.h"
 #include "unify.h"
 
 // unit tests

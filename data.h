@@ -1,7 +1,4 @@
-// SORT
 const w alt = (w)1 << (16 + 3);
-const w t_compound = 1 << 15;
-///
 
 enum {
   a_compound,
@@ -54,23 +51,7 @@ enum {
   ///
 };
 
-enum {
-  t_none,
-
-  t_bool,
-  t_int,
-  t_rat,
-  t_real,
-  t_individual,
-
-  basic_types
-};
-
 // SORT
-inline bool istcompound(w t) {
-  assert(t < 0x10000);
-  return t & t_compound;
-}
 
 inline w tag(void *p, w a) { return (w)p + a; }
 ///
@@ -156,6 +137,10 @@ inline compound *compoundp(w a) {
   return (compound *)a;
 }
 
+// this logically belongs in types.h but is moved up here for the benefit of
+// inline functions that want to use it
+const w t_compound = 1 << 15;
+
 // SORT
 inline w at(w a, w i) { return compoundp(a)->v[i]; }
 
@@ -198,12 +183,12 @@ inline sym *symp(w a) {
 }
 
 inline tcompound *tcompoundp(w t) {
-  assert(istcompound(t));
+  assert(t & t_compound);
   return tcompounds[t & ~t_compound];
 }
 
 inline w var(w t, w i) {
-  assert(!istcompound(t));
+  assert(t < t_compound);
   if (sizeof(w) == 4 && i >= 1 << 12)
     err("too many variables");
   return i << (1 + 16 + 3) | t << 3 | a_var;

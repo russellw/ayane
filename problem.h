@@ -6,8 +6,9 @@ enum {
   n_szs
 };
 
-extern bool complete;
 extern const char *szs[];
+
+extern bool complete;
 
 #ifdef DEBUG
 extern w status;

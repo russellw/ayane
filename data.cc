@@ -342,7 +342,7 @@ w type(const vec<uint16_t> &v) { return types::put(v.p, v.n); }
 w type(sym *name) {
   if (name->t)
     return name->t;
-  if (istcompound(types::atoms))
+  if (types::atoms >= t_compound)
     err("too many atomic types");
   return name->t = types::atoms++;
 }
@@ -365,7 +365,7 @@ void ckptr(void *p) {
 }
 
 void cktype(w t) {
-  if (istcompound(t)) {
+  if (t >= t_compound) {
     auto p = tcompoundp(t);
     ckptr(p);
     auto n = p->n;
@@ -425,7 +425,7 @@ void ckterm(w a) {
     cksym(symp(a));
     return;
   case a_var: {
-    assert(!istcompound(vartype(a)));
+    assert(vartype(a) < t_compound);
     auto i = vari(a);
     assert(0 <= i);
     assert(i < 1000000);

@@ -4,7 +4,7 @@
 
 // SORT
 void defaulttype(w t, w a) {
-  assert(!istcompound(t));
+  assert(t < t_compound);
   switch (a & 7) {
   case a_compound: {
     auto op = at(a, 0);
@@ -80,7 +80,7 @@ w typeof(w a) {
       auto ft = symp(op)->ft;
       if (!ft)
         return 0;
-      assert(istcompound(ft));
+      assert(ft & t_compound);
       auto ftp = tcompoundp(ft);
       assert(size(a) == ftp->n);
       return ftp->v[0];

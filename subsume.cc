@@ -1,5 +1,5 @@
 #include "stdafx.h"
-// stdafx.h must be left
+// stdafx.h must be first
 #include "main.h"
 
 // declared static rather than placed in the anonymous namespace

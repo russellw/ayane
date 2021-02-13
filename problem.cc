@@ -9,15 +9,25 @@ const char *szs[] = {
 #undef _
 };
 
+// SORT
 bool complete;
+vec<clause *> clauses;
+///
 
 #ifdef DEBUG
 w status;
 #endif
 
 void init_problem() {
+  clauses.n = 0;
   complete = 1;
 #ifdef DEBUG
   status = 0;
 #endif
+}
+
+clause *addclause(w infer) {
+  auto c = mkclause(infer);
+  clauses.push(c);
+  return c;
 }

@@ -848,7 +848,7 @@ struct parser1 : parser {
             break;
 
           // clause
-          auto c = clause1(0);
+          auto c = addclause(0);
           clausefiles[c] = file;
           clausenames[c] = forname->v;
           break;

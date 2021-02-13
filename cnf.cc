@@ -274,7 +274,7 @@ void toclause(w a) {
   assert(!neg.n);
   assert(!pos.n);
   toliterals(a);
-  clause1(i_split);
+  addclause(i_split);
 }
 } // namespace
 

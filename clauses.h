@@ -38,7 +38,7 @@ extern unordered_map<const clause *, const char *> clausenames;
 ///
 
 // SORT
-clause *clause1(w infer, clause *from = 0, clause *from1 = 0);
+clause *mkclause(w infer, clause *from = 0, clause *from1 = 0);
 const char *clausename(const clause *c);
 clause *formula(w infer, w a, clause *from = 0);
 void init_clauses();

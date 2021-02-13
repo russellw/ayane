@@ -55,7 +55,7 @@ pool<> formulas;
 } // namespace
 
 // SORT
-clause *clause1(w infer, clause *from, clause *from1) {
+clause *mkclause(w infer, clause *from, clause *from1) {
   auto nn = neg.n;
   auto pn = pos.n;
   auto n = nn + pn;

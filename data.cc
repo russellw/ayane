@@ -246,20 +246,8 @@ w put(const w *p, w n) {
 // SORT
 ary<tcompound *> tcompounds(0);
 ary<w> freevars;
-bool complete;
 w skolemi;
 ///
-
-const char *szs[] = {
-    0,
-#define _(s) #s,
-#include "szs.h"
-#undef _
-};
-
-#ifdef DEBUG
-w status;
-#endif
 
 namespace {
 // SORT
@@ -301,12 +289,8 @@ void clear() {
     if (s)
       s->ft = 0;
   }
-  complete = 1;
   skolemi = 0;
   tmps.clear();
-#ifdef DEBUG
-  status = 0;
-#endif
 }
 
 void getfree(w a) {

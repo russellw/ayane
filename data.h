@@ -55,14 +55,6 @@ enum {
 };
 
 enum {
-  s_none,
-#define _(s) s_##s,
-#include "szs.h"
-#undef _
-  n_szs
-};
-
-enum {
   t_none,
 
   t_bool,
@@ -134,16 +126,9 @@ struct tcompound {
 // SORT
 extern ary<tcompound *> tcompounds;
 extern ary<w> freevars;
-extern bool complete;
-extern const char *infernames[];
-extern const char *szs[];
 extern sym keywords[];
 extern w skolemi;
 ///
-
-#ifdef DEBUG
-extern w status;
-#endif
 
 // SORT
 void clear();

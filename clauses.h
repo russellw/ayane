@@ -5,6 +5,8 @@ enum {
 #undef _
 };
 
+extern const char *infernames[];
+
 struct clause {
   // is this a first-order formula rather than an actual clause?
   // a first-order formula is represented like a clause with just one positive

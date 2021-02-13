@@ -12,6 +12,7 @@
 #include "clauses.h"
 #include "eqn.h"
 #include "keywords.h"
+#include "problem.h"
 
 // parsers
 #include "parser.h"

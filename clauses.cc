@@ -82,16 +82,36 @@ void init_clauses() {
 }
 
 clause *mkclause(w infer, clause *from, clause *from1) {
+  // check for tautology
+  for (auto a : neg)
+    if (a == basic(b_false))
+      return 0;
+  for (auto a : pos)
+    if (a == basic(b_true))
+      return 0;
+  for (auto a : neg)
+    for (auto b : pos)
+      if (a == b)
+        return 0;
+
+  // gather literals
   auto nn = neg.n;
   auto pn = pos.n;
   auto n = nn + pn;
   neg.n = pos.n = 0;
   if (n > min(sizeof neg.p / sizeof *neg.p, (size_t)0xffff)) {
+    // if the number of literals would exceed 16-bit count, discard the clause.
+    // in principle this breaks completeness, though in practice it is unlikely
+    // such a clause would contribute anything useful to the proof search anyway
     complete = 0;
     return 0;
   }
   memcpy(neg.p + nn, pos.p, pn * sizeof *pos.p);
 
+  // check for an identical existing clause. unlike some other datatypes, we
+  // return null rather than just returning a pointer to the existing object,
+  // because creating a new clause is a significant action; caller may need to
+  // know whether to go ahead and add the new clause to various containers
   auto i = slot(entries, cap, neg.p, nn, n);
   if (entries[i])
     return 0;
@@ -100,6 +120,7 @@ clause *mkclause(w infer, clause *from, clause *from1) {
     i = slot(entries, cap, neg.p, nn, n);
   }
 
+  // make new clause
   auto c = entries[i] =
       (clause *)xmalloc(offsetof(clause, v) + n * sizeof *neg.p);
   memset(c, 0, offsetof(clause, v));

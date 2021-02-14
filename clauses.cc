@@ -94,6 +94,13 @@ clause *mkclause(w infer, clause *from, clause *from1) {
       if (a == b)
         return 0;
 
+  // sort the literals. it's not that the order is meaningful, but that sorting
+  // them into canonical order (even if that order is different in each run due
+  // to address space layout randomization) makes it possible to detect duplicate
+  // clauses that vary only by permutation of literals
+  sort(neg.begin(), neg.end());
+  sort(pos.begin(), pos.end());
+
   // gather literals
   auto nn = neg.n;
   auto pn = pos.n;

@@ -152,10 +152,9 @@ w distrib(w a) {
     return a;
   auto op = at(a, 0);
   if (op == basic(b_and)) {
-    auto n = size(a);
     vec<w> v(basic(b_and));
-    for (w i = 1; i != n; ++i) {
-      auto b = distrib(at(a, i));
+    for (auto i = beginp(a) + 1, e = endp(a); i != e; ++i) {
+      auto b = distrib(*i);
       if ((b & 7) == a_compound && at(b, 0) == basic(b_and)) {
         v.insert(v.end(), compoundp(b)->v + 1, compoundp(b)->v + size(b));
         continue;
@@ -169,11 +168,10 @@ w distrib(w a) {
     // deep
     // also look for where there is going to be exponential blowup
     // and rename terms to avoid it
-    auto n = size(a);
     uint64_t product = 1;
     vec<w> ands;
-    for (w i = 1; i != n; ++i) {
-      auto b = distrib(at(a, i));
+    for (auto i = beginp(a) + 1, e = endp(a); i != e; ++i) {
+      auto b = distrib(*i);
       if ((b & 7) == a_compound && at(b, 0) == basic(b_and)) {
         auto m = size(b) - 1;
         if (product > 1 && m > 1 && product * m > 4) {
@@ -192,7 +190,7 @@ w distrib(w a) {
     // a vector of indexes into and terms
     // that will provide a slice through the and arguments
     // to create a single or term
-    n = ands.n;
+    auto n = ands.n;
     vec<w> j;
     j.resize(n);
     memset(j.p, 0, n * sizeof *j.p);
@@ -258,9 +256,8 @@ void toliterals(w a) {
       return;
     }
     if (op == basic(b_or)) {
-      auto n = size(a);
-      for (w i = 1; i != n; ++i)
-        toliterals(at(a, i));
+      for (auto i = beginp(a) + 1, e = endp(a); i != e; ++i)
+        toliterals(*i);
       return;
     }
   }
@@ -308,11 +305,10 @@ void cnf(clause *f) {
 
   // make clauses
   try {
-    if ((a & 7) == a_compound && at(a, 0) == basic(b_and)) {
-      auto n = size(a);
-      for (w i = 1; i != n; ++i)
-        toclause(at(a, i));
-    } else
+    if ((a & 7) == a_compound && at(a, 0) == basic(b_and))
+      for (auto i = beginp(a) + 1, e = endp(a); i != e; ++i)
+        toclause(*i);
+    else
       toclause(a);
   } catch (int e) {
     neg.n = pos.n = 0;

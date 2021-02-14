@@ -10,6 +10,7 @@
 using std::find;
 using std::max;
 using std::min;
+using std::remove;
 using std::sort;
 
 #include <iterator>

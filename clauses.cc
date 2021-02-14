@@ -82,6 +82,10 @@ void init_clauses() {
 }
 
 clause *mkclause(w infer, clause *from, clause *from1) {
+  // remove redundancy
+  neg.erase(remove(neg.begin(), neg.end(), basic(b_true)), neg.end());
+  pos.erase(remove(pos.begin(), pos.end(), basic(b_false)), pos.end());
+
   // check for tautology
   for (auto a : neg)
     if (a == basic(b_false))
@@ -96,8 +100,8 @@ clause *mkclause(w infer, clause *from, clause *from1) {
 
   // sort the literals. it's not that the order is meaningful, but that sorting
   // them into canonical order (even if that order is different in each run due
-  // to address space layout randomization) makes it possible to detect duplicate
-  // clauses that vary only by permutation of literals
+  // to address space layout randomization) makes it possible to detect
+  // duplicate clauses that vary only by permutation of literals
   sort(neg.begin(), neg.end());
   sort(pos.begin(), pos.end());
 

@@ -76,4 +76,19 @@ template <class T, w cap = 100000> struct ary {
     p[i] = a;
     ++n;
   }
+
+  void erase(iterator position) { erase(position, position + 1); }
+
+  void erase(iterator first, iterator last) {
+    assert(p <= first);
+    assert(first <= end());
+
+    assert(p <= last);
+    assert(last <= end());
+
+    assert(first <= last);
+
+    memmove(first, last, (end() - last) * sizeof(T));
+    n -= last - first;
+  }
 };

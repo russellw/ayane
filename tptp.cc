@@ -1168,8 +1168,7 @@ void prterm(w a, w parent) {
       }
     prterm(at(a, 0), a);
     putchar('(');
-    auto n = size(a);
-    for (w i = 1; i != n; ++i) {
+    for (w i = 1, n = size(a); i != n; ++i) {
       if (i > 1)
         putchar(',');
       prterm(at(a, i), a);
@@ -1229,7 +1228,7 @@ void prclause(clause *c) {
   printf(", ");
 
   // literals
-  for (w i = 0; i != c->n; ++i) {
+  for (w i = 0, n = c->n; i != n; ++i) {
     if (i)
       printf(" | ");
     if (i < c->nn)

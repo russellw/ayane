@@ -114,6 +114,87 @@ void resolve() {
     }
   }
 }
+
+/*
+equality factoring
+    c | c0 = c1 | d0 = d1
+->
+    (c | c0 = c1 | c1 != d1)/s
+where
+    s = unify(c0, d0)
+*/
+
+bool equatable(w a, w b) {
+  if (typeof(a) != typeof(b))
+    return false;
+  if (typeof(a) == t_bool)
+    return a == basic(b_true) || b == basic(b_true);
+  return false;
+  return true;
+}
+
+w equate(w a, w b) {
+  assert(equatable(a, b));
+  if (a == basic(b_true))
+    return b;
+  if (b == basic(b_true))
+    return a;
+  return term(basic(b_eq), a, b);
+}
+
+// substitute and make new clause
+void factor2() {
+  if (!equatable(c1, d1))
+    return;
+  if (!unify(c0, d0))
+    return;
+
+  assert(!neg.n);
+  for (auto i = c->v, e = c->v + c->nn; i != e; ++i)
+    neg.push(replace(*i));
+  neg.push(equate(replace(c1), replace(d1)));
+
+  assert(!pos.n);
+  for (auto i = c->v + c->nn, e = c->v + c->n; i != e; ++i)
+    if (i != di)
+      pos.push(replace(*i));
+
+  qclause(0);
+}
+
+// for each positive equation (both directions) again
+void factor1() {
+  for (auto i = c->v + c->nn, e = c->v + c->n; i != e; ++i) {
+    if (i == ci)
+      continue;
+    eqn de(*i);
+    di = i;
+
+    d0 = de.left;
+    d1 = de.right;
+    factor2();
+
+    d0 = de.right;
+    d1 = de.left;
+    factor2();
+  }
+}
+
+// for each positive equation (both directions)
+void factor() {
+  for (auto i = c->v + c->nn, e = c->v + c->n; i != e; ++i) {
+    eqn ce(*i);
+    ci = i;
+
+    c0 = ce.left;
+    c1 = ce.right;
+    factor1();
+
+    c0 = ce.right;
+    c1 = ce.left;
+    factor1();
+  }
+}
 } // namespace
 
 w saturate() {

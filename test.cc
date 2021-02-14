@@ -32,6 +32,25 @@ clause *mkclause1() {
   return c;
 }
 
+w replace(w a) {
+  switch (a & 7) {
+  case a_compound: {
+    auto n = size(a);
+    vec<w> v;
+    v.resize(n);
+    for (w i = 0; i != n; ++i)
+      v[i] = replace(at(a, i));
+    return term(v);
+  }
+  case a_var:
+    for (auto p : unified)
+      if (p.first == a)
+        return replace(p.second);
+    break;
+  }
+  return a;
+}
+
 w type(w r, w t1, w t2) {
   vec<uint16_t> v(r, t1, t2);
   return type(v);

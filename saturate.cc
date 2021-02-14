@@ -64,6 +64,29 @@ clause *altvars(clause *c) {
   return d;
 }
 
+// replace terms based on the unified variable map; this version of this
+// function is in the alternate variables system because it constructs terms with
+// alternate variable names, so allocates them in temporary rather than
+// permanent/shared-term storage
+w replace(w a) {
+  switch (a & 7) {
+  case a_compound: {
+    auto n = size(a);
+    auto r = (compound *)alts.alloc(offsetof(compound, v) + n * sizeof a);
+    r->n = n;
+    for (w i = 0; i != n; ++i)
+      r->v[i] = replace(at(a, i));
+    return tag(r, a_compound);
+  }
+  case a_var:
+    for (auto p : unified)
+      if (p.first == a)
+        return replace(p.second);
+    break;
+  }
+  return a;
+}
+
 // once new literals have been constructed from two input clauses with different
 // variable namespaces, the variable names must be normalized, both to improve
 // the ability of the system to detect duplicate terms and clauses, and to
@@ -71,14 +94,6 @@ clause *altvars(clause *c) {
 // from those in the alternative variable namespace
 w normvars(w a) {
   switch (a & 7) {
-  case a_var: {
-    for (auto p : unified)
-      if (p.first == a)
-        return p.second;
-    auto b = var(vartype(a), unified.n);
-    unified.push(make_pair(a, b));
-    return b;
-  }
   case a_compound: {
     auto n = size(a);
     vec<w> v;
@@ -86,6 +101,14 @@ w normvars(w a) {
     for (w i = 0; i != n; ++i)
       v[i] = normvars(at(a, i));
     return term(v);
+  }
+  case a_var: {
+    for (auto p : unified)
+      if (p.first == a)
+        return p.second;
+    auto b = var(vartype(a), unified.n);
+    unified.push(make_pair(a, b));
+    return b;
   }
   }
   return a;

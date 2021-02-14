@@ -12,7 +12,7 @@ namespace syms {
 // entries that will be loaded at initialization time
 w cap = 0x100;
 w count;
-sym **entries = (sym **)xcalloc(cap, sizeof(sym *));
+sym **entries = (sym **)xcalloc(cap, sizeof *entries);
 
 bool strmemeq(const char *s, const char *p, w n) {
   while (n--)
@@ -81,7 +81,7 @@ namespace nums {
 template <class T> class bank {
   w cap = 0x10;
   w count;
-  T **entries = (T **)xcalloc(cap, sizeof(T *));
+  T **entries = (T **)xcalloc(cap, sizeof *entries);
 
   w slot(T **entries, w cap, const T &x) {
     auto mask = cap - 1;
@@ -133,7 +133,7 @@ bank<Rat> rats;
 namespace compounds {
 w cap = 0x1000;
 w count;
-compound **entries = (compound **)xcalloc(cap, sizeof(compound *));
+compound **entries = (compound **)xcalloc(cap, sizeof *entries);
 
 bool eq(const compound *x, const w *p, w n) {
   if (x->n != n)

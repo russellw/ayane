@@ -19,7 +19,7 @@ unordered_map<const clause *, const char *> clausenames;
 namespace {
 w cap = 0x1000;
 w count;
-clause **entries = (clause **)xcalloc(cap, sizeof(clause *));
+clause **entries = (clause **)xcalloc(cap, sizeof *entries);
 
 bool eq(const clause *c, const w *p, w nn, w n) {
   if (c->nn != nn)
@@ -61,7 +61,7 @@ const char *clausename(const clause *c) {
 }
 
 clause *formula(w infer, w a, clause *from) {
-  auto r = (clause *)formulas.alloc(offsetof(clause, v) + sizeof(w));
+  auto r = (clause *)formulas.alloc(offsetof(clause, v) + sizeof a);
   memset(r, 0, offsetof(clause, v));
   r->fof = 1;
   r->infer = infer;

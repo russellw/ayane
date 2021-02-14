@@ -72,11 +72,11 @@ template <class T, w small = 4> struct vec {
       return;
     cap = max(m, (w)cap * 2);
     if (p == u) {
-      p = (T *)xmalloc(cap * sizeof(T));
+      p = (T *)xmalloc(cap * sizeof *p);
       memcpy(p, u, n * sizeof(T));
       return;
     }
-    p = (T *)xrealloc(p, cap * sizeof(T));
+    p = (T *)xrealloc(p, cap * sizeof *p);
   }
 
   void resize(w m) {

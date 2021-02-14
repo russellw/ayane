@@ -13,7 +13,7 @@ namespace {
 w atoms = nbasictypes;
 
 w cap = 0x10;
-uint16_t *entries = (uint16_t *)xcalloc(cap, sizeof(uint16_t));
+uint16_t *entries = (uint16_t *)xcalloc(cap, sizeof *entries);
 
 bool eq(const tcompound *t, const uint16_t *p, w n) {
   if (t->n != n)

@@ -71,6 +71,39 @@ void qclause(w infer) {
   if (c)
     passive.push(c);
 }
+
+// inputs
+clause *c;
+w ci;
+w c0, c1;
+
+clause *d;
+w di;
+w d0, d1;
+
+// substitute and make new clause
+void resolve1() {
+  assert(!neg.n);
+  for (w i = 0, e = c->nn; i != e; ++i)
+    if (i != ci)
+      neg.push(replace(c->v[i]));
+
+  assert(!pos.n);
+  for (w i = c->nn, e = c->n; i != e; ++i)
+    pos.push(replace(c->v[i]));
+
+  qclause(0);
+}
+
+// for each negative equation
+void resolve() {
+  for (w i = 0, e = c->nn; i != e; ++i) {
+    eqn ce(c->v[i]);
+    if (unify0(ce.left, ce.right)) {
+      ci = i;
+    }
+  }
+}
 } // namespace
 
 w saturate() {

@@ -64,9 +64,45 @@ clause *altvars(clause *c) {
   return d;
 }
 
+// once new literals have been constructed from two input clauses with different
+// variable namespaces, the variable names must be normalized, both to improve
+// the ability of the system to detect duplicate terms and clauses, and to
+// maintain the invariant that the variable names in active clauses are distinct
+// from those in the alternative variable namespace
+w normvars(w a) {
+  switch (a & 7) {
+  case a_var: {
+    for (auto p : unified)
+      if (p.first == a)
+        return p.second;
+    auto b = var(vartype(a), unified.n);
+    unified.push(make_pair(a, b));
+    return b;
+  }
+  case a_compound: {
+    auto n = size(a);
+    vec<w> v;
+    v.resize(n);
+    for (w i = 0; i != n; ++i)
+      v[i] = normvars(at(a, i));
+    return term(v);
+  }
+  }
+  return a;
+}
+
+void normvars() {
+  unified.n = 0;
+  for (auto i = neg.p, e = neg.end(); i != e; ++i)
+    *i = normvars(*i);
+  for (auto i = pos.p, e = pos.end(); i != e; ++i)
+    *i = normvars(*i);
+}
+
 // make a clause and if successful (not a tautology or duplicate) add it to the
 // passive queue
 void qclause(w infer) {
+  normvars();
   auto c = mkclause(infer);
   if (c)
     passive.push(c);

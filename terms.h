@@ -137,7 +137,10 @@ inline sym *distinctobjp(w a) {
   return (sym *)(a - a_distinctobj);
 }
 
-inline w *endp(w a) { return beginp(a) + size(a); }
+inline w *endp(w a) {
+  auto p = compoundp(a);
+  return p->v + p->n;
+}
 
 inline sym *intern(const char *s) { return intern(s, strlen(s)); }
 

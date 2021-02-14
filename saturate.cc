@@ -44,7 +44,7 @@ w altvars(w a) {
     auto p = compoundp(a);
     auto n = p->n;
     auto q = (compound *)alts.alloc(offsetof(compound, v) + n * sizeof a);
-    q->n = p->n;
+    q->n = n;
     for (w i = 0; i != n; ++i)
       q->v[i] = altvars(p->v[i]);
     return tag(q, a_compound);

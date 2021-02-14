@@ -12,6 +12,7 @@ using std::max;
 using std::min;
 using std::remove;
 using std::sort;
+using std::unique;
 
 #include <iterator>
 // using std::reverse_iterator;

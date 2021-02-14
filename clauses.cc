@@ -84,7 +84,9 @@ void init_clauses() {
 clause *mkclause(w infer, clause *from, clause *from1) {
   // remove redundancy
   neg.erase(remove(neg.begin(), neg.end(), basic(b_true)), neg.end());
+  neg.erase(unique(neg.begin(), neg.end()), neg.end());
   pos.erase(remove(pos.begin(), pos.end(), basic(b_false)), pos.end());
+  pos.erase(unique(pos.begin(), pos.end()), pos.end());
 
   // check for tautology
   for (auto a : neg)

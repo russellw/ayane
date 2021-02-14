@@ -116,10 +116,10 @@ struct nnf {
       return args(pol, a, op);
     }
     case a_var:
-      for (auto p : allvars)
+      for (auto &p : allvars)
         if (p.first == a)
           return p.second;
-      for (auto p : existsvars)
+      for (auto &p : existsvars)
         if (p.first == a)
           return p.second;
       unreachable;

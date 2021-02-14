@@ -43,7 +43,7 @@ w replace(w a) {
     return term(v);
   }
   case a_var:
-    for (auto p : unified)
+    for (auto &p : unified)
       if (p.first == a)
         return replace(p.second);
     break;

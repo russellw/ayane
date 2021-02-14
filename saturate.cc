@@ -65,8 +65,8 @@ clause *altvars(clause *c) {
 }
 
 // replace terms based on the unified variable map; this version of this
-// function is in the alternate variables system because it constructs terms with
-// alternate variable names, so allocates them in temporary rather than
+// function is in the alternate variables system because it constructs terms
+// with alternate variable names, so allocates them in temporary rather than
 // permanent/shared-term storage
 w replace(w a) {
   switch (a & 7) {
@@ -79,7 +79,7 @@ w replace(w a) {
     return tag(r, a_compound);
   }
   case a_var:
-    for (auto p : unified)
+    for (auto &p : unified)
       if (p.first == a)
         return replace(p.second);
     break;
@@ -103,7 +103,7 @@ w normvars(w a) {
     return term(v);
   }
   case a_var: {
-    for (auto p : unified)
+    for (auto &p : unified)
       if (p.first == a)
         return p.second;
     auto b = var(vartype(a), unified.n);

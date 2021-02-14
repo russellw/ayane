@@ -16,7 +16,7 @@ bool match(w a, w b) {
   // variable
   if ((a & 7) == a_var) {
     // existing mapping
-    for (auto p : unified) {
+    for (auto &p : unified) {
       if (p.first == a)
         return p.second == b;
     }
@@ -58,7 +58,7 @@ bool occurs(w a, w b) {
   case a_var:
     if (a == b)
       return 1;
-    for (auto p : unified)
+    for (auto &p : unified)
       if (p.first == b)
         return occurs(a, p.second);
     break;
@@ -71,7 +71,7 @@ bool unifyvar(w a, w b) {
   assert(typeof(a) == typeof(b));
 
   // existing mappings
-  for (auto p : unified) {
+  for (auto &p : unified) {
     if (p.first == a)
       return unify1(p.second, b);
     if (p.first == b)

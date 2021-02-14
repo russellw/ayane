@@ -223,12 +223,12 @@ void getfree(w a) {
 w imp(w a, w b) { return term(basic(b_or), term(basic(b_not), a), b); }
 
 void init_terms() {
+  skolemi = 0;
   for (auto i = syms::entries, e = syms::entries + syms::cap; i != e; ++i) {
     auto s = *i;
     if (s)
       s->ft = 0;
   }
-  skolemi = 0;
 }
 
 w int1(Int &x) { return tag(nums::ints.put(x), a_int); }

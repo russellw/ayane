@@ -35,7 +35,7 @@ void test_clause() {
   neg.n = pos.n = 0;
   neg.push(term(basic(b_eq), x, y));
   auto d = mkclause(0);
-  assert(c == d);
+  assert(!d);
 
   neg.n = pos.n = 0;
   pos.push(term(basic(b_eq), x, y));
@@ -231,11 +231,13 @@ void test_subsume() {
   clause *d;
 
   // false <= false
+  init_clauses();
   c = mkclause(0);
-  d = mkclause(0);
+  d = c;
   assert(subsumes(c, d));
 
   // false <= p
+  init_clauses();
   c = mkclause(0);
   pos.push(p);
   d = mkclause(0);
@@ -243,20 +245,21 @@ void test_subsume() {
   assert(!subsumes(d, c));
 
   // p <= p
+  init_clauses();
   pos.push(p);
   c = mkclause(0);
-  pos.push(p);
-  d = mkclause(0);
+  d = c;
   assert(subsumes(c, d));
 
   // !p <= !p
+  init_clauses();
   neg.push(p);
   c = mkclause(0);
-  neg.push(p);
-  d = mkclause(0);
+  d = c;
   assert(subsumes(c, d));
 
   // p <= p | p
+  init_clauses();
   pos.push(p);
   c = mkclause(0);
   pos.push(p);
@@ -266,6 +269,7 @@ void test_subsume() {
   assert(!subsumes(d, c));
 
   // p !<= !p
+  init_clauses();
   pos.push(p);
   c = mkclause(0);
   neg.push(p);
@@ -274,6 +278,7 @@ void test_subsume() {
   assert(!subsumes(d, c));
 
   // p | q <= q | p
+  init_clauses();
   pos.push(p);
   pos.push(q);
   c = mkclause(0);
@@ -284,6 +289,7 @@ void test_subsume() {
   assert(subsumes(d, c));
 
   // p | q <= p | q | p
+  init_clauses();
   pos.push(p);
   pos.push(q);
   c = mkclause(0);
@@ -295,6 +301,7 @@ void test_subsume() {
   assert(!subsumes(d, c));
 
   // p(a) | p(b) | q(a) | q(b) | <= p(a) | q(a) | p(b) | q(b)
+  init_clauses();
   pos.push(term(p1, a));
   pos.push(term(p1, b));
   pos.push(term(q1, a));
@@ -309,6 +316,7 @@ void test_subsume() {
   assert(subsumes(d, c));
 
   // p(x,y) <= p(a,b)
+  init_clauses();
   pos.push(term(p2, x, y));
   c = mkclause(0);
   pos.push(term(p2, a, b));
@@ -317,6 +325,7 @@ void test_subsume() {
   assert(!subsumes(d, c));
 
   // p(x,x) !<= p(a,b)
+  init_clauses();
   pos.push(term(p2, x, x));
   c = mkclause(0);
   pos.push(term(p2, a, b));
@@ -325,6 +334,7 @@ void test_subsume() {
   assert(!subsumes(d, c));
 
   // p(x) <= p(y)
+  init_clauses();
   pos.push(term(p1, x));
   c = mkclause(0);
   pos.push(term(p1, y));
@@ -333,6 +343,7 @@ void test_subsume() {
   assert(subsumes(d, c));
 
   // p(x) | p(a(x)) | p(a(a(x))) <= p(y) | p(a(y)) | p(a(a(y)))
+  init_clauses();
   pos.push(term(p1, x));
   pos.push(term(p1, term(a1, x)));
   pos.push(term(p1, term(a1, term(a1, x))));
@@ -345,6 +356,7 @@ void test_subsume() {
   assert(subsumes(d, c));
 
   // p(x) | p(a) <= p(a) | p(b)
+  init_clauses();
   pos.push(term(p1, x));
   pos.push(term(p1, a));
   c = mkclause(0);
@@ -355,6 +367,7 @@ void test_subsume() {
   assert(!subsumes(d, c));
 
   // p(x) | p(a(x)) <= p(a(y)) | p(y)
+  init_clauses();
   pos.push(term(p1, x));
   pos.push(term(p1, term(a1, x)));
   c = mkclause(0);
@@ -365,6 +378,7 @@ void test_subsume() {
   assert(subsumes(d, c));
 
   // p(x) | p(a(x)) | p(a(a(x))) <= p(a(a(y))) | p(a(y)) | p(y)
+  init_clauses();
   pos.push(term(p1, x));
   pos.push(term(p1, term(a1, x)));
   pos.push(term(p1, term(a1, term(a1, x))));
@@ -377,6 +391,7 @@ void test_subsume() {
   assert(subsumes(d, c));
 
   // (a = x) <= (a = b)
+  init_clauses();
   pos.push(term(basic(b_eq), a, x));
   c = mkclause(0);
   pos.push(term(basic(b_eq), a, b));
@@ -385,6 +400,7 @@ void test_subsume() {
   assert(!subsumes(d, c));
 
   // (x = a) <= (a = b)
+  init_clauses();
   pos.push(term(basic(b_eq), x, a));
   c = mkclause(0);
   pos.push(term(basic(b_eq), a, b));
@@ -393,6 +409,7 @@ void test_subsume() {
   assert(!subsumes(d, c));
 
   // !p(y) | !p(x) | q(x) <= !p(a) | !p(b) | q(b)
+  init_clauses();
   neg.push(term(p1, y));
   neg.push(term(p1, x));
   pos.push(term(q1, x));
@@ -405,6 +422,7 @@ void test_subsume() {
   assert(!subsumes(d, c));
 
   // !p(x) | !p(y) | q(x) <= !p(a) | !p(b) | q(b)
+  init_clauses();
   neg.push(term(p1, x));
   neg.push(term(p1, y));
   pos.push(term(q1, x));
@@ -417,6 +435,7 @@ void test_subsume() {
   assert(!subsumes(d, c));
 
   // p(x,a(x)) !<= p(a(y),a(y))
+  init_clauses();
   pos.push(term(p2, x, term(a1, x)));
   c = mkclause(0);
   pos.push(term(p2, term(a1, y), term(a1, y)));

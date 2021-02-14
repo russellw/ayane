@@ -76,6 +76,9 @@ void init_clauses() {
   clausenames.clear();
   conjecture = 0;
   formulas.init();
+
+  count = 0;
+  memset(entries, 0, cap * sizeof *entries);
 }
 
 clause *mkclause(w infer, clause *from, clause *from1) {
@@ -91,7 +94,7 @@ clause *mkclause(w infer, clause *from, clause *from1) {
 
   auto i = slot(entries, cap, neg.p, nn, n);
   if (entries[i])
-    return entries[i];
+    return 0;
   if (++count > cap * 3 / 4) {
     expand();
     i = slot(entries, cap, neg.p, nn, n);

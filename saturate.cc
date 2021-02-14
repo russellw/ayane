@@ -63,6 +63,14 @@ clause *altvars(clause *c) {
     d->v[i] = altvars(c->v[i]);
   return d;
 }
+
+// make a clause and if successful (not a tautology or duplicate) add it to the
+// passive queue
+void qclause(w infer) {
+  auto c = mkclause(infer);
+  if (c)
+    passive.push(c);
+}
 } // namespace
 
 w saturate() {

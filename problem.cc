@@ -28,6 +28,7 @@ void init_problem() {
 
 clause *addclause(w infer) {
   auto c = mkclause(infer);
-  clauses.push(c);
+  if (c)
+    clauses.push(c);
   return c;
 }

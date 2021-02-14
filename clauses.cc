@@ -127,7 +127,7 @@ clause *mkclause(w infer, clause *from, clause *from1) {
       return 0;
   for (auto i = p, e = p + nn; i != e; ++i) {
     auto a = *i;
-    for (auto j = p + nn, ej = p + n; j != ej; ++j)
+    for (auto j = p + nn, e = p + n; j != e; ++j)
       if (a == *j)
         return 0;
   }

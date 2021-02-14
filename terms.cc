@@ -189,17 +189,17 @@ ary<w> boundvars;
 void getfree1(w a) {
   switch (a & 7) {
   case a_compound: {
-    auto n = size(a);
+    auto e = endp(a);
     if (at(a, 0) == basic(b_all) || at(a, 0) == basic(b_exists)) {
       auto old = boundvars.n;
-      for (w i = 2; i != n; ++i)
-        boundvars.push(at(a, i));
+      for (auto i = beginp(a) + 2; i != e; ++i)
+        boundvars.push(*i);
       getfree1(at(a, 1));
       boundvars.n = old;
       break;
     }
-    for (w i = 1; i != n; ++i)
-      getfree1(at(a, i));
+    for (auto i = beginp(a) + 1; i != e; ++i)
+      getfree1(*i);
     break;
   }
   case a_var:

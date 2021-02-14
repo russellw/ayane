@@ -308,7 +308,7 @@ void descend(w x) {
   if (unify(c0, x))
     superpositionq(splice(d0, position.p));
   if ((x & 7) == a_compound)
-    for (w j = 1, e = size(x); j != e; ++j) {
+    for (w j = 1, n = size(x); j != n; ++j) {
       position.push(j);
       descend(at(x, j));
       --position.n;

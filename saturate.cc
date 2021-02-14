@@ -195,6 +195,112 @@ void factor() {
     factor1();
   }
 }
+
+/*
+superposition
+    c | c0 = c1, d | d0(x) ?= d1
+->
+    (c | d | d0(c1) ?= d1)/s
+where
+    s = unify(c0, x)
+    x not a variable
+*/
+
+// substitute and make new clause
+void superposition_make(w d0c1) {
+  assert(!neg.n);
+  for (auto i = c->v, e = c->v + c->nn; i != e; ++i)
+    neg.push(replace(*i));
+  for (auto i = d->v, e = d->v + d->nn; i != e; ++i)
+    if (i != di)
+      neg.push(replace(*i));
+
+  assert(!pos.n);
+  for (auto i = c->v + c->nn, e = c->v + c->n; i != e; ++i)
+    if (i != ci)
+      pos.push(replace(*i));
+  for (auto i = d->v + d->nn, e = d->v + d->n; i != e; ++i)
+    if (i != di)
+      pos.push(replace(*i));
+
+  // negative and positive superposition
+  auto &v = di < (d->v + d->nn) ? neg : pos;
+  v.push(equate(replace(d0c1), replace(d1)));
+
+  qclause(0);
+}
+
+vec<w> position;
+
+inline w *beginp(w a) {
+  auto p = compoundp(a);
+  return p->v;
+}
+
+inline w *endp(w a) {
+  auto p = compoundp(a);
+  return p->v + p->n;
+}
+
+w splice(w x, w *i) {
+  if (i == position.end())
+    return c1;
+  assert((x & 7) == a_compound);
+  vec<w> v;
+  v.insert(v.p, beginp(x), endp(x));
+  auto j = *i++;
+  v[j] = splice(v[j], i);
+  return term(v);
+}
+
+void descend(w x) {
+  if ((x & 7) == a_var)
+    return;
+  if (unify0(c0, x))
+    superposition_make(splice(d0, position.p));
+  if ((x & 7) == a_compound)
+    for (w j = 1, e = size(x); j != e; ++j) {
+      position.push(j);
+      descend(at(x, j));
+      --position.n;
+    }
+}
+
+// for each equation in d (both directions)
+void superposition2() {
+  if (c0 == basic(b_true))
+    return;
+  for (auto i = d->v, e = d->v + d->n; i != e; ++i) {
+    auto de = eqn(*i);
+    di = i;
+
+    d0 = de.left;
+    d1 = de.right;
+    position.n = 0;
+    descend(d0);
+
+    d0 = de.right;
+    d1 = de.left;
+    position.n = 0;
+    descend(d0);
+  }
+}
+
+// for each positive equation in c (both directions)
+void superposition1() {
+  for (auto i = c->v + c->nn, e = c->v + c->n; i != e; ++i) {
+    auto ce = eqn(*i);
+    ci = i;
+
+    c0 = ce.left;
+    c1 = ce.right;
+    superposition2();
+
+    c0 = ce.right;
+    c1 = ce.left;
+    superposition2();
+  }
+}
 } // namespace
 
 w saturate() {

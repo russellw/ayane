@@ -13,7 +13,7 @@ w fn(w t, sym *s) {
 }
 
 bool match0(w a, w b) {
-  unified.n = 0;
+  varmap.n = 0;
   return match(a, b);
 }
 
@@ -43,7 +43,7 @@ w replace(w a) {
     return term(v);
   }
   case a_var:
-    for (auto &p : unified)
+    for (auto &p : varmap)
       if (p.first == a)
         return replace(p.second);
     break;
@@ -165,14 +165,14 @@ void test_match() {
 
   // Succeeds. (tautology)
   assert(match0(a, a));
-  assert(unified.n == 0);
+  assert(varmap.n == 0);
 
   // a and b do not match
   assert(!match0(a, b));
 
   // Succeeds. (tautology)
   assert(match0(x, x));
-  assert(unified.n == 0);
+  assert(varmap.n == 0);
 
   // x is not matched with the constant a, because the variable is on the
   // right-hand side
@@ -180,12 +180,12 @@ void test_match() {
 
   // x and y are aliased
   assert(match0(x, y));
-  assert(unified.n == 1);
+  assert(varmap.n == 1);
   assert(replace(x) == replace(y));
 
   // Function and constant symbols match, x is unified with the constant b
   assert(match0(term(f2, a, x), term(f2, a, b)));
-  assert(unified.n == 1);
+  assert(varmap.n == 1);
   assert(replace(x) == b);
 
   // f and g do not match
@@ -193,7 +193,7 @@ void test_match() {
 
   // x and y are aliased
   assert(match0(term(f1, x), term(f1, y)));
-  assert(unified.n == 1);
+  assert(varmap.n == 1);
   assert(replace(x) == replace(y));
 
   // f and g do not match
@@ -213,12 +213,12 @@ void test_match() {
   // (enforced by the occurs check) but returns true here because match has no
   // notion of an occurs check
   assert(match0(x, term(f1, x)));
-  assert(unified.n == 1);
+  assert(varmap.n == 1);
 
   // Both x and y are unified with the constant a
   assert(match0(x, y));
   assert(match(y, a));
-  assert(unified.n == 2);
+  assert(varmap.n == 2);
   assert(replace(x) == a);
   assert(replace(y) == a);
 
@@ -557,28 +557,28 @@ void test_unify() {
 
   // Succeeds. (tautology)
   assert(unify(a, a));
-  assert(unified.n == 0);
+  assert(varmap.n == 0);
 
   // a and b do not match
   assert(!unify(a, b));
 
   // Succeeds. (tautology)
   assert(unify(x, x));
-  assert(unified.n == 0);
+  assert(varmap.n == 0);
 
   // x is unified with the constant a
   assert(unify(a, x));
-  assert(unified.n == 1);
+  assert(varmap.n == 1);
   assert(replace(x) == a);
 
   // x and y are aliased
   assert(unify(x, y));
-  assert(unified.n == 1);
+  assert(varmap.n == 1);
   assert(replace(x) == replace(y));
 
   // Function and constant symbols match, x is unified with the constant b
   assert(unify(term(f2, a, x), term(f2, a, b)));
-  assert(unified.n == 1);
+  assert(varmap.n == 1);
   assert(replace(x) == b);
 
   // f and g do not match
@@ -586,7 +586,7 @@ void test_unify() {
 
   // x and y are aliased
   assert(unify(term(f1, x), term(f1, y)));
-  assert(unified.n == 1);
+  assert(varmap.n == 1);
   assert(replace(x) == replace(y));
 
   // f and g do not match
@@ -597,12 +597,12 @@ void test_unify() {
 
   // Unifies y with the term g1(x)
   assert(unify(term(f1, term(g1, x)), term(f1, y)));
-  assert(unified.n == 1);
+  assert(varmap.n == 1);
   assert(replace(y) == term(g1, x));
 
   // Unifies x with constant a, and y with the term g1(a)
   assert(unify(term(f2, term(g1, x), x), term(f2, y, a)));
-  assert(unified.n == 2);
+  assert(varmap.n == 2);
   assert(replace(x) == a);
   assert(replace(y) == term(g1, a));
 
@@ -613,14 +613,14 @@ void test_unify() {
   // Both x and y are unified with the constant a
   assert(unify(x, y));
   assert(unify1(y, a));
-  assert(unified.n == 2);
+  assert(varmap.n == 2);
   assert(replace(x) == a);
   assert(replace(y) == a);
 
   // As above (order of equations in set doesn't matter)
   assert(unify(a, y));
   assert(unify1(x, y));
-  assert(unified.n == 2);
+  assert(varmap.n == 2);
   assert(replace(x) == a);
   assert(replace(y) == a);
 

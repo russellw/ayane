@@ -79,7 +79,7 @@ w replace(w a) {
     return tag(r, a_compound);
   }
   case a_var:
-    for (auto &p : unified)
+    for (auto &p : varmap)
       if (p.first == a)
         return replace(p.second);
     break;
@@ -103,11 +103,11 @@ w normvars(w a) {
     return term(v);
   }
   case a_var: {
-    for (auto &p : unified)
+    for (auto &p : varmap)
       if (p.first == a)
         return p.second;
-    auto b = var(vartype(a), unified.n);
-    unified.push(make_pair(a, b));
+    auto b = var(vartype(a), varmap.n);
+    varmap.push(make_pair(a, b));
     return b;
   }
   }
@@ -115,7 +115,7 @@ w normvars(w a) {
 }
 
 void normvars() {
-  unified.n = 0;
+  varmap.n = 0;
   for (auto i = neg.p, e = neg.end(); i != e; ++i)
     *i = normvars(*i);
   for (auto i = pos.p, e = pos.end(); i != e; ++i)

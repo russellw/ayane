@@ -11,15 +11,15 @@ bool matche(const eqn &a, const eqn &b) {
   if (typeof(a.left) != typeof(a.right))
     return 0;
 
-  auto old = unified.n;
+  auto old = varmap.n;
 
   if (match(a.left, b.left) && match(a.right, b.right))
     return 1;
-  unified.n = old;
+  varmap.n = old;
 
   if (match(a.left, b.right) && match(a.right, b.left))
     return 1;
-  unified.n = old;
+  varmap.n = old;
 
   return 0;
 }
@@ -57,13 +57,13 @@ bool subsume(subsumption *first, w *ci, subsumption *second) {
     if (used[di])
       continue;
     auto b = eqn(d->v[di]);
-    auto old = unified.n;
+    auto old = varmap.n;
     if (!matche(a, b))
       continue;
     used[di] = 1;
     if (subsume(first, ci, second))
       return 1;
-    unified.n = old;
+    varmap.n = old;
     used[di] = 0;
   }
   return 0;
@@ -78,7 +78,7 @@ bool subsumes(clause *c, clause *d) {
   // initialize
   ::d = d;
   memset(used, 0, d->n);
-  unified.n = 0;
+  varmap.n = 0;
 
   // negative literals
   subsumption first;

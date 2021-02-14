@@ -1,4 +1,4 @@
-extern ary<pair<w, w>> unified;
+extern ary<pair<w, w>> varmap;
 
 // match on top of existing map
 bool match(w a, w b);

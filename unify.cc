@@ -2,7 +2,7 @@
 // stdafx.h must be first
 #include "main.h"
 
-ary<pair<w, w>> unified;
+ary<pair<w, w>> varmap;
 
 bool match(w a, w b) {
   // equal
@@ -16,13 +16,13 @@ bool match(w a, w b) {
   // variable
   if ((a & 7) == a_var) {
     // existing mapping
-    for (auto &p : unified) {
+    for (auto &p : varmap) {
       if (p.first == a)
         return p.second == b;
     }
 
     // new mapping
-    unified.push(make_pair(a, b));
+    varmap.push(make_pair(a, b));
     return 1;
   }
 
@@ -58,7 +58,7 @@ bool occurs(w a, w b) {
   case a_var:
     if (a == b)
       return 1;
-    for (auto &p : unified)
+    for (auto &p : varmap)
       if (p.first == b)
         return occurs(a, p.second);
     break;
@@ -71,7 +71,7 @@ bool unifyvar(w a, w b) {
   assert(typeof(a) == typeof(b));
 
   // existing mappings
-  for (auto &p : unified) {
+  for (auto &p : varmap) {
     if (p.first == a)
       return unify1(p.second, b);
     if (p.first == b)
@@ -83,7 +83,7 @@ bool unifyvar(w a, w b) {
     return 0;
 
   // new mapping
-  unified.push(make_pair(a, b));
+  varmap.push(make_pair(a, b));
   return 1;
 }
 } // namespace
@@ -122,6 +122,6 @@ bool unify1(w a, w b) {
 }
 
 bool unify(w a, w b) {
-  unified.n = 0;
+  varmap.n = 0;
   return unify1(a, b);
 }

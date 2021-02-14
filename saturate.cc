@@ -40,8 +40,6 @@ pool<> alts;
 
 w altvars(w a) {
   switch (a & 7) {
-  case a_var:
-    return a | altvar;
   case a_compound: {
     auto p = compoundp(a);
     auto n = p->n;
@@ -51,6 +49,8 @@ w altvars(w a) {
       q->v[i] = altvars(p->v[i]);
     return tag(q, a_compound);
   }
+  case a_var:
+    return a | altvar;
   }
   return a;
 }

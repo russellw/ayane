@@ -59,7 +59,7 @@ struct nnf {
     auto n = size(a);
     auto old = allvars.n;
     allvars.resize(old + n - 2);
-    for (int i = 2; i != n; ++i) {
+    for (w i = 2; i != n; ++i) {
       auto t = vartype(at(a, i));
       auto &j = newvars[t];
       allvars[old + i - 2] = make_pair(at(a, i), var(t, j++));
@@ -73,7 +73,7 @@ struct nnf {
     auto n = size(a);
     auto old = existsvars.n;
     existsvars.resize(old + n - 2);
-    for (int i = 2; i != n; ++i)
+    for (w i = 2; i != n; ++i)
       existsvars[old + i - 2] =
           make_pair(at(a, i), skolemize(vartype(at(a, i)), allvars));
     a = convert(pol, at(a, 1));

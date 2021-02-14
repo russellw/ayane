@@ -74,33 +74,43 @@ void qclause(w infer) {
 
 // inputs
 clause *c;
-w ci;
+w *ci;
 w c0, c1;
 
 clause *d;
-w di;
+w *di;
 w d0, d1;
+
+/*
+equality resolution
+    c | c0 != c1
+->
+    c/s
+where
+    s = unify(c0, c1)
+*/
 
 // substitute and make new clause
 void resolve1() {
   assert(!neg.n);
-  for (w i = 0, e = c->nn; i != e; ++i)
+  for (auto i = c->v, e = c->v + c->nn; i != e; ++i)
     if (i != ci)
-      neg.push(replace(c->v[i]));
+      neg.push(replace(*i));
 
   assert(!pos.n);
-  for (w i = c->nn, e = c->n; i != e; ++i)
-    pos.push(replace(c->v[i]));
+  for (auto i = c->v + c->nn, e = c->v + c->n; i != e; ++i)
+    pos.push(replace(*i));
 
   qclause(0);
 }
 
 // for each negative equation
 void resolve() {
-  for (w i = 0, e = c->nn; i != e; ++i) {
-    eqn ce(c->v[i]);
+  for (auto i = c->v, e = c->v + c->nn; i != e; ++i) {
+    eqn ce(*i);
     if (unify0(ce.left, ce.right)) {
       ci = i;
+      resolve1();
     }
   }
 }

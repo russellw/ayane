@@ -91,7 +91,7 @@ where
 */
 
 // substitute and make new clause
-void resolve1() {
+void resolveq() {
   assert(!neg.n);
   for (auto i = c->v, e = c->v + c->nn; i != e; ++i)
     if (i != ci)
@@ -110,7 +110,7 @@ void resolve() {
     eqn ce(*i);
     if (unify(ce.left, ce.right)) {
       ci = i;
-      resolve1();
+      resolveq();
     }
   }
 }
@@ -143,7 +143,7 @@ w equate(w a, w b) {
 }
 
 // substitute and make new clause
-void factor2() {
+void factorq() {
   if (!equatable(c1, d1))
     return;
   if (!unify(c0, d0))
@@ -172,11 +172,11 @@ void factor1() {
 
     d0 = de.left;
     d1 = de.right;
-    factor2();
+    factorq();
 
     d0 = de.right;
     d1 = de.left;
-    factor2();
+    factorq();
   }
 }
 
@@ -207,7 +207,7 @@ where
 */
 
 // substitute and make new clause
-void superposition_make(w d0c1) {
+void superpositionq(w d0c1) {
   assert(!neg.n);
   for (auto i = c->v, e = c->v + c->nn; i != e; ++i)
     neg.push(replace(*i));
@@ -257,7 +257,7 @@ void descend(w x) {
   if ((x & 7) == a_var)
     return;
   if (unify(c0, x))
-    superposition_make(splice(d0, position.p));
+    superpositionq(splice(d0, position.p));
   if ((x & 7) == a_compound)
     for (w j = 1, e = size(x); j != e; ++j) {
       position.push(j);

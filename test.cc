@@ -537,77 +537,77 @@ void test_unify() {
   auto z = var(t_individual, 2);
 
   // Succeeds. (tautology)
-  assert(unify0(a, a));
+  assert(unify(a, a));
   assert(unified.n == 0);
 
   // a and b do not match
-  assert(!unify0(a, b));
+  assert(!unify(a, b));
 
   // Succeeds. (tautology)
-  assert(unify0(x, x));
+  assert(unify(x, x));
   assert(unified.n == 0);
 
   // x is unified with the constant a
-  assert(unify0(a, x));
+  assert(unify(a, x));
   assert(unified.n == 1);
   assert(replace(x) == a);
 
   // x and y are aliased
-  assert(unify0(x, y));
+  assert(unify(x, y));
   assert(unified.n == 1);
   assert(replace(x) == replace(y));
 
   // Function and constant symbols match, x is unified with the constant b
-  assert(unify0(term(f2, a, x), term(f2, a, b)));
+  assert(unify(term(f2, a, x), term(f2, a, b)));
   assert(unified.n == 1);
   assert(replace(x) == b);
 
   // f and g do not match
-  assert(!unify0(term(f1, a), term(g1, a)));
+  assert(!unify(term(f1, a), term(g1, a)));
 
   // x and y are aliased
-  assert(unify0(term(f1, x), term(f1, y)));
+  assert(unify(term(f1, x), term(f1, y)));
   assert(unified.n == 1);
   assert(replace(x) == replace(y));
 
   // f and g do not match
-  assert(!unify0(term(f1, x), term(g1, y)));
+  assert(!unify(term(f1, x), term(g1, y)));
 
   // Fails. The f function symbols have different arity
-  assert(!unify0(term(f1, x), term(f2, y, z)));
+  assert(!unify(term(f1, x), term(f2, y, z)));
 
   // Unifies y with the term g1(x)
-  assert(unify0(term(f1, term(g1, x)), term(f1, y)));
+  assert(unify(term(f1, term(g1, x)), term(f1, y)));
   assert(unified.n == 1);
   assert(replace(y) == term(g1, x));
 
   // Unifies x with constant a, and y with the term g1(a)
-  assert(unify0(term(f2, term(g1, x), x), term(f2, y, a)));
+  assert(unify(term(f2, term(g1, x), x), term(f2, y, a)));
   assert(unified.n == 2);
   assert(replace(x) == a);
   assert(replace(y) == term(g1, a));
 
   // Returns false in first-order logic and many modern Prolog dialects
   // (enforced by the occurs check).
-  assert(!unify0(x, term(f1, x)));
+  assert(!unify(x, term(f1, x)));
 
   // Both x and y are unified with the constant a
-  assert(unify0(x, y));
-  assert(unify(y, a));
+  assert(unify(x, y));
+  assert(unify1(y, a));
   assert(unified.n == 2);
   assert(replace(x) == a);
   assert(replace(y) == a);
 
   // As above (order of equations in set doesn't matter)
-  assert(unify0(a, y));
-  assert(unify(x, y));
+  assert(unify(a, y));
+  assert(unify1(x, y));
   assert(unified.n == 2);
   assert(replace(x) == a);
   assert(replace(y) == a);
 
   // Fails. a and b do not match, so x can't be unified with both
-  assert(unify0(x, a));
-  assert(!unify(b, x));
+  assert(unify(x, a));
+  assert(!unify1(b, x));
 }
 
 void test_var() {

@@ -108,7 +108,7 @@ void resolve1() {
 void resolve() {
   for (auto i = c->v, e = c->v + c->nn; i != e; ++i) {
     eqn ce(*i);
-    if (unify0(ce.left, ce.right)) {
+    if (unify(ce.left, ce.right)) {
       ci = i;
       resolve1();
     }
@@ -256,7 +256,7 @@ w splice(w x, w *i) {
 void descend(w x) {
   if ((x & 7) == a_var)
     return;
-  if (unify0(c0, x))
+  if (unify(c0, x))
     superposition_make(splice(d0, position.p));
   if ((x & 7) == a_compound)
     for (w j = 1, e = size(x); j != e; ++j) {

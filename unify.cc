@@ -73,9 +73,9 @@ bool unifyvar(w a, w b) {
   // existing mappings
   for (auto p : unified) {
     if (p.first == a)
-      return unify(p.second, b);
+      return unify1(p.second, b);
     if (p.first == b)
-      return unify(a, p.second);
+      return unify1(a, p.second);
   }
 
   // occurs check
@@ -88,7 +88,7 @@ bool unifyvar(w a, w b) {
 }
 } // namespace
 
-bool unify(w a, w b) {
+bool unify1(w a, w b) {
   // equal
   if (a == b)
     return 1;
@@ -116,9 +116,14 @@ bool unify(w a, w b) {
   if (at(a, 0) != at(b, 0))
     return 0;
   for (w i = 1; i != n; ++i)
-    if (!unify(at(a, i), at(b, i)))
+    if (!unify1(at(a, i), at(b, i)))
       return 0;
   return 1;
+}
+
+bool unify(w a, w b) {
+  unified.n = 0;
+  return unify1(a, b);
 }
 
 w replace(w a) {

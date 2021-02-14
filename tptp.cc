@@ -541,7 +541,7 @@ struct parser1 : parser {
     vec<w> v(op);
     args(v, arity);
     auto t = numtype(v[1]);
-    for (auto i = v.begin() + 2, e = v.end(); i != e; ++i)
+    for (auto i = v.p + 2, e = v.end(); i != e; ++i)
       requiretype(t, *i);
     return term(v);
   }
@@ -569,11 +569,11 @@ struct parser1 : parser {
         args(v);
         defaulttype(t_individual, v[0]);
         auto t = typeof(v[0]);
-        for (auto i = v.begin() + 1, e = v.end(); i != e; ++i)
+        for (auto i = v.p + 1, e = v.end(); i != e; ++i)
           requiretype(t, *i);
         vec<w> clauses(basic(b_and));
-        for (auto i = v.begin(), e = v.end(); i != e; ++i)
-          for (auto j = v.begin(); j != i; ++j)
+        for (auto i = v.p, e = v.end(); i != e; ++i)
+          for (auto j = v.p; j != i; ++j)
             clauses.push(term(basic(b_not), term(basic(b_eq), *i, *j)));
         return term(clauses);
       }
@@ -668,7 +668,7 @@ struct parser1 : parser {
         return a;
       vec<w> v(a);
       args(v);
-      for (auto i = v.begin() + 1, e = v.end(); i != e; ++i)
+      for (auto i = v.p + 1, e = v.end(); i != e; ++i)
         defaulttype(t_individual, *i);
       return term(v);
     }
@@ -1002,8 +1002,7 @@ void infix(const char *op, w a, w parent) {
   auto parens = needparens(a, parent);
   if (parens)
     putchar('(');
-  auto n = size(a);
-  for (w i = 1; i != n; ++i) {
+  for (w i = 1, n = size(a); i != n; ++i) {
     if (i > 1)
       printf("%s", op);
     prterm(at(a, i), a);
@@ -1014,8 +1013,7 @@ void infix(const char *op, w a, w parent) {
 
 void quant(char op, w a) {
   printf("%c[", op);
-  auto n = size(a);
-  for (w i = 2; i != n; ++i) {
+  for (w i = 2, n = size(a); i != n; ++i) {
     if (i > 2)
       putchar(',');
     auto x = at(a, i);

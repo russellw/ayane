@@ -232,15 +232,9 @@ void superpositionq(w d0c1) {
 
 vec<w> position;
 
-inline w *beginp(w a) {
-  auto p = compoundp(a);
-  return p->v;
-}
+inline w *beginp(w a) { return compoundp(a)->v; }
 
-inline w *endp(w a) {
-  auto p = compoundp(a);
-  return p->v + p->n;
-}
+inline w *endp(w a) { return beginp(a) + size(a); }
 
 w splice(w x, w *i) {
   if (i == position.end())
@@ -267,7 +261,7 @@ void descend(w x) {
 }
 
 // for each equation in d (both directions)
-void superposition2() {
+void superposition1() {
   if (c0 == basic(b_true))
     return;
   for (auto i = d->v, e = d->v + d->n; i != e; ++i) {
@@ -287,18 +281,18 @@ void superposition2() {
 }
 
 // for each positive equation in c (both directions)
-void superposition1() {
+void superposition() {
   for (auto i = c->v + c->nn, e = c->v + c->n; i != e; ++i) {
     auto ce = eqn(*i);
     ci = i;
 
     c0 = ce.left;
     c1 = ce.right;
-    superposition2();
+    superposition1();
 
     c0 = ce.right;
     c1 = ce.left;
-    superposition2();
+    superposition1();
   }
 }
 } // namespace
@@ -327,31 +321,48 @@ loop:
 
     // alternate variables
     alts.init();
-    auto c = altvars(g);
+    auto g1 = altvars(g);
 
     // this is the Discount loop (in which only active clauses participate in
     // subsumption checks); in tests, it performed slightly better than the
     // alternative Otter loop (in which passive clauses also participate)
 
     // forward subsumption
-    for (auto d : active) {
-      if (d->subsumed)
+    for (auto h : active) {
+      if (h->subsumed)
         continue;
-      if (subsumes(d, c))
+      if (subsumes(h, g1))
         goto loop;
     }
 
     // backward subsumption
-    for (auto d : active) {
-      if (d->subsumed)
+    for (auto h : active) {
+      if (h->subsumed)
         continue;
-      if (subsumes(c, d))
-        d->subsumed = 1;
+      if (subsumes(g1, h))
+        h->subsumed = 1;
     }
 
     // add g to active clauses before inference because we will sometimes need
     // to combine g with (the alternate variable version of) itself
     active.push(g);
+
+    // infer
+    c = g1;
+    resolve();
+    factor();
+    for (auto h : active) {
+      if (h->subsumed)
+        continue;
+
+      c = g1;
+      d = h;
+      superposition();
+
+      c = h;
+      d = g1;
+      superposition();
+    }
   }
 
   // if a complete saturation proof procedure finds no more possible

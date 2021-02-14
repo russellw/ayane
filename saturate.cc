@@ -232,10 +232,6 @@ void superpositionq(w d0c1) {
 
 vec<w> position;
 
-inline w *beginp(w a) { return compoundp(a)->v; }
-
-inline w *endp(w a) { return beginp(a) + size(a); }
-
 w splice(w x, w *i) {
   if (i == position.end())
     return c1;

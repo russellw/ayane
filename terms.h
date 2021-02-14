@@ -130,10 +130,14 @@ inline w at(w a, w i) { return compoundp(a)->v[i]; }
 
 inline w basic(w op) { return op << 3 | a_basic; }
 
+inline w *beginp(w a) { return compoundp(a)->v; }
+
 inline sym *distinctobjp(w a) {
   assert((a & 7) == a_distinctobj);
   return (sym *)(a - a_distinctobj);
 }
+
+inline w *endp(w a) { return beginp(a) + size(a); }
 
 inline sym *intern(const char *s) { return intern(s, strlen(s)); }
 

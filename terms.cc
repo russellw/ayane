@@ -203,9 +203,9 @@ void getfree1(w a) {
     break;
   }
   case a_var:
-    if (find(boundvars.begin(), boundvars.end(), a) != boundvars.end())
+    if (find(boundvars.p, boundvars.end(), a) != boundvars.end())
       break;
-    if (find(freevars.begin(), freevars.end(), a) != freevars.end())
+    if (find(freevars.p, freevars.end(), a) != freevars.end())
       break;
     freevars.push(a);
     break;

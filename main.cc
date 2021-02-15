@@ -195,7 +195,7 @@ w language(const char *file) {
 
 #ifdef DEBUG
 #ifdef _WIN32
-void print(w n, const char *caption) {
+void pr(w n, const char *caption) {
   auto s = buf + sizeof buf - 1;
   *s = 0;
   // use signed integer calculations for left justification to degrade
@@ -220,22 +220,22 @@ void print(w n, const char *caption) {
   printf("%s  %s\n", s, caption);
 }
 
-#define printitem(x) print(pmc.x, #x)
+#define pritem(x) pr(pmc.x, #x)
 
-void printmem() {
+void prmem() {
   PROCESS_MEMORY_COUNTERS_EX pmc;
   GetProcessMemoryInfo(GetCurrentProcess(), (PPROCESS_MEMORY_COUNTERS)&pmc,
                        sizeof pmc);
-  printitem(PageFaultCount);
-  printitem(PeakWorkingSetSize);
-  printitem(WorkingSetSize);
-  printitem(QuotaPeakPagedPoolUsage);
-  printitem(QuotaPagedPoolUsage);
-  printitem(QuotaPeakNonPagedPoolUsage);
-  printitem(QuotaNonPagedPoolUsage);
-  printitem(PagefileUsage);
-  printitem(PeakPagefileUsage);
-  printitem(PrivateUsage);
+  pritem(PageFaultCount);
+  pritem(PeakWorkingSetSize);
+  pritem(WorkingSetSize);
+  pritem(QuotaPeakPagedPoolUsage);
+  pritem(QuotaPagedPoolUsage);
+  pritem(QuotaPeakNonPagedPoolUsage);
+  pritem(QuotaNonPagedPoolUsage);
+  pritem(PagefileUsage);
+  pritem(PeakPagefileUsage);
+  pritem(PrivateUsage);
 }
 #endif
 #endif
@@ -306,7 +306,7 @@ int main(int argc, char **argv) {
 #ifdef DEBUG
 #ifdef _WIN32
       putchar('\n');
-      printmem();
+      prmem();
       putchar('\n');
 #endif
       printf("%zu seconds\n", (w)(time(0) - start));

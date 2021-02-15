@@ -85,7 +85,7 @@ void *mmalloc(w n) {
   assert(!((w)p & 7));
   assert(!((w)e & 7));
   if (e - p < n) {
-    auto chunk = max(n, 10000);
+    auto chunk = max(n, (w)10000);
     p = (char *)xmalloc(chunk);
     e = p + chunk;
   }

@@ -7,7 +7,13 @@
 #include <windows.h>
 // windows.h must be first
 #include <psapi.h>
-static VOID CALLBACK timeout(PVOID a, BOOLEAN b) { ExitProcess(1); }
+static VOID CALLBACK timeout(PVOID a, BOOLEAN b) {
+  // on Linux the exit code associated with hard timeout is 128+SIGALRM; there
+  // is no particular reason why we have to use the same exit code on Windows,
+  // but there is no reason not to, either; as a distinctive exit code for this
+  // purpose, it serves as well as any
+  ExitProcess(128 + 14);
+}
 #else
 #include <unistd.h>
 #endif

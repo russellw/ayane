@@ -11,6 +11,7 @@ const char *szs[] = {
 
 // SORT
 bool complete;
+time_t deadline;
 vec<clause *> clauses;
 ///
 

@@ -10,6 +10,7 @@ extern const char *szs[];
 
 // SORT
 extern bool complete;
+extern time_t deadline;
 extern vec<clause *> clauses;
 ///
 

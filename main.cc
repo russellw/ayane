@@ -36,7 +36,11 @@ struct LineParser : parser {
       auto s1 = t + 1;
       if (t != s && t[-1] == '\r')
         --t;
-      v.push(intern(s, t - s)->v);
+      auto n = t - s;
+      auto r = (char *)mmalloc(n + 1);
+      memcpy(r, s, n);
+      r[n] = 0;
+      v.push(r);
       s = s1;
     }
   }
@@ -59,7 +63,8 @@ void help() {
          "-           read stdin\n"
          "\n"
          "Resources:\n"
-         "-t seconds  time limit\n");
+         "-t seconds  soft time limit\n"
+         "-T seconds  hard time limit\n");
 }
 
 const char *ext(const char *file) {
@@ -68,41 +73,28 @@ const char *ext(const char *file) {
   return s ? s + 1 : "";
 }
 
-const char *opt(int argc, char **argv, int &i) {
-  auto s = argv[i];
-  auto r = strpbrk(s, "=:");
-  if (r)
-    return r + 1;
-  if (*s == '-' && isdigit1(s[2]))
-    return s + 2;
-  if (++i == argc) {
-    fprintf(stderr, "%s: expected arg\n", s);
-    exit(1);
+unsigned long long optnum(int argc, char **argv, int &i, const char *optarg) {
+  if (!optarg) {
+    if (i + 1 >= argc) {
+      fprintf(stderr, "%s: expected argument\n", argv[i]);
+      exit(1);
+    }
+    optarg = argv[++i];
   }
-  return argv[i];
-}
-
-double optnum(int argc, char **argv, int &i) {
-  auto s = opt(argc, argv, i);
-  char *t;
   errno = 0;
-  auto a = strtod(s, &t);
+  auto r = strtoull(optarg, 0, 10);
   if (errno) {
-    perror(s);
+    perror(optarg);
     exit(1);
   }
-  if (t == s) {
-    fprintf(stderr, "%s: expected number\n", s);
-    exit(1);
-  }
-  return a;
+  return r;
 }
 
 void parse(int argc, char **argv) {
   for (int i = 0; i != argc; ++i) {
     auto s = argv[i];
 
-    // File
+    // file
     if (!strcmp(s, "-"))
       s = "stdin";
     if (*s != '-') {
@@ -116,10 +108,49 @@ void parse(int argc, char **argv) {
       continue;
     }
 
-    // Option
+    // option
     while (*s == '-')
       ++s;
+
+    // optarg
+    auto t = s;
+    while (isalpha1(*t))
+      ++t;
+    const char *optarg = 0;
+    switch (*t) {
+    case '0':
+    case '1':
+    case '2':
+    case '3':
+    case '4':
+    case '5':
+    case '6':
+    case '7':
+    case '8':
+    case '9':
+      s = intern(s, t - s)->v;
+      optarg = t;
+      break;
+    case ':':
+    case '=':
+      *t = 0;
+      optarg = t + 1;
+      break;
+    }
+
+    // option
     switch (keyword(intern(s))) {
+    case k_T: {
+      auto seconds = optnum(argc, argv, i, optarg);
+#ifdef _WIN32
+      HANDLE timer = 0;
+      CreateTimerQueueTimer(&timer, 0, timeout, 0, (DWORD)(seconds * 1000), 0,
+                            WT_EXECUTEINTIMERTHREAD);
+#else
+      alarm(seconds);
+#endif
+      break;
+    }
     case k_V:
     case k_v:
     case k_version:
@@ -139,17 +170,9 @@ void parse(int argc, char **argv) {
     case k_help:
       help();
       exit(0);
-    case k_t: {
-      auto seconds = optnum(argc, argv, i);
-#ifdef _WIN32
-      HANDLE timer = 0;
-      CreateTimerQueueTimer(&timer, 0, timeout, 0, (DWORD)(seconds * 1000), 0,
-                            WT_EXECUTEINTIMERTHREAD);
-#else
-      alarm(seconds);
-#endif
+    case k_t:
+      timelimit = optnum(argc, argv, i, optarg);
       break;
-    }
     case k_tptp:
       lang = l_tptp;
       break;
@@ -239,9 +262,7 @@ int main(int argc, char **argv) {
   for (w i = 0; i != files.n; ++i) {
     auto file = files[i];
     auto bname = basename(file);
-#ifdef DEBUG
     auto start = time(0);
-#endif
     // SORT
     init_clauses();
     init_problem();
@@ -258,6 +279,8 @@ int main(int argc, char **argv) {
       default:
         unreachable;
       }
+      if (timelimit)
+        deadline = start + timelimit;
       auto r = saturate();
       if (conjecture)
         switch (r) {

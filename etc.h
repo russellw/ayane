@@ -43,7 +43,11 @@ inline bool ispow2(w n) {
 }
 
 inline bool isspace1(char c) { return c <= ' ' && c; }
+
+inline bool isupper1(char c) { return 'A' <= c && c <= 'Z'; }
 ///
+
+inline bool isalpha1(char c) { return islower1(c) || isupper1(c); }
 
 // SORT
 const char *basename(const char *file);

@@ -1,5 +1,6 @@
 // AUTO GENERATED FILE - DO NOT MODIFY
 enum {
+  k_T,
   k_V,
   k_ceiling,
   k_cnf,

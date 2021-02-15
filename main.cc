@@ -1,7 +1,6 @@
 #include "stdafx.h"
 // stdafx.h must be first
 #include "main.h"
-#include <new>
 
 #ifdef _WIN32
 #include <io.h>
@@ -213,7 +212,7 @@ void printmem() {
 } // namespace
 
 int main(int argc, const char **argv) {
-  std::set_new_handler([]() {
+  set_new_handler([]() {
     perror("new");
     exit(1);
   });

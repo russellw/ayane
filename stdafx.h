@@ -19,6 +19,9 @@ using std::unique;
 // not actually using'd because it is used in container contexts where it has to
 // be prefixed with std:: to disambiguate from a local use of the name anyway
 
+#include <new>
+using std::set_new_handler;
+
 #include <queue>
 using std::priority_queue;
 

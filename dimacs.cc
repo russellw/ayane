@@ -49,8 +49,8 @@ struct parser1 : parser {
 #ifdef DEBUG
       string line(s, text);
       smatch m;
-      if (!status && regex_match(line, m, regex(R"(c .* (SAT|UNSAT) .*)")))
-        status = m[1] == "SAT" ? s_Satisfiable : s_Unsatisfiable;
+      if (!expected && regex_match(line, m, regex(R"(c .* (SAT|UNSAT) .*)")))
+        expected = m[1] == "SAT" ? s_Satisfiable : s_Unsatisfiable;
 #endif
       goto loop;
     }

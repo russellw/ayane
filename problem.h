@@ -14,7 +14,7 @@ extern vec<clause *> clauses;
 ///
 
 #ifdef DEBUG
-extern w status;
+extern w expected;
 #endif
 
 void init_problem();

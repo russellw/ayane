@@ -15,14 +15,14 @@ vec<clause *> clauses;
 ///
 
 #ifdef DEBUG
-w status;
+w expected;
 #endif
 
 void init_problem() {
   clauses.n = 0;
   complete = 1;
 #ifdef DEBUG
-  status = 0;
+  expected = 0;
 #endif
 }
 

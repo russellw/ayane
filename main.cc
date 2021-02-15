@@ -251,6 +251,28 @@ int main(int argc, const char **argv) {
       default:
         unreachable;
       }
+      auto r = saturate();
+      if (conjecture)
+        switch (r) {
+        case s_Satisfiable:
+          r = s_CounterSatisfiable;
+          break;
+        case s_Unsatisfiable:
+          r = s_Theorem;
+          break;
+        }
+      printf("%% SZS status %s for %s\n", szs[r], bname);
+      if (expected && r != expected)
+        switch (r) {
+        case s_CounterSatisfiable:
+        case s_Satisfiable:
+          printf("error: expected %s\n", szs[expected]);
+          return 1;
+        case s_Theorem:
+        case s_Unsatisfiable:
+          if (expected == s_ContradictoryAxioms)
+            break;
+        }
 #ifdef DEBUG
 #ifdef _WIN32
       putchar('\n');

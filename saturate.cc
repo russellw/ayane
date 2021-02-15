@@ -320,7 +320,7 @@ void superposition1() {
   if (c0 == basic(b_true))
     return;
   for (auto i = d->v, e = d->v + d->n; i != e; ++i) {
-    auto de = eqn(*i);
+    eqn de(*i);
     di = i;
 
     d0 = de.left;
@@ -338,7 +338,7 @@ void superposition1() {
 // for each positive equation in c (both directions)
 void superposition() {
   for (auto i = c->v + c->nn, e = c->v + c->n; i != e; ++i) {
-    auto ce = eqn(*i);
+    eqn ce(*i);
     ci = i;
 
     c0 = ce.left;

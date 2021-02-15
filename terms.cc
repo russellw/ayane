@@ -58,7 +58,7 @@ struct init {
 } init1;
 
 sym *store(const char *s, w n) {
-  auto r = (sym *)xmalloc(offsetof(sym, v) + n + 1);
+  auto r = (sym *)mmalloc(offsetof(sym, v) + n + 1);
   memset(r, 0, offsetof(sym, v));
   memcpy(r->v, s, n);
   r->v[n] = 0;

@@ -46,7 +46,7 @@ void expand() {
 }
 
 tcompound *store(const uint16_t *p, w n) {
-  auto r = (tcompound *)xmalloc(offsetof(tcompound, v) + n * sizeof *p);
+  auto r = (tcompound *)mmalloc(offsetof(tcompound, v) + n * sizeof *p);
   r->n = n;
   memcpy(r->v, p, n * sizeof *p);
   return r;

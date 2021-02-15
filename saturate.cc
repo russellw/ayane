@@ -373,6 +373,10 @@ loop:
     if (!g->n)
       return s_Unsatisfiable;
 
+    // are we out of time?
+    if (deadline && time(0) >= deadline)
+      return s_Timeout;
+
     // alternate variables
     alts.init();
     auto g1 = altvars(g);

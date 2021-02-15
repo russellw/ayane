@@ -29,7 +29,7 @@ enum {
 
 namespace {
 struct LineParser : parser {
-  LineParser(const char *file, vec<const char *> &v) : parser(file) {
+  LineParser(const char *file, vec<char *> &v) : parser(file) {
     auto s = text;
     while (*s) {
       auto t = strchr(s, '\n');
@@ -45,6 +45,7 @@ struct LineParser : parser {
 // SORT
 vec<const char *> files;
 w lang;
+w timelimit;
 ///
 
 void help() {
@@ -67,7 +68,7 @@ const char *ext(const char *file) {
   return s ? s + 1 : "";
 }
 
-const char *opt(int argc, const char **argv, int &i) {
+const char *opt(int argc, char **argv, int &i) {
   auto s = argv[i];
   auto r = strpbrk(s, "=:");
   if (r)
@@ -81,7 +82,7 @@ const char *opt(int argc, const char **argv, int &i) {
   return argv[i];
 }
 
-double optdouble(int argc, const char **argv, int &i) {
+double optnum(int argc, char **argv, int &i) {
   auto s = opt(argc, argv, i);
   char *t;
   errno = 0;
@@ -97,7 +98,7 @@ double optdouble(int argc, const char **argv, int &i) {
   return a;
 }
 
-void parse(int argc, const char **argv) {
+void parse(int argc, char **argv) {
   for (int i = 0; i != argc; ++i) {
     auto s = argv[i];
 
@@ -106,7 +107,7 @@ void parse(int argc, const char **argv) {
       s = "stdin";
     if (*s != '-') {
       if (!strcmp(ext(s), "lst")) {
-        vec<const char *> v;
+        vec<char *> v;
         LineParser p(s, v);
         parse(v.n, v.p);
         continue;
@@ -139,7 +140,7 @@ void parse(int argc, const char **argv) {
       help();
       exit(0);
     case k_t: {
-      auto seconds = optdouble(argc, argv, i);
+      auto seconds = optnum(argc, argv, i);
 #ifdef _WIN32
       HANDLE timer = 0;
       CreateTimerQueueTimer(&timer, 0, timeout, 0, (DWORD)(seconds * 1000), 0,
@@ -217,7 +218,7 @@ void printmem() {
 #endif
 } // namespace
 
-int main(int argc, const char **argv) {
+int main(int argc, char **argv) {
   set_new_handler([]() {
     perror("new");
     exit(1);

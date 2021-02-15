@@ -185,11 +185,10 @@ where
 
 bool equatable(w a, w b) {
   if (typeof(a) != typeof(b))
-    return false;
+    return 0;
   if (typeof(a) == t_bool)
     return a == basic(b_true) || b == basic(b_true);
-  return false;
-  return true;
+  return 1;
 }
 
 w equate(w a, w b) {

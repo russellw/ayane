@@ -113,7 +113,8 @@ struct nnf {
         case b_or:
           return args(pol, a, pol ? basic(b_or) : basic(b_and));
         }
-      return args(pol, a, op);
+      a = args(1, a, op);
+      break;
     }
     case a_var:
       for (auto &p : allvars)
@@ -127,7 +128,7 @@ struct nnf {
     return pol ? a : term(basic(b_not), a);
   }
 
-  nnf(w a) { r = convert(true, a); }
+  nnf(w a) { r = convert(1, a); }
 };
 
 // distribute or into and

@@ -52,11 +52,11 @@ bool subsume(subsumption *first, w *ci, subsumption *second) {
     // if so, we are done
     return 1;
   }
-  auto a = eqn(*ci++);
+  eqn a(*ci++);
   for (auto di = first->dbegin; di != first->dend; ++di) {
     if (used[di])
       continue;
-    auto b = eqn(d->v[di]);
+    eqn b(d->v[di]);
     auto old = varmap.n;
     if (!matche(a, b))
       continue;

@@ -1,5 +1,4 @@
 #include "etc.h"
-#include "mem.h"
 
 // containers
 #include "ary.h"

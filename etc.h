@@ -49,6 +49,9 @@ inline bool isspace1(char c) { return c <= ' ' && c; }
 const char *basename(const char *file);
 noret err(const char *msg);
 size_t fnv(const void *p, w n);
-void quote(char q, const char *s);
 void *mmalloc(w n);
+void quote(char q, const char *s);
+void *xcalloc(w n, w size);
+void *xmalloc(w n);
+void *xrealloc(void *p, w n);
 ///

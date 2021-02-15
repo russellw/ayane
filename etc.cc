@@ -65,6 +65,17 @@ noret err(const char *msg) {
   exit(1);
 }
 
+size_t fnv(const void *p, w n) {
+  // fowler-noll-vo-1a
+  auto p1 = (const char *)p;
+  size_t h = 2166136261u;
+  while (n--) {
+    h ^= *p1++;
+    h *= 16777619;
+  }
+  return h;
+}
+
 void *mmalloc(w n) {
   // monotonic malloc, for memory that does not need to be freed until the
   // program exits
@@ -86,17 +97,6 @@ void *mmalloc(w n) {
   return r;
 }
 
-size_t fnv(const void *p, w n) {
-  // fowler-noll-vo-1a
-  auto p1 = (const char *)p;
-  size_t h = 2166136261u;
-  while (n--) {
-    h ^= *p1++;
-    h *= 16777619;
-  }
-  return h;
-}
-
 void quote(char q, const char *s) {
   putchar(q);
   while (*s) {
@@ -106,5 +106,35 @@ void quote(char q, const char *s) {
     putchar(c);
   }
   putchar(q);
+}
+
+void *xcalloc(w n, w size) {
+  auto r = calloc(n, size);
+  if (!r) {
+    perror("calloc");
+    exit(1);
+  }
+  return r;
+}
+
+void *xmalloc(w n) {
+  auto r = malloc(n);
+  if (!r) {
+    perror("malloc");
+    exit(1);
+  }
+#ifdef DEBUG
+  memset(r, 0xcc, n);
+#endif
+  return r;
+}
+
+void *xrealloc(void *p, w n) {
+  auto r = realloc(p, n);
+  if (!r) {
+    perror("realloc");
+    exit(1);
+  }
+  return r;
 }
 ///

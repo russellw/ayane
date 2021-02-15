@@ -65,6 +65,27 @@ noret err(const char *msg) {
   exit(1);
 }
 
+void *mmalloc(w n) {
+  // monotonic malloc, for memory that does not need to be freed until the
+  // program exits
+  n = n + 7 & ~7;
+  static char *p;
+  static char *e;
+  assert(!((w)p & 7));
+  assert(!((w)e & 7));
+  if (e - p < n) {
+    auto chunk = max(n, 10000);
+    p = (char *)xmalloc(chunk);
+    e = p + chunk;
+  }
+  auto r = p;
+#ifdef DEBUG
+  memset(r, 0xcc, n);
+#endif
+  p += n;
+  return r;
+}
+
 size_t fnv(const void *p, w n) {
   // fowler-noll-vo-1a
   auto p1 = (const char *)p;

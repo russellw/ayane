@@ -32,13 +32,6 @@ bool assertfail(const char *file, w line, const char *s);
 extern char buf[20000];
 
 // SORT
-const char *basename(const char *file);
-noret err(const char *msg);
-size_t fnv(const void *p, w n);
-void quote(char q, const char *s);
-///
-
-// SORT
 inline bool isdigit1(char c) { return '0' <= c && c <= '9'; }
 
 inline bool islower1(char c) { return 'a' <= c && c <= 'z'; }
@@ -50,4 +43,12 @@ inline bool ispow2(w n) {
 }
 
 inline bool isspace1(char c) { return c <= ' ' && c; }
+///
+
+// SORT
+const char *basename(const char *file);
+noret err(const char *msg);
+size_t fnv(const void *p, w n);
+void quote(char q, const char *s);
+void *mmalloc(w n);
 ///

@@ -41,7 +41,7 @@ parser::parser(const char *file) : file(file) {
 #ifdef _WIN32
     _setmode(0, O_BINARY);
 #endif
-    w chunk = 1 << 20;
+    const w chunk = 1 << 20;
     w cap = 0;
 
     // stdin doesn't tell us in advance how much data there will be, so keep

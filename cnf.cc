@@ -179,11 +179,6 @@ w distrib(w a) {
           ands.push(rename(b));
           continue;
         }
-        for (w j = 1; j != m + 1; ++j) {
-          ands.push(at(b, j));
-          product *= m;
-        }
-        continue;
       }
       ands.push(b);
     }

@@ -268,6 +268,8 @@ int main(int argc, char **argv) {
     auto file = files[i];
     auto bname = basename(file);
     auto start = time(0);
+    if (timelimit)
+      deadline = start + timelimit;
     // SORT
     init_clauses();
     init_problem();
@@ -284,8 +286,6 @@ int main(int argc, char **argv) {
       default:
         unreachable;
       }
-      if (timelimit)
-        deadline = start + timelimit;
       auto r = saturate();
       if (conjecture)
         switch (r) {
@@ -297,6 +297,7 @@ int main(int argc, char **argv) {
           break;
         }
       printf("%% SZS status %s for %s\n", szs[r], bname);
+#ifdef DEBUG
       if (expected && r != expected)
         switch (r) {
         case s_CounterSatisfiable:
@@ -308,7 +309,6 @@ int main(int argc, char **argv) {
           if (expected == s_ContradictoryAxioms)
             break;
         }
-#ifdef DEBUG
 #ifdef _WIN32
       putchar('\n');
       prmem();

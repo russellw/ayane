@@ -100,8 +100,10 @@ void parse(int argc, char **argv) {
     auto s = argv[i];
 
     // file
-    if (!strcmp(s, "-"))
-      s = "stdin";
+    if (!strcmp(s, "-")) {
+      files.push("stdin");
+      continue;
+    }
     if (*s != '-') {
       if (!strcmp(ext(s), "lst")) {
         vec<char *> v;

@@ -157,7 +157,7 @@ w distrib(w a) {
     for (auto i = beginp(a) + 1, e = endp(a); i != e; ++i) {
       auto b = distrib(*i);
       if ((b & 7) == a_compound && at(b, 0) == basic(b_and)) {
-        v.insert(v.end(), compoundp(b)->v + 1, compoundp(b)->v + size(b));
+        v.insert(v.end(), beginp(b) + 1, endp(b));
         continue;
       }
       v.push(b);

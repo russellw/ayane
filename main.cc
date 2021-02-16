@@ -82,9 +82,14 @@ unsigned long long optnum(int argc, char **argv, int &i, const char *optarg) {
     optarg = argv[++i];
   }
   errno = 0;
-  auto r = strtoull(optarg, 0, 10);
+  char *e = 0;
+  auto r = strtoull(optarg, &e, 10);
   if (errno) {
     perror(optarg);
+    exit(1);
+  }
+  if (e == optarg) {
+    fprintf(stderr, "%s: expected integer\n", optarg);
     exit(1);
   }
   return r;

@@ -179,6 +179,7 @@ w distrib(w a) {
           ands.push(rename(b));
           continue;
         }
+        product *= m;
       }
       ands.push(b);
     }

@@ -3,12 +3,15 @@ version = 3
 ayane: *.cc *.h
 	g++ -O3 -funsigned-char -oayane -std=c++11 *.cc -lgmp
 
+debug:
+	g++ -DDEBUG -funsigned-char -g -oayane -std=c++11 *.cc -lgmp
+
+prof:
+	g++ -funsigned-char -pg -oayane -std=c++11 *.cc -lgmp
+
 clean:
 	rm ayane
 	rm ayane-$(version).tgz
-
-debug:
-	g++ -DDEBUG -funsigned-char -g -oayane -std=c++11 *.cc -lgmp
 
 dist: ayane
 	mkdir ayane-$(version)

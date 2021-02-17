@@ -66,7 +66,8 @@ noret err(const char *msg) {
 }
 
 size_t fnv(const void *p, w n) {
-  // fowler-noll-vo-1a
+  // fowler-noll-vo-1a is slower than more sophisticated hash algorithms for
+  // large chunks of data, but faster for tiny ones, so it still sees use
   auto p1 = (const char *)p;
   size_t h = 2166136261u;
   while (n--) {

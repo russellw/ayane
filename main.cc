@@ -288,6 +288,7 @@ int main(int argc, char **argv) {
       default:
         unreachable;
       }
+      return 0;
       auto r = saturate();
       if (conjecture)
         switch (r) {

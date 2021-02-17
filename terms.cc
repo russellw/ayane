@@ -143,7 +143,7 @@ bool eq(const compound *x, const w *p, w n) {
 
 w slot(compound **entries, w cap, const w *p, w n) {
   auto mask = cap - 1;
-  auto i = fnv(p, n * sizeof *p) & mask;
+  auto i = XXH64(p, n * sizeof *p,0) & mask;
   while (entries[i] && !eq(entries[i], p, n))
     i = (i + 1) & mask;
   return i;

@@ -1,4 +1,5 @@
 #include "etc.h"
+#include "xxhash.h"
 
 // containers
 #include "ary.h"

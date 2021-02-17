@@ -43,4 +43,11 @@
 #define XXH_STATIC_LINKING_ONLY /* access advanced declarations */
 #define XXH_IMPLEMENTATION      /* access definitions */
 
+// the extension of this file has been renamed from .c to .cc to be included
+// with the other source files in compilation processes
+
+// conversely, the extension of the corresponding header file has been renamed
+// from .h to .hh to be excluded from the clang-format process that is applied
+// to the other source and header files
+
 #include "xxhash.hh"

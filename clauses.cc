@@ -31,7 +31,7 @@ bool eq(const clause *c, const w *p, w nn, w n) {
 
 w slot(clause **entries, w cap, const w *p, w nn, w n) {
   auto mask = cap - 1;
-  auto i = (fnv(p, n * sizeof *p) ^ nn) & mask;
+  auto i = XXH64(p, n * sizeof *p, nn) & mask;
   while (entries[i] && !eq(entries[i], p, nn, n))
     i = (i + 1) & mask;
   return i;

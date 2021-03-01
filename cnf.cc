@@ -43,6 +43,24 @@ uint64_t nclauses(bool pos, w a) {
     return pos ? nclauses_and(pos, a) : nclauses_or(pos, a);
   case b_or:
     return pos ? nclauses_or(pos, a) : nclauses_and(pos, a);
+  case b_eqv: {
+    auto x = at(a, 1);
+    auto x0 = nclauses(0, x);
+    if (x0 >= many - 1)
+      return many;
+    auto x1 = nclauses(1, x);
+    if (x1 >= many - 1)
+      return many;
+    auto y = at(a, 2);
+    auto y0 = nclauses(0, y);
+    if (y0 >= many - 1)
+      return many;
+    auto y1 = nclauses(1, y);
+    auto r = pos ? x0 * y1 + x1 * y0 : x0 * x1 + y0 * y1;
+    if (r >= many)
+      return many;
+    return r;
+  }
   }
   return 1;
 }

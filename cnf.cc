@@ -5,6 +5,48 @@
 // open problem:
 // https://stackoverflow.com/questions/53718986/converting-first-order-logic-to-cnf-without-exponential-blowup
 namespace {
+const uint64_t many = 1000;
+uint64_t nclauses(bool pos, w a);
+
+uint64_t nclauses_and(bool pos, w a) {
+  uint64_t r = 0;
+  for (auto i = beginp(a) + 1, e = endp(a); i != e; ++i) {
+    r += nclauses(pos, *i);
+    if (r >= many)
+      return many;
+  }
+  return r;
+}
+
+uint64_t nclauses_or(bool pos, w a) {
+  uint64_t r = 1;
+  for (auto i = beginp(a) + 1, e = endp(a); i != e; ++i) {
+    r *= nclauses(pos, *i);
+    if (r >= many)
+      return many;
+  }
+  return r;
+}
+
+uint64_t nclauses(bool pos, w a) {
+  if ((a & 7) != a_compound)
+    return 1;
+  auto op = at(a, 0);
+  if ((op & 7) != a_basic)
+    return 1;
+  switch (op >> 3) {
+  case b_all:
+  case b_exists:
+  case b_not:
+    return nclauses(pos, at(a, 1));
+  case b_and:
+    return pos ? nclauses_and(pos, a) : nclauses_or(pos, a);
+  case b_or:
+    return pos ? nclauses_or(pos, a) : nclauses_and(pos, a);
+  }
+  return 1;
+}
+
 w skolem(w t) {
   auto n = sprintf(buf, "\1%zu", skolemi++);
   auto s = intern(buf, n);

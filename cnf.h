@@ -1,1 +1,1 @@
-void cnf(clause *f);
+void cnf(w a, clause *f);

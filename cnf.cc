@@ -110,7 +110,7 @@ w rename(w a) {
     freevars.insert(freevars.p + 1, a);
     a = term(freevars);
   }
-  cnf(formula(0, a));
+  cnf(a, 0);
   return b;
 }
 
@@ -337,12 +337,12 @@ void toclause(w a) {
 }
 } // namespace
 
-void cnf(clause *f) {
-  assert(f->fof);
-  auto a = *f->v;
+void cnf(w a, clause *f) {
   ckterm(a);
+  if (f)
+    assert(f->fof);
 
-  // variables must be bound only for the first step
+    // variables must be bound only for the first step
 #ifdef DEBUG
   getfree(a);
   assert(!freevars.n);

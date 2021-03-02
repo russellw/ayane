@@ -915,7 +915,7 @@ struct parser1 : parser {
           }
 
           // cnf
-          cnf(f);
+          cnf(a, f);
           break;
         }
         case k_include: {

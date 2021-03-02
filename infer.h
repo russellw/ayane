@@ -1,6 +1,4 @@
 // SORT
-_(distrib)
+_(cnf)
 _(negate)
-_(nnf)
-_(split)
 ///

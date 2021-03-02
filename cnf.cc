@@ -2,33 +2,31 @@
 // stdafx.h must be first
 #include "main.h"
 
-// open problem:
-// https://stackoverflow.com/questions/53718986/converting-first-order-logic-to-cnf-without-exponential-blowup
 namespace {
 const uint64_t many = 1000;
-uint64_t nclauses(bool pos, w a);
+uint64_t nclauses(bool pol, w a);
 
-uint64_t nclauses_and(bool pos, w a) {
+uint64_t nclauses_and(bool pol, w a) {
   uint64_t r = 0;
   for (auto i = beginp(a) + 1, e = endp(a); i != e; ++i) {
-    r += nclauses(pos, *i);
+    r += nclauses(pol, *i);
     if (r >= many)
       return many;
   }
   return r;
 }
 
-uint64_t nclauses_or(bool pos, w a) {
+uint64_t nclauses_or(bool pol, w a) {
   uint64_t r = 1;
   for (auto i = beginp(a) + 1, e = endp(a); i != e; ++i) {
-    r *= nclauses(pos, *i);
+    r *= nclauses(pol, *i);
     if (r >= many)
       return many;
   }
   return r;
 }
 
-uint64_t nclauses(bool pos, w a) {
+uint64_t nclauses(bool pol, w a) {
   if ((a & 7) != a_compound)
     return 1;
   auto op = at(a, 0);
@@ -38,11 +36,11 @@ uint64_t nclauses(bool pos, w a) {
   case b_all:
   case b_exists:
   case b_not:
-    return nclauses(pos, at(a, 1));
+    return nclauses(pol, at(a, 1));
   case b_and:
-    return pos ? nclauses_and(pos, a) : nclauses_or(pos, a);
+    return pol ? nclauses_and(pol, a) : nclauses_or(pol, a);
   case b_or:
-    return pos ? nclauses_or(pos, a) : nclauses_and(pos, a);
+    return pol ? nclauses_or(pol, a) : nclauses_and(pol, a);
   case b_eqv: {
     auto x = at(a, 1);
     auto x0 = nclauses(0, x);
@@ -56,7 +54,7 @@ uint64_t nclauses(bool pos, w a) {
     if (y0 >= many - 1)
       return many;
     auto y1 = nclauses(1, y);
-    auto r = pos ? x0 * y1 + x1 * y0 : x0 * x1 + y0 * y1;
+    auto r = pol ? x0 * y1 + x1 * y0 : x0 * x1 + y0 * y1;
     if (r >= many)
       return many;
     return r;
@@ -328,7 +326,7 @@ void toclause(w a) {
   assert(!neg.n);
   assert(!pos.n);
   toliterals(a);
-  addclause(i_split);
+  addclause(i_cnf);
 }
 } // namespace
 
@@ -345,20 +343,12 @@ void cnf(clause *f) {
 
   // negation normal form
   nnf nnf1(a);
-  auto b = nnf1.r;
-  if (b != a) {
-    a = b;
-    ckterm(a);
-    f = formula(i_nnf, a, f);
-  }
+  a = nnf1.r;
+  ckterm(a);
 
   // distribute or into and
-  b = distrib(a);
-  if (b != a) {
-    a = b;
-    ckterm(a);
-    f = formula(i_distrib, a, f);
-  }
+  a = distrib(a);
+  ckterm(a);
 
   // make clauses
   try {

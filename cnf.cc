@@ -3,6 +3,10 @@
 #include "main.h"
 
 namespace {
+// estimate how many clauses a term will expand into, for the purpose of
+// deciding when subformulas need to be renamed; the answer could exceed 2^64,
+// but then we don't actually need the number, we only need to know whether it
+// went over the threshold
 const uint64_t many = 1000;
 uint64_t nclauses(bool pol, w a);
 
@@ -63,6 +67,8 @@ uint64_t nclauses(bool pol, w a) {
   return 1;
 }
 
+// creating new functions is necessary both to skolemize existential variables
+// and to rename subformulas to avoid exponential blowup
 w skolem(w t) {
   auto n = sprintf(buf, "\1%zu", skolemi++);
   auto s = intern(buf, n);
@@ -92,6 +98,20 @@ w skolemize(w rt, const vec<pair<w, w>> &u) {
   for (w i = 0; i != u.n; ++i)
     freevars[i] = u[i].second;
   return skolemize(rt);
+}
+
+// rename subformulas to avoid exponential blowup
+w rename(w a) {
+  getfree(a);
+  auto b = skolemize(t_bool);
+  a = imp(b, a);
+  if (freevars.n) {
+    freevars[0] = basic(b_all);
+    freevars.insert(freevars.p + 1, a);
+    a = term(freevars);
+  }
+  cnf(formula(0, a));
+  return b;
 }
 
 // negation normal form
@@ -193,19 +213,6 @@ struct nnf {
 // return:
 // at most one layer of and
 // any number of layers of or
-w rename(w a) {
-  getfree(a);
-  auto b = skolemize(t_bool);
-  a = imp(b, a);
-  if (freevars.n) {
-    freevars[0] = basic(b_all);
-    freevars.insert(freevars.p + 1, a);
-    a = term(freevars);
-  }
-  cnf(formula(0, a));
-  return b;
-}
-
 w distrib(w a) {
   if ((a & 7) != a_compound)
     return a;

@@ -101,10 +101,23 @@ w skolemize(w rt, const vec<pair<w, w>> &u) {
 }
 
 // rename subformulas to avoid exponential blowup
-w rename(w a) {
+w rename_pos(w a) {
   getfree(a);
   auto b = skolemize(t_bool);
   a = imp(b, a);
+  if (freevars.n) {
+    freevars[0] = basic(b_all);
+    freevars.insert(freevars.p + 1, a);
+    a = term(freevars);
+  }
+  cnf(a, 0);
+  return b;
+}
+
+w rename_both(w a) {
+  getfree(a);
+  auto b = skolemize(t_bool);
+  a = term(basic(b_and), imp(b, a), imp(a, b));
   if (freevars.n) {
     freevars[0] = basic(b_all);
     freevars.insert(freevars.p + 1, a);
@@ -177,7 +190,11 @@ struct nnf {
           return args(pol, a, pol ? basic(b_and) : basic(b_or));
         case b_eqv: {
           auto x = at(a, 1);
+          if (nclauses(0, x) >= many || nclauses(1, x) >= many)
+            x = rename_both(x);
           auto y = at(a, 2);
+          if (nclauses(0, y) >= many || nclauses(1, y) >= many)
+            y = rename_both(y);
           return term(basic(b_and),
                       term(basic(b_or), convert(0, x), convert(pol, y)),
                       term(basic(b_or), convert(1, x), convert(pol ^ 1, y)));
@@ -241,7 +258,7 @@ w distrib(w a) {
       if ((b & 7) == a_compound && at(b, 0) == basic(b_and)) {
         auto m = size(b) - 1;
         if (product > 1 && m > 1 && product * m > 4) {
-          ands.push(rename(b));
+          ands.push(rename_pos(b));
           continue;
         }
         product *= m;

@@ -7,7 +7,7 @@ namespace {
 // deciding when subformulas need to be renamed; the answer could exceed 2^64,
 // but then we don't actually need the number, we only need to know whether it
 // went over the threshold
-const uint64_t many = 1000;
+const uint64_t many = 10;
 uint64_t nclauses(bool pol, w a);
 
 uint64_t nclauses_and(bool pol, w a) {

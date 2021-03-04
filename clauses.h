@@ -1,8 +1,8 @@
 enum {
   i_none,
-#define _(s) i_##s,
+#define X(s) i_##s,
 #include "infer.h"
-#undef _
+#undef X
 };
 
 extern const char *infernames[];

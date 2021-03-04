@@ -4,9 +4,9 @@
 
 const char *infernames[] = {
     0,
-#define _(s) #s,
+#define X(s) #s,
 #include "infer.h"
-#undef _
+#undef X
 };
 
 // SORT

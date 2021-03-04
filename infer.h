@@ -1,4 +1,4 @@
 // SORT
-_(cnf)
-_(negate)
+X(cnf)
+X(negate)
 ///

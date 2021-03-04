@@ -4,9 +4,9 @@
 
 const char *szs[] = {
     0,
-#define _(s) #s,
+#define X(s) #s,
 #include "szs.h"
-#undef _
+#undef X
 };
 
 // SORT

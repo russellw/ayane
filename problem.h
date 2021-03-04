@@ -1,8 +1,8 @@
 enum {
   s_none,
-#define _(s) s_##s,
+#define X(s) s_##s,
 #include "szs.h"
-#undef _
+#undef X
   n_szs
 };
 

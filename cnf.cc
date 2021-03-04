@@ -104,13 +104,7 @@ w skolemize(w rt, const vec<pair<w, w>> &u) {
 w rename_pos(w a) {
   getfree(a);
   auto b = skolemize(t_bool);
-  a = imp(b, a);
-  if (freevars.n) {
-    freevars[0] = basic(b_all);
-    freevars.insert(freevars.p + 1, a);
-    a = term(freevars);
-  }
-  cnf(a, 0);
+  cnf(imp(b, a), 0);
   return b;
 }
 
@@ -120,13 +114,7 @@ w rename_both(w a) {
   a = cnf1(a);
   getfree(a);
   auto b = skolemize(t_bool);
-  a = term(basic(b_and), imp(b, a), imp(a, b));
-  if (freevars.n) {
-    freevars[0] = basic(b_all);
-    freevars.insert(freevars.p + 1, a);
-    a = term(freevars);
-  }
-  cnf(a, 0);
+  cnf(term(basic(b_and), imp(b, a), imp(a, b)), 0);
   return b;
 }
 
@@ -136,6 +124,7 @@ w rename_both(w a) {
 struct nnf {
   vec<pair<w, w>> allvars;
   vec<pair<w, w>> existsvars;
+  vec<pair<w, w>> freevars;
   unordered_map<w, w> newvars;
   w r;
 
@@ -215,13 +204,23 @@ struct nnf {
       break;
     }
     case a_var:
+      for (auto i = allvars.rbegin(); i != allvars.rend(); ++i)
+        if (i->first == a)
+          return i->second;
       for (auto &p : allvars)
         if (p.first == a)
           return p.second;
       for (auto &p : existsvars)
         if (p.first == a)
           return p.second;
-      unreachable;
+      for (auto &p : freevars)
+        if (p.first == a)
+          return p.second;
+      auto t = vartype(a);
+      auto &j = newvars[t];
+      auto b = var(t, j++);
+      freevars.push(make_pair(a, b));
+      return b;
     }
     return pol ? a : term(basic(b_not), a);
   }
@@ -358,12 +357,6 @@ void toclause(w a) {
 
 w cnf1(w a) {
   ckterm(a);
-
-  // variables must be bound only for the first step
-#ifdef DEBUG
-  getfree(a);
-  assert(!freevars.n);
-#endif
 
   // negation normal form
   nnf nnf1(a);

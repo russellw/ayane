@@ -58,7 +58,7 @@ uint64_t nclauses(bool pol, w a) {
     if (y0 >= many - 1)
       return many;
     auto y1 = nclauses(1, y);
-    auto r = pol ? x0 * y1 + x1 * y0 : x0 * x1 + y0 * y1;
+    auto r = pol ? x0 * y1 + x1 * y0 : x0 * y0 + x1 * y1;
     if (r >= many)
       return many;
     return r;
@@ -114,7 +114,10 @@ w rename_pos(w a) {
   return b;
 }
 
+w cnf1(w a);
+
 w rename_both(w a) {
+  a = cnf1(a);
   getfree(a);
   auto b = skolemize(t_bool);
   a = term(basic(b_and), imp(b, a), imp(a, b));
@@ -352,14 +355,11 @@ void toclause(w a) {
   toliterals(a);
   addclause(i_cnf);
 }
-} // namespace
 
-void cnf(w a, clause *f) {
+w cnf1(w a) {
   ckterm(a);
-  if (f)
-    assert(f->fof);
 
-    // variables must be bound only for the first step
+  // variables must be bound only for the first step
 #ifdef DEBUG
   getfree(a);
   assert(!freevars.n);
@@ -373,8 +373,11 @@ void cnf(w a, clause *f) {
   // distribute or into and
   a = distrib(a);
   ckterm(a);
+  return a;
+}
+} // namespace
 
-  // make clauses
+void cnf(w a, clause *f) {
   try {
     if ((a & 7) == a_compound && at(a, 0) == basic(b_and))
       for (auto i = beginp(a) + 1, e = endp(a); i != e; ++i)

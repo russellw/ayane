@@ -207,12 +207,9 @@ struct nnf {
       for (auto i = allvars.rbegin(); i != allvars.rend(); ++i)
         if (i->first == a)
           return i->second;
-      for (auto &p : allvars)
-        if (p.first == a)
-          return p.second;
-      for (auto &p : existsvars)
-        if (p.first == a)
-          return p.second;
+      for (auto i = existsvars.rbegin(); i != existsvars.rend(); ++i)
+        if (i->first == a)
+          return i->second;
       for (auto &p : freevars)
         if (p.first == a)
           return p.second;

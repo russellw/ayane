@@ -4,14 +4,14 @@
 
 namespace {
 // estimate how many clauses a term will expand into, for the purpose of
-// deciding when subformulas need to be renamed; the answer could exceed 2^64,
+// deciding when subformulas need to be renamed; the answer could exceed 2^31,
 // but then we don't actually need the number, we only need to know whether it
 // went over the threshold
-const uint64_t many = 10;
-uint64_t nclauses(bool pol, w a);
+const int many = 10;
+int nclauses(bool pol, w a);
 
-uint64_t nclauses_and(bool pol, w a) {
-  uint64_t r = 0;
+int nclauses_and(bool pol, w a) {
+  int r = 0;
   for (auto i = beginp(a) + 1, e = endp(a); i != e; ++i) {
     r += nclauses(pol, *i);
     if (r >= many)
@@ -20,8 +20,8 @@ uint64_t nclauses_and(bool pol, w a) {
   return r;
 }
 
-uint64_t nclauses_or(bool pol, w a) {
-  uint64_t r = 1;
+int nclauses_or(bool pol, w a) {
+  int r = 1;
   for (auto i = beginp(a) + 1, e = endp(a); i != e; ++i) {
     r *= nclauses(pol, *i);
     if (r >= many)
@@ -30,7 +30,7 @@ uint64_t nclauses_or(bool pol, w a) {
   return r;
 }
 
-uint64_t nclauses(bool pol, w a) {
+int nclauses(bool pol, w a) {
   if ((a & 7) != a_compound)
     return 1;
   auto op = at(a, 0);
@@ -250,7 +250,7 @@ w distrib(w a) {
     // deep
     // also look for where there is going to be exponential blowup
     // and rename terms to avoid it
-    uint64_t product = 1;
+    int product = 1;
     vec<w> ands;
     for (auto i = beginp(a) + 1, e = endp(a); i != e; ++i) {
       auto b = distrib(*i);

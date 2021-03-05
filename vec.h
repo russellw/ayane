@@ -159,11 +159,4 @@ template <class T, w small = 4> struct vec {
     memmove(first, last, (end() - last) * sizeof(T));
     n -= last - first;
   }
-
-  // compare
-  bool operator==(const vec &x) {
-    if (n != x.n)
-      return 0;
-    return !memcmp(p, x.p, n * sizeof(T));
-  }
 };

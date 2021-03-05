@@ -53,7 +53,7 @@ inline bool isalpha1(char c) { return islower1(c) || isupper1(c); }
 const char *basename(const char *file);
 noret err(const char *msg);
 size_t fnv(const void *p, w n);
-void *mmalloc(w n);
+void *mmalloc(size_t n);
 void quote(char q, const char *s);
 void *xcalloc(size_t n, size_t size);
 void *xmalloc(size_t n);

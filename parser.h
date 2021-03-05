@@ -8,7 +8,7 @@ struct parser {
 
   // current token
   const char *tokstart;
-  w tok;
+  int tok;
   sym *toksym;
 
   parser(const char *file);

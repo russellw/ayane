@@ -1,9 +1,9 @@
-template <w cap = 300000000> class pool {
+template <size_t cap = 300000000> class pool {
   char *p;
   char v[cap];
 
 public:
-  void *alloc(w n) {
+  void *alloc(size_t n) {
     assert(!((w)p & 7));
     assert(0 <= n);
     n = n + 7 & ~(w)7;

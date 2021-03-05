@@ -77,7 +77,7 @@ size_t fnv(const void *p, w n) {
   return h;
 }
 
-void *mmalloc(w n) {
+void *mmalloc(size_t n) {
   // monotonic malloc, for memory that does not need to be freed until the
   // program exits
   n = n + 7 & ~7;

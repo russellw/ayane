@@ -13,7 +13,7 @@
 
 parser::parser(const char *file) : file(file) {
   char *s = 0;
-  w n = 0;
+  size_t n = 0;
   if (strcmp(file, "stdin")) {
     // read from file
     auto f = open(file, O_BINARY | O_RDONLY);
@@ -41,8 +41,8 @@ parser::parser(const char *file) : file(file) {
 #ifdef _WIN32
     _setmode(0, O_BINARY);
 #endif
-    const w chunk = 1 << 20;
-    w cap = 0;
+    const size_t chunk = 1 << 20;
+    size_t cap = 0;
 
     // stdin doesn't tell us in advance how much data there will be, so keep
     // reading chunks until done
@@ -85,7 +85,7 @@ parser::~parser() { free((void *)textstart); }
 
 noret parser::err(const char *msg, const char *ts) {
   // line number
-  w line = 1;
+  size_t line = 1;
   for (auto s = textstart; s != ts; ++s)
     if (*s == '\n')
       ++line;

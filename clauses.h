@@ -23,7 +23,7 @@ struct clause {
   // number of negative and total literals
   // the literals are laid out in an array, negative then positive
   uint16_t nn, n;
-  w np() { return n - nn; }
+  int np() { return n - nn; }
 
   // the majority of ways for a clause to be made, result in it deriving from
   // zero or one other clauses, but the majority of clauses will be made by the
@@ -43,7 +43,7 @@ extern unordered_map<const clause *, const char *> clausenames;
 
 // SORT
 const char *clausename(const clause *c);
-clause *formula(w infer, w a, clause *from = 0);
+clause *formula(int infer, w a, clause *from = 0);
 void init_clauses();
-clause *mkclause(w infer, clause *from = 0, clause *from1 = 0);
+clause *mkclause(int infer, clause *from = 0, clause *from1 = 0);
 ///

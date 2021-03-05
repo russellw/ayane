@@ -17,11 +17,11 @@ unordered_map<const clause *, const char *> clausenames;
 ///
 
 namespace {
-w cap = 0x1000;
-w count;
+size_t cap = 0x1000;
+size_t count;
 clause **entries = (clause **)xcalloc(cap, sizeof *entries);
 
-bool eq(const clause *c, const w *p, w nn, w n) {
+bool eq(const clause *c, const w *p, int nn, int n) {
   if (c->nn != nn)
     return 0;
   if (c->n != n)
@@ -29,7 +29,7 @@ bool eq(const clause *c, const w *p, w nn, w n) {
   return !memcmp(c->v, p, n * sizeof *p);
 }
 
-w slot(clause **entries, w cap, const w *p, w nn, w n) {
+size_t slot(clause **entries, w cap, const w *p, int nn, int n) {
   auto mask = cap - 1;
   auto i = XXH64(p, n * sizeof *p, nn) & mask;
   while (entries[i] && !eq(entries[i], p, nn, n))
@@ -60,7 +60,7 @@ const char *clausename(const clause *c) {
   return name ? name : "?";
 }
 
-clause *formula(w infer, w a, clause *from) {
+clause *formula(int infer, w a, clause *from) {
   auto r = (clause *)formulas.alloc(offsetof(clause, v) + sizeof a);
   memset(r, 0, offsetof(clause, v));
   r->fof = 1;
@@ -81,7 +81,7 @@ void init_clauses() {
   memset(entries, 0, cap * sizeof *entries);
 }
 
-clause *mkclause(w infer, clause *from, clause *from1) {
+clause *mkclause(int infer, clause *from, clause *from1) {
   // remove redundancy
   neg.erase(remove(neg.p, neg.end(), basic(b_true)), neg.end());
   pos.erase(remove(pos.p, pos.end(), basic(b_false)), pos.end());

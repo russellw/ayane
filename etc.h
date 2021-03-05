@@ -9,11 +9,11 @@ typedef intptr_t w;
 #ifdef DEBUG
 
 void stacktrace();
-bool assertfail(const char *file, w line, const char *s);
+bool assertfail(const char *file, int line, const char *s);
 #define assert(a) (a) || assertfail(__FILE__, __LINE__, #a)
 #define unreachable assert(0)
 #define debug(a)                                                               \
-  fprintf(stderr, "%s:%d: %s: %zx\n", __FILE__, __LINE__, #a, (w)a)
+  fprintf(stderr, "%s:%d: %s: %zx\n", __FILE__, __LINE__, #a, (size_t)a)
 
 #else
 
@@ -55,7 +55,7 @@ noret err(const char *msg);
 size_t fnv(const void *p, w n);
 void *mmalloc(w n);
 void quote(char q, const char *s);
-void *xcalloc(w n, w size);
-void *xmalloc(w n);
-void *xrealloc(void *p, w n);
+void *xcalloc(size_t n, size_t size);
+void *xmalloc(size_t n);
+void *xrealloc(void *p, size_t n);
 ///

@@ -32,8 +32,8 @@ void stacktrace() {
 #endif
 }
 
-bool assertfail(const char *file, w line, const char *s) {
-  fprintf(stderr, "%s:%zu: assert failed: %s\n", file, line, s);
+bool assertfail(const char *file, int line, const char *s) {
+  fprintf(stderr, "%s:%d: assert failed: %s\n", file, line, s);
   stacktrace();
   exit(1);
   // keep the compiler happy about the use of || in the assert macro
@@ -109,7 +109,7 @@ void quote(char q, const char *s) {
   putchar(q);
 }
 
-void *xcalloc(w n, w size) {
+void *xcalloc(size_t n, size_t size) {
   auto r = calloc(n, size);
   if (!r) {
     perror("calloc");
@@ -118,7 +118,7 @@ void *xcalloc(w n, w size) {
   return r;
 }
 
-void *xmalloc(w n) {
+void *xmalloc(size_t n) {
   auto r = malloc(n);
   if (!r) {
     perror("malloc");
@@ -130,7 +130,7 @@ void *xmalloc(w n) {
   return r;
 }
 
-void *xrealloc(void *p, w n) {
+void *xrealloc(void *p, size_t n) {
   auto r = realloc(p, n);
   if (!r) {
     perror("realloc");

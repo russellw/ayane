@@ -177,16 +177,16 @@ struct parser1 : parser {
     case '%': {
       text = strchr(s, '\n');
 #ifdef DEBUG
-      if (!expected) {
+      if (expected == szs::none) {
         string s1(s, text);
         smatch m;
         if (regex_match(s1, m, regex(R"(% Status\s*:\s*(\w+)\s*)"))) {
-          for (int i = 1; i != n_szs; ++i)
-            if (m[1] == szs[i]) {
-              expected = i;
+          for (int i = 1; i != (int)szs::max; ++i)
+            if (m[1] == szs_names[i]) {
+              expected = (szs)i;
               break;
             }
-          if (!expected)
+          if (expected == szs::none)
             err("unknown status");
         }
       }

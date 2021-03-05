@@ -2,7 +2,7 @@
 // stdafx.h must be first
 #include "main.h"
 
-const char *szs[] = {
+const char *szs_names[] = {
     0,
 #define X(s) #s,
 #include "szs.h"
@@ -16,14 +16,14 @@ vec<clause *> clauses;
 ///
 
 #ifdef DEBUG
-w expected;
+szs expected;
 #endif
 
 void init_problem() {
   clauses.n = 0;
   complete = 1;
 #ifdef DEBUG
-  expected = 0;
+  expected = szs::none;
 #endif
 }
 

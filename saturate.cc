@@ -351,7 +351,7 @@ void superposition() {
 }
 } // namespace
 
-w saturate() {
+szs saturate() {
   // passive clauses
   while (!passive.empty())
     passive.pop();
@@ -371,11 +371,11 @@ loop:
 
     // empty clause = derived false = unsatisfiable
     if (!g->n)
-      return s_Unsatisfiable;
+      return szs::Unsatisfiable;
 
     // are we out of time?
     if (deadline && time(0) >= deadline)
-      return s_Timeout;
+      return szs::Timeout;
 
     // alternate variables
     alts.init();
@@ -429,5 +429,5 @@ loop:
   // completeness of the prover on some trivial problems. however, if
   // completeness was lost for any reason, such as having to discard some
   // clauses because they were too big, then report failure
-  return complete ? s_Satisfiable : s_GaveUp;
+  return complete ? szs::Satisfiable : szs::GaveUp;
 }

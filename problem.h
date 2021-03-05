@@ -1,12 +1,12 @@
-enum {
-  s_none,
-#define X(s) s_##s,
+enum class szs {
+  none,
+#define X(s) s,
 #include "szs.h"
 #undef X
-  n_szs
+  max
 };
 
-extern const char *szs[];
+extern const char *szs_names[];
 
 // SORT
 extern bool complete;
@@ -15,7 +15,7 @@ extern vec<clause *> clauses;
 ///
 
 #ifdef DEBUG
-extern w expected;
+extern szs expected;
 #endif
 
 void init_problem();

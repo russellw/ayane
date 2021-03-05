@@ -45,7 +45,7 @@ w altvars(w a) {
     auto n = p->n;
     auto q = (compound *)alts.alloc(offsetof(compound, v) + n * sizeof a);
     q->n = n;
-    for (w i = 0; i != n; ++i)
+    for (int i = 0; i != n; ++i)
       q->v[i] = altvars(p->v[i]);
     return tag(q, a_compound);
   }
@@ -59,7 +59,7 @@ clause *altvars(clause *c) {
   auto n = c->n;
   auto d = (clause *)alts.alloc(offsetof(clause, v) + n * sizeof(w));
   memcpy(d, c, offsetof(clause, v));
-  for (w i = 0; i != n; ++i)
+  for (int i = 0; i != n; ++i)
     d->v[i] = altvars(c->v[i]);
   return d;
 }
@@ -74,7 +74,7 @@ w replace(w a) {
     auto n = size(a);
     auto r = (compound *)alts.alloc(offsetof(compound, v) + n * sizeof a);
     r->n = n;
-    for (w i = 0; i != n; ++i)
+    for (int i = 0; i != n; ++i)
       r->v[i] = replace(at(a, i));
     return tag(r, a_compound);
   }
@@ -98,7 +98,7 @@ w normvars(w a) {
     auto n = size(a);
     vec<w> v;
     v.resize(n);
-    for (w i = 0; i != n; ++i)
+    for (int i = 0; i != n; ++i)
       v[i] = normvars(at(a, i));
     return term(v);
   }

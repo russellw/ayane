@@ -38,7 +38,7 @@ bool match(w a, w b) {
     return 0;
   if (at(a, 0) != at(b, 0))
     return 0;
-  for (w i = 1; i != n; ++i)
+  for (int i = 1; i != n; ++i)
     if (!match(at(a, i), at(b, i)))
       return 0;
   return 1;
@@ -50,7 +50,7 @@ bool occurs(w a, w b) {
   switch (b & 7) {
   case a_compound: {
     auto n = size(b);
-    for (w i = 0; i != n; ++i)
+    for (int i = 0; i != n; ++i)
       if (occurs(a, at(b, i)))
         return 1;
     break;
@@ -115,7 +115,7 @@ bool unify1(w a, w b) {
     return 0;
   if (at(a, 0) != at(b, 0))
     return 0;
-  for (w i = 1; i != n; ++i)
+  for (int i = 1; i != n; ++i)
     if (!unify1(at(a, i), at(b, i)))
       return 0;
   return 1;

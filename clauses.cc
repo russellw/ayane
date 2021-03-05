@@ -41,7 +41,7 @@ void expand() {
   assert(ispow2(cap));
   auto cap1 = cap * 2;
   auto entries1 = (clause **)xcalloc(cap1, sizeof *entries);
-  for (w i = 0; i != cap; ++i) {
+  for (int i = 0; i != cap; ++i) {
     auto c = entries[i];
     if (c)
       entries1[slot(entries1, cap1, c->v, c->nn, c->n)] = c;

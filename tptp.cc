@@ -181,7 +181,7 @@ struct parser1 : parser {
         string s1(s, text);
         smatch m;
         if (regex_match(s1, m, regex(R"(% Status\s*:\s*(\w+)\s*)"))) {
-          for (w i = 1; i != n_szs; ++i)
+          for (int i = 1; i != n_szs; ++i)
             if (m[1] == szs[i]) {
               expected = i;
               break;
@@ -1002,7 +1002,7 @@ void infix(const char *op, w a, w parent) {
   auto parens = needparens(a, parent);
   if (parens)
     putchar('(');
-  for (w i = 1, n = size(a); i != n; ++i) {
+  for (int i = 1, n = size(a); i != n; ++i) {
     if (i > 1)
       printf("%s", op);
     prterm(at(a, i), a);
@@ -1013,7 +1013,7 @@ void infix(const char *op, w a, w parent) {
 
 void quant(char op, w a) {
   printf("%c[", op);
-  for (w i = 2, n = size(a); i != n; ++i) {
+  for (int i = 2, n = size(a); i != n; ++i) {
     if (i > 2)
       putchar(',');
     auto x = at(a, i);
@@ -1168,7 +1168,7 @@ void prterm(w a, w parent) {
       }
     prterm(at(a, 0), a);
     putchar('(');
-    for (w i = 1, n = size(a); i != n; ++i) {
+    for (int i = 1, n = size(a); i != n; ++i) {
       if (i > 1)
         putchar(',');
       prterm(at(a, i), a);
@@ -1228,7 +1228,7 @@ void prclause(clause *c) {
   printf(", ");
 
   // literals
-  for (w i = 0, n = c->n; i != n; ++i) {
+  for (int i = 0, n = c->n; i != n; ++i) {
     if (i)
       printf(" | ");
     if (i < c->nn)

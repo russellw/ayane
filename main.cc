@@ -266,7 +266,7 @@ int main(int argc, char **argv) {
     files.push_back("stdin");
   }
 
-  for (w i = 0; i != files.n; ++i) {
+  for (int i = 0; i != files.n; ++i) {
     auto file = files[i];
     auto bname = basename(file);
     auto start = time(0);

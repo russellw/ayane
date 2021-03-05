@@ -33,7 +33,7 @@ void expand() {
   assert(ispow2(cap));
   auto cap1 = cap * 2;
   auto entries1 = (sym **)xcalloc(cap1, sizeof *entries);
-  for (w i = 0; i != cap; ++i) {
+  for (int i = 0; i != cap; ++i) {
     auto s = entries[i];
     if (s)
       entries1[slot(entries1, cap1, s->v, strlen(s->v))] = s;
@@ -45,7 +45,7 @@ void expand() {
 
 struct init {
   init() {
-    for (w i = 0; i != nkeywords; ++i) {
+    for (int i = 0; i != nkeywords; ++i) {
       auto s = keywords + i;
       assert(strlen(s->v) < sizeof s->v);
       ++count;
@@ -95,7 +95,7 @@ template <class T> class bank {
     assert(ispow2(cap));
     auto cap1 = cap * 2;
     auto entries1 = (T **)xcalloc(cap1, sizeof *entries);
-    for (w i = 0; i != cap; ++i) {
+    for (int i = 0; i != cap; ++i) {
       auto x = entries[i];
       if (x)
         entries1[slot(entries1, cap1, *x)] = x;
@@ -153,7 +153,7 @@ void expand() {
   assert(ispow2(cap));
   auto cap1 = cap * 2;
   auto entries1 = (compound **)xcalloc(cap1, sizeof *entries);
-  for (w i = 0; i != cap; ++i) {
+  for (int i = 0; i != cap; ++i) {
     auto x = entries[i];
     if (x)
       entries1[slot(entries1, cap1, x->v, x->n)] = x;
@@ -274,7 +274,7 @@ void cktype(w t) {
     ckptr(p);
     auto n = p->n;
     assert(1 < n);
-    for (w i = 0; i != n; ++i)
+    for (int i = 0; i != n; ++i)
       cktype(p->v[i]);
     return;
   }
@@ -304,7 +304,7 @@ void ckterm(w a) {
     auto n = p->n;
     assert(1 < n);
     assert(n < 1000000);
-    for (w i = 1; i != n; ++i)
+    for (int i = 1; i != n; ++i)
       ckterm(p->v[i]);
     return;
   }

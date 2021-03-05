@@ -33,7 +33,7 @@ void expand() {
   assert(ispow2(cap));
   auto cap1 = cap * 2;
   auto entries1 = (uint16_t *)xcalloc(cap1, sizeof *entries);
-  for (w i = 0; i != cap; ++i) {
+  for (int i = 0; i != cap; ++i) {
     auto t = entries[i];
     if (t) {
       auto tp = tcompounds[t];
@@ -84,7 +84,7 @@ void defaulttype(w t, w a) {
     vec<uint16_t> v;
     v.resize(n);
     v[0] = t;
-    for (w i = 1; i != n; ++i)
+    for (int i = 1; i != n; ++i)
       v[i] = typeof(at(a, i));
     symp(op)->ft = type(v);
     break;

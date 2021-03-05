@@ -308,7 +308,7 @@ void descend(w x) {
     superpositionq(splice(d0, position.p));
   if ((x & 7) == a_compound)
     for (w j = 1, n = size(x); j != n; ++j) {
-      position.push(j);
+      position.push_back(j);
       descend(at(x, j));
       --position.n;
     }
@@ -403,7 +403,7 @@ loop:
 
     // add g to active clauses before inference because we will sometimes need
     // to combine g with (the alternate variable version of) itself
-    active.push(g);
+    active.push_back(g);
 
     // infer
     c = g1;

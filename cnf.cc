@@ -216,7 +216,7 @@ struct nnf {
       auto t = vartype(a);
       auto &j = newvars[t];
       auto b = var(t, j++);
-      freevars.push(make_pair(a, b));
+      freevars.push_back(make_pair(a, b));
       return b;
     }
     return pol ? a : term(basic(b_not), a);
@@ -241,7 +241,7 @@ w distrib(w a) {
         v.insert(v.end(), beginp(b) + 1, endp(b));
         continue;
       }
-      v.push(b);
+      v.push_back(b);
     }
     return term(v);
   }
@@ -257,12 +257,12 @@ w distrib(w a) {
       if ((b & 7) == a_compound && at(b, 0) == basic(b_and)) {
         auto m = size(b) - 1;
         if (product > 1 && m > 1 && product * m > 4) {
-          ands.push(rename_pos(b));
+          ands.push_back(rename_pos(b));
           continue;
         }
         product *= m;
       }
-      ands.push(b);
+      ands.push_back(b);
     }
 
     // a vector of indexes into and terms
@@ -293,7 +293,7 @@ w distrib(w a) {
           assert(!j[i]);
         or1[i + 1] = b;
       }
-      ors.push(term(or1));
+      ors.push_back(term(or1));
 
       // take the next slice
       for (w i = n;;) {

@@ -481,10 +481,10 @@ void test_term() {
   assert(a == term(basic(b_and), red, green));
 
   vec<w> v;
-  v.push(basic(b_and));
-  v.push(red);
-  v.push(green);
-  v.push(blue);
+  v.push_back(basic(b_and));
+  v.push_back(red);
+  v.push_back(green);
+  v.push_back(blue);
   a = term(v);
   assert(a == term(v));
 }
@@ -501,9 +501,9 @@ void test_type() {
   assert(bird != plane);
 
   vec<uint16_t> v;
-  v.push(t_bool);
-  v.push(t_int);
-  v.push(t_int);
+  v.push_back(t_bool);
+  v.push_back(t_int);
+  v.push_back(t_int);
   auto t_predicate_int_int = type(v);
   assert(t_predicate_int_int == type(v));
   assert(t_predicate_int_int & t_compound);
@@ -514,9 +514,9 @@ void test_type() {
   assert(t->v[2] == t_int);
 
   v.n = 0;
-  v.push(t_bool);
-  v.push(t_rat);
-  v.push(t_rat);
+  v.push_back(t_bool);
+  v.push_back(t_rat);
+  v.push_back(t_rat);
   auto t_predicate_rat_rat = type(v);
   assert(t_predicate_rat_rat == type(v));
   assert(t_predicate_rat_rat & t_compound);
@@ -643,15 +643,15 @@ void test_vec() {
   vec<char, 1> v;
   assert(v.n == 0);
 
-  v.push('a');
+  v.push_back('a');
   assert(v.n == 1);
   assert(v.back() == 'a');
 
-  v.push('b');
+  v.push_back('b');
   assert(v.n == 2);
   assert(v.back() == 'b');
 
-  v.push('c');
+  v.push_back('c');
   assert(v.n == 3);
   assert(v.back() == 'c');
 }

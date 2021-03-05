@@ -40,7 +40,7 @@ struct LineParser : parser {
       auto r = (char *)mmalloc(n + 1);
       memcpy(r, s, n);
       r[n] = 0;
-      v.push(r);
+      v.push_back(r);
       s = s1;
     }
   }
@@ -101,7 +101,7 @@ void parse(int argc, char **argv) {
 
     // file
     if (!strcmp(s, "-")) {
-      files.push("stdin");
+      files.push_back("stdin");
       continue;
     }
     if (*s != '-') {
@@ -111,7 +111,7 @@ void parse(int argc, char **argv) {
         parse(v.n, v.p);
         continue;
       }
-      files.push(s);
+      files.push_back(s);
       continue;
     }
 
@@ -263,7 +263,7 @@ int main(int argc, char **argv) {
       help();
       return 0;
     }
-    files.push("stdin");
+    files.push_back("stdin");
   }
 
   for (w i = 0; i != files.n; ++i) {

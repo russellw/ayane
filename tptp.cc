@@ -399,7 +399,7 @@ struct parser1 : parser {
     if (eat('(')) {
       vec<uint16_t> v(0);
       do
-        v.push(atomic_type());
+        v.push_back(atomic_type());
       while (eat('*'));
       expect(')');
       expect('>');
@@ -523,7 +523,7 @@ struct parser1 : parser {
   void args(vec<w> &v) {
     expect('(');
     do
-      v.push(atomic_term());
+      v.push_back(atomic_term());
     while (eat(','));
     expect(')');
   }
@@ -574,7 +574,7 @@ struct parser1 : parser {
         vec<w> clauses(basic(b_and));
         for (auto i = v.p, e = v.end(); i != e; ++i)
           for (auto j = v.p; j != i; ++j)
-            clauses.push(term(basic(b_not), term(basic(b_eq), *i, *j)));
+            clauses.push_back(term(basic(b_not), term(basic(b_eq), *i, *j)));
         return term(clauses);
       }
       case k_false:
@@ -658,7 +658,7 @@ struct parser1 : parser {
       if (!cnfmode)
         err("unknown variable", ts);
       auto x = var(t_individual, vars.n);
-      vars.push(make_pair(s, x));
+      vars.push_back(make_pair(s, x));
       return x;
     }
     case o_word: {
@@ -712,8 +712,8 @@ struct parser1 : parser {
       if (eat(':'))
         t = atomic_type();
       auto x = var(t, vars.n);
-      vars.push(make_pair(s, x));
-      v.push(x);
+      vars.push_back(make_pair(s, x));
+      v.push_back(x);
     } while (eat(','));
     expect(']');
     expect(':');
@@ -745,7 +745,7 @@ struct parser1 : parser {
     vec<w> v(op, a);
     auto o = tok;
     while (eat(o))
-      v.push(unitary_formula());
+      v.push_back(unitary_formula());
     return term(v);
   }
 

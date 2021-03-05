@@ -30,6 +30,6 @@ void init_problem() {
 clause *addclause(w infer) {
   auto c = mkclause(infer);
   if (c)
-    clauses.push(c);
+    clauses.push_back(c);
   return c;
 }

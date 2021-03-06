@@ -73,7 +73,7 @@ const char *ext(const char *file) {
   return s ? s + 1 : "";
 }
 
-unsigned long long optnum(int argc, char **argv, int &i, const char *optarg) {
+unsigned long long optnum(si argc, char **argv, si &i, const char *optarg) {
   if (!optarg) {
     if (i + 1 >= argc) {
       fprintf(stderr, "%s: expected argument\n", argv[i]);
@@ -95,8 +95,8 @@ unsigned long long optnum(int argc, char **argv, int &i, const char *optarg) {
   return r;
 }
 
-void parse(int argc, char **argv) {
-  for (int i = 0; i != argc; ++i) {
+void parse(si argc, char **argv) {
+  for (si i = 0; i != argc; ++i) {
     auto s = argv[i];
 
     // file
@@ -205,7 +205,7 @@ language getlang(const char *file) {
 void pr(si n, const char *caption) {
   auto s = buf + sizeof buf - 1;
   *s = 0;
-  int i = 0;
+  si i = 0;
   do {
     // extract a digit
     *--s = '0' + n % 10;
@@ -218,8 +218,8 @@ void pr(si n, const char *caption) {
     if (i % 3 == 0 && n)
       *--s = ',';
   } while (n);
-  int used = buf + sizeof buf - s;
-  int spaces = 15 - used;
+  si used = buf + sizeof buf - s;
+  si spaces = 15 - used;
   for (i = 0; i < spaces; ++i)
     putchar(' ');
   printf("%s  %s\n", s, caption);
@@ -264,7 +264,7 @@ int main(int argc, char **argv) {
     files.push_back("stdin");
   }
 
-  for (int i = 0; i != files.n; ++i) {
+  for (si i = 0; i != files.n; ++i) {
     auto file = files[i];
     auto bname = basename(file);
     auto start = time(0);
@@ -297,13 +297,13 @@ int main(int argc, char **argv) {
           r = szs::Theorem;
           break;
         }
-      printf("%% SZS status %s for %s\n", szsnames[(int)r], bname);
+      printf("%% SZS status %s for %s\n", szsnames[(si)r], bname);
 #ifdef DEBUG
       if (expected != szs::none && r != expected)
         switch (r) {
         case szs::CounterSatisfiable:
         case szs::Satisfiable:
-          printf("error: expected %s\n", szsnames[(int)expected]);
+          printf("error: expected %s\n", szsnames[(si)expected]);
           return 1;
         case szs::Theorem:
         case szs::Unsatisfiable:
@@ -315,7 +315,7 @@ int main(int argc, char **argv) {
       prmem();
       putchar('\n');
 #endif
-      printf("%d seconds\n", (int)(time(0) - start));
+      printf("%zu seconds\n", (si)(time(0) - start));
 #endif
     } catch (inappropriate e) {
       printf("%% SZS status Inappropriate for %s\n", bname);

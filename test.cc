@@ -38,7 +38,7 @@ w replace(w a) {
     auto n = size(a);
     vec<w> v;
     v.resize(n);
-    for (int i = 0; i != n; ++i)
+    for (si i = 0; i != n; ++i)
       v[i] = replace(at(a, i));
     return term(v);
   }

@@ -10,7 +10,7 @@ typedef intptr_t w;
 #ifdef DEBUG
 
 void stacktrace();
-bool assertfail(const char *file, int line, const char *s);
+bool assertfail(const char *file, si line, const char *s);
 #define assert(a) (a) || assertfail(__FILE__, __LINE__, #a)
 #define unreachable assert(0)
 #define debug(a)                                                               \
@@ -53,7 +53,7 @@ inline bool isalpha1(char c) { return islower1(c) || isupper1(c); }
 // SORT
 const char *basename(const char *file);
 noret err(const char *msg);
-size_t fnv(const void *p, int n);
+size_t fnv(const void *p, si n);
 void *mmalloc(si n);
 void quote(char q, const char *s);
 void *xcalloc(si n, si size);

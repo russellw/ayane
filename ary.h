@@ -1,10 +1,10 @@
-template <class T, int cap = 100000> struct ary {
+template <class T, si cap = 100000> struct ary {
   typedef T *iterator;
   typedef const T *const_iterator;
   typedef std::reverse_iterator<iterator> reverse_iterator;
   typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
-  int n;
+  si n;
   T p[cap];
 
   // construct/copy/destroy
@@ -29,23 +29,23 @@ template <class T, int cap = 100000> struct ary {
   const_reverse_iterator rend() const { return const_reverse_iterator(p); }
 
   // capacity
-  void reserve(int m) {
+  void reserve(si m) {
     if (m > cap)
       err("array overflow");
   }
 
-  void resize(int m) {
+  void resize(si m) {
     reserve(m);
     n = m;
   }
 
   // element access
-  T &operator[](int i) {
+  T &operator[](si i) {
     assert(i < n);
     return p[i];
   }
 
-  const T &operator[](int i) const {
+  const T &operator[](si i) const {
     assert(i < n);
     return p[i];
   }

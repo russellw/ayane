@@ -22,7 +22,7 @@ enum {
 
 char isword[0x100];
 #ifdef DEBUG
-int header;
+si header;
 #endif
 
 struct init {
@@ -71,7 +71,7 @@ struct parser1 : parser {
   void quote() {
     auto s = text;
     auto q = *s++;
-    int i = 0;
+    si i = 0;
     while (*s != q) {
       if (*s == '\\')
         ++s;
@@ -181,7 +181,7 @@ struct parser1 : parser {
         string s1(s, text);
         smatch m;
         if (regex_match(s1, m, regex(R"(% Status\s*:\s*(\w+)\s*)"))) {
-          for (int i = 1; i != (int)szs::max; ++i)
+          for (si i = 1; i != (si)szs::max; ++i)
             if (m[1] == szsnames[i]) {
               expected = (szs)i;
               break;
@@ -528,16 +528,16 @@ struct parser1 : parser {
     expect(')');
   }
 
-  void args(vec<w> &v, int arity) {
+  void args(vec<w> &v, si arity) {
     auto old = v.n;
     args(v);
     if (v.n - old == arity)
       return;
-    sprintf(buf, "expected %d arguments", arity);
+    sprintf(buf, "expected %zu arguments", arity);
     err(buf);
   }
 
-  w defined_functor(w op, int arity) {
+  w defined_functor(w op, si arity) {
     vec<w> v(op);
     args(v, arity);
     auto t = numtype(v[1]);
@@ -1002,7 +1002,7 @@ void infix(const char *op, w a, w parent) {
   auto parens = needparens(a, parent);
   if (parens)
     putchar('(');
-  for (int i = 1, n = size(a); i != n; ++i) {
+  for (si i = 1, n = size(a); i != n; ++i) {
     if (i > 1)
       printf("%s", op);
     prterm(at(a, i), a);
@@ -1013,7 +1013,7 @@ void infix(const char *op, w a, w parent) {
 
 void quant(char op, w a) {
   printf("%c[", op);
-  for (int i = 2, n = size(a); i != n; ++i) {
+  for (si i = 2, n = size(a); i != n; ++i) {
     if (i > 2)
       putchar(',');
     auto x = at(a, i);
@@ -1168,7 +1168,7 @@ void prterm(w a, w parent) {
       }
     prterm(at(a, 0), a);
     putchar('(');
-    for (int i = 1, n = size(a); i != n; ++i) {
+    for (si i = 1, n = size(a); i != n; ++i) {
       if (i > 1)
         putchar(',');
       prterm(at(a, i), a);
@@ -1205,7 +1205,7 @@ void prterm(w a, w parent) {
       putchar('A' + i);
       return;
     }
-    printf("Z%d", i - 25);
+    printf("Z%zu", i - 25);
     return;
   }
   }
@@ -1228,7 +1228,7 @@ void prclause(clause *c) {
   printf(", ");
 
   // literals
-  for (int i = 0, n = c->n; i != n; ++i) {
+  for (si i = 0, n = c->n; i != n; ++i) {
     if (i)
       printf(" | ");
     if (i < c->nn)
@@ -1244,7 +1244,7 @@ void prclause(clause *c) {
     quote('\'', basename(file));
     printf(",%s", clausename(c));
   } else if (*c->from) {
-    printf("inference(%s,[status(", infernames[(int)c->inf]);
+    printf("inference(%s,[status(", infernames[(si)c->inf]);
     if (*c->from == conjecture)
       printf("ceq");
     else

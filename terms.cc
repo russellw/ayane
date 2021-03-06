@@ -14,14 +14,14 @@ si cap = 0x100;
 si count;
 sym **entries = (sym **)xcalloc(cap, sizeof *entries);
 
-bool strmemeq(const char *s, const char *p, int n) {
+bool strmemeq(const char *s, const char *p, si n) {
   while (n--)
     if (*s++ != *p++)
       return 0;
   return !*s;
 }
 
-w slot(sym **entries, si cap, const char *p, int n) {
+w slot(sym **entries, si cap, const char *p, si n) {
   auto mask = cap - 1;
   auto i = fnv(p, n) & mask;
   while (entries[i] && !strmemeq(entries[i]->v, p, n))
@@ -33,7 +33,7 @@ void expand() {
   assert(ispow2(cap));
   auto cap1 = cap * 2;
   auto entries1 = (sym **)xcalloc(cap1, sizeof *entries);
-  for (int i = 0; i != cap; ++i) {
+  for (si i = 0; i != cap; ++i) {
     auto s = entries[i];
     if (s)
       entries1[slot(entries1, cap1, s->v, strlen(s->v))] = s;
@@ -45,7 +45,7 @@ void expand() {
 
 struct init {
   init() {
-    for (int i = 0; i != nkeywords; ++i) {
+    for (si i = 0; i != nkeywords; ++i) {
       auto s = keywords + i;
       assert(strlen(s->v) < sizeof s->v);
       ++count;
@@ -57,7 +57,7 @@ struct init {
   }
 } init1;
 
-sym *store(const char *s, int n) {
+sym *store(const char *s, si n) {
   auto r = (sym *)mmalloc(offsetof(sym, v) + n + 1);
   memset(r, 0, offsetof(sym, v));
   memcpy(r->v, s, n);
@@ -65,7 +65,7 @@ sym *store(const char *s, int n) {
   return r;
 }
 
-sym *put(const char *p, int n) {
+sym *put(const char *p, si n) {
   auto i = slot(entries, cap, p, n);
   if (entries[i])
     return entries[i];
@@ -135,13 +135,13 @@ si cap = 0x1000;
 si count;
 compound **entries = (compound **)xcalloc(cap, sizeof *entries);
 
-bool eq(const compound *x, const w *p, int n) {
+bool eq(const compound *x, const w *p, si n) {
   if (x->n != n)
     return 0;
   return !memcmp(x->v, p, n * sizeof *p);
 }
 
-w slot(compound **entries, si cap, const w *p, int n) {
+w slot(compound **entries, si cap, const w *p, si n) {
   auto mask = cap - 1;
   auto i = XXH64(p, n * sizeof *p, 0) & mask;
   while (entries[i] && !eq(entries[i], p, n))
@@ -163,14 +163,14 @@ void expand() {
   entries = entries1;
 }
 
-compound *store(const w *p, int n) {
+compound *store(const w *p, si n) {
   auto r = (compound *)xmalloc(offsetof(compound, v) + n * sizeof *p);
   r->n = n;
   memcpy(r->v, p, n * sizeof *p);
   return r;
 }
 
-w put(const w *p, int n) {
+w put(const w *p, si n) {
   auto i = slot(entries, cap, p, n);
   if (entries[i])
     return tag(entries[i], a_compound);
@@ -233,7 +233,7 @@ void init_terms() {
 
 w int1(Int &x) { return tag(nums::ints.put(x), a_int); }
 
-sym *intern(const char *s, int n) { return syms::put(s, n); }
+sym *intern(const char *s, si n) { return syms::put(s, n); }
 
 w rat(Rat &x) { return tag(nums::rats.put(x), a_rat); }
 
@@ -274,7 +274,7 @@ void cktype(w t) {
     ckptr(p);
     auto n = p->n;
     assert(1 < n);
-    for (int i = 0; i != n; ++i)
+    for (si i = 0; i != n; ++i)
       cktype(p->v[i]);
     return;
   }
@@ -304,7 +304,7 @@ void ckterm(w a) {
     auto n = p->n;
     assert(1 < n);
     assert(n < 1000000);
-    for (int i = 1; i != n; ++i)
+    for (si i = 1; i != n; ++i)
       ckterm(p->v[i]);
     return;
   }

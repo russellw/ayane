@@ -20,7 +20,7 @@ si cap = 0x1000;
 si count;
 clause **entries = (clause **)xcalloc(cap, sizeof *entries);
 
-bool eq(const clause *c, const w *p, int nn, int n) {
+bool eq(const clause *c, const w *p, si nn, si n) {
   if (c->nn != nn)
     return 0;
   if (c->n != n)
@@ -28,7 +28,7 @@ bool eq(const clause *c, const w *p, int nn, int n) {
   return !memcmp(c->v, p, n * sizeof *p);
 }
 
-si slot(clause **entries, si cap, const w *p, int nn, int n) {
+si slot(clause **entries, si cap, const w *p, si nn, si n) {
   auto mask = cap - 1;
   auto i = XXH64(p, n * sizeof *p, nn) & mask;
   while (entries[i] && !eq(entries[i], p, nn, n))
@@ -40,7 +40,7 @@ void expand() {
   assert(ispow2(cap));
   auto cap1 = cap * 2;
   auto entries1 = (clause **)xcalloc(cap1, sizeof *entries);
-  for (int i = 0; i != cap; ++i) {
+  for (si i = 0; i != cap; ++i) {
     auto c = entries[i];
     if (c)
       entries1[slot(entries1, cap1, c->v, c->nn, c->n)] = c;

@@ -10,18 +10,18 @@ namespace {
 // a variable to be read without an extra memory access. compound types are
 // therefore tracked with an unusual kind of memory bank in which entries are
 // 16-bit words rather than pointers
-int atoms = nbasictypes;
+si atoms = nbasictypes;
 
-int cap = 0x10;
+si cap = 0x10;
 uint16_t *entries = (uint16_t *)xcalloc(cap, sizeof *entries);
 
-bool eq(const tcompound *t, const uint16_t *p, int n) {
+bool eq(const tcompound *t, const uint16_t *p, si n) {
   if (t->n != n)
     return 0;
   return !memcmp(t->v, p, n * sizeof *p);
 }
 
-int slot(uint16_t *entries, int cap, const uint16_t *p, int n) {
+si slot(uint16_t *entries, si cap, const uint16_t *p, si n) {
   auto mask = cap - 1;
   auto i = fnv(p, n * sizeof *p) & mask;
   while (entries[i] && !eq(tcompounds[entries[i]], p, n))
@@ -33,7 +33,7 @@ void expand() {
   assert(ispow2(cap));
   auto cap1 = cap * 2;
   auto entries1 = (uint16_t *)xcalloc(cap1, sizeof *entries);
-  for (int i = 0; i != cap; ++i) {
+  for (si i = 0; i != cap; ++i) {
     auto t = entries[i];
     if (t) {
       auto tp = tcompounds[t];
@@ -45,14 +45,14 @@ void expand() {
   entries = entries1;
 }
 
-tcompound *store(const uint16_t *p, int n) {
+tcompound *store(const uint16_t *p, si n) {
   auto r = (tcompound *)mmalloc(offsetof(tcompound, v) + n * sizeof *p);
   r->n = n;
   memcpy(r->v, p, n * sizeof *p);
   return r;
 }
 
-w put(const uint16_t *p, int n) {
+w put(const uint16_t *p, si n) {
   auto i = slot(entries, cap, p, n);
   if (entries[i])
     return entries[i] | t_compound;
@@ -84,7 +84,7 @@ void defaulttype(w t, w a) {
     vec<uint16_t> v;
     v.resize(n);
     v[0] = t;
-    for (int i = 1; i != n; ++i)
+    for (si i = 1; i != n; ++i)
       v[i] = typeof(at(a, i));
     symp(op)->ft = type(v);
     break;

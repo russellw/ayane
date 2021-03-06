@@ -21,7 +21,7 @@ void stacktrace() {
   symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
   IMAGEHLP_LINE64 location;
   location.SizeOfStruct = sizeof location;
-  for (int i = 0; i != nframes; ++i) {
+  for (si i = 0; i != nframes; ++i) {
     auto address = (DWORD64)(stack[i]);
     SymFromAddr(process, address, 0, symbol);
     DWORD displacement;
@@ -32,8 +32,8 @@ void stacktrace() {
 #endif
 }
 
-bool assertfail(const char *file, int line, const char *s) {
-  fprintf(stderr, "%s:%d: assert failed: %s\n", file, line, s);
+bool assertfail(const char *file, si line, const char *s) {
+  fprintf(stderr, "%s:%zu: assert failed: %s\n", file, line, s);
   stacktrace();
   exit(1);
   // keep the compiler happy about the use of || in the assert macro
@@ -65,7 +65,7 @@ noret err(const char *msg) {
   exit(1);
 }
 
-size_t fnv(const void *p, int n) {
+size_t fnv(const void *p, si n) {
   // fowler-noll-vo-1a is slower than more sophisticated hash algorithms for
   // large chunks of data, but faster for tiny ones, so it still sees use
   auto p1 = (const char *)p;

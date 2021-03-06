@@ -7,11 +7,11 @@ namespace {
 // deciding when subformulas need to be renamed; the answer could exceed 2^31,
 // but then we don't actually need the number, we only need to know whether it
 // went over the threshold
-const int many = 10;
-int nclauses(bool pol, w a);
+const si many = 10;
+si nclauses(bool pol, w a);
 
-int nclauses_and(bool pol, w a) {
-  int r = 0;
+si nclauses_and(bool pol, w a) {
+  si r = 0;
   for (auto i = beginp(a) + 1, e = endp(a); i != e; ++i) {
     r += nclauses(pol, *i);
     if (r >= many)
@@ -20,8 +20,8 @@ int nclauses_and(bool pol, w a) {
   return r;
 }
 
-int nclauses_or(bool pol, w a) {
-  int r = 1;
+si nclauses_or(bool pol, w a) {
+  si r = 1;
   for (auto i = beginp(a) + 1, e = endp(a); i != e; ++i) {
     r *= nclauses(pol, *i);
     if (r >= many)
@@ -30,7 +30,7 @@ int nclauses_or(bool pol, w a) {
   return r;
 }
 
-int nclauses(bool pol, w a) {
+si nclauses(bool pol, w a) {
   if ((a & 7) != a_compound)
     return 1;
   auto op = at(a, 0);
@@ -85,7 +85,7 @@ w skolemize(w rt) {
   vec<uint16_t> t;
   t.resize(freevars.n + 1);
   t[0] = rt;
-  for (int i = 0; i != freevars.n; ++i)
+  for (si i = 0; i != freevars.n; ++i)
     t[i + 1] = vartype(freevars[i]);
 
   // compound
@@ -95,7 +95,7 @@ w skolemize(w rt) {
 
 w skolemize(w rt, const vec<pair<w, w>> &u) {
   freevars.resize(u.n);
-  for (int i = 0; i != u.n; ++i)
+  for (si i = 0; i != u.n; ++i)
     freevars[i] = u[i].second;
   return skolemize(rt);
 }
@@ -133,7 +133,7 @@ struct nnf {
     vec<w> v;
     v.resize(n);
     v[0] = op;
-    for (int i = 1; i != n; ++i)
+    for (si i = 1; i != n; ++i)
       v[i] = convert(pol, at(a, i));
     return term(v);
   }
@@ -142,7 +142,7 @@ struct nnf {
     auto n = size(a);
     auto old = allvars.n;
     allvars.resize(old + n - 2);
-    for (int i = 2; i != n; ++i) {
+    for (si i = 2; i != n; ++i) {
       auto t = vartype(at(a, i));
       auto &j = newvars[t];
       allvars[old + i - 2] = make_pair(at(a, i), var(t, j++));
@@ -156,7 +156,7 @@ struct nnf {
     auto n = size(a);
     auto old = existsvars.n;
     existsvars.resize(old + n - 2);
-    for (int i = 2; i != n; ++i)
+    for (si i = 2; i != n; ++i)
       existsvars[old + i - 2] =
           make_pair(at(a, i), skolemize(vartype(at(a, i)), allvars));
     a = convert(pol, at(a, 1));
@@ -250,7 +250,7 @@ w distrib(w a) {
     // deep
     // also look for where there is going to be exponential blowup
     // and rename terms to avoid it
-    int product = 1;
+    si product = 1;
     vec<w> ands;
     for (auto i = beginp(a) + 1, e = endp(a); i != e; ++i) {
       auto b = distrib(*i);
@@ -269,7 +269,7 @@ w distrib(w a) {
     // that will provide a slice through the and arguments
     // to create a single or term
     auto n = ands.n;
-    vec<int> j;
+    vec<si> j;
     j.resize(n);
     memset(j.p, 0, n * sizeof *j.p);
 
@@ -285,7 +285,7 @@ w distrib(w a) {
     // cartesian product of ands
     for (;;) {
       // make another or that takes a slice through the and args
-      for (int i = 0; i != n; ++i) {
+      for (si i = 0; i != n; ++i) {
         auto b = ands[i];
         if ((b & 7) == a_compound && at(b, 0) == basic(b_and))
           b = at(b, j[i] + 1);
@@ -296,7 +296,7 @@ w distrib(w a) {
       ors.push_back(term(or1));
 
       // take the next slice
-      for (int i = n;;) {
+      for (si i = n;;) {
         // if we have done all the slices, return and of ors
         if (!i)
           return term(ors);

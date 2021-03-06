@@ -89,7 +89,7 @@ w skolemize(w rt) {
     t[i + 1] = vartype(freevars[i]);
 
   // compound
-  freevars.insert(freevars.p, skolem(type(t)));
+  freevars.insert(freevars.p, skolem(mktype(t)));
   return term(freevars);
 }
 

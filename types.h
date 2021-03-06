@@ -24,10 +24,10 @@ inline tcompound *tcompoundp(w t) {
 
 // SORT
 void defaulttype(w t, w a);
+w mktype(const vec<uint16_t> &v);
+w mktype(sym *name);
+w mktype(w r, w t1);
 w numtype(w a);
 void requiretype(w t, w a);
-w type(const vec<uint16_t> &v);
-w type(sym *name);
-w type(w r, w t1);
 w typeof(w a);
 ///

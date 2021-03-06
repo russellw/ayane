@@ -86,7 +86,7 @@ void defaulttype(w t, w a) {
     v[0] = t;
     for (si i = 1; i != n; ++i)
       v[i] = typeof(at(a, i));
-    symp(op)->ft = type(v);
+    symp(op)->ft = mktype(v);
     break;
   }
   case a_sym:
@@ -94,6 +94,23 @@ void defaulttype(w t, w a) {
       symp(a)->ft = t;
     break;
   }
+}
+
+w mktype(const vec<uint16_t> &v) { return put(v.p, v.n); }
+
+w mktype(sym *name) {
+  if (name->t)
+    return name->t;
+  if (atoms >= t_compound)
+    err("too many atomic types");
+  return name->t = atoms++;
+}
+
+w mktype(w r, w t1) {
+  uint16_t v[2];
+  v[0] = r;
+  v[1] = t1;
+  return put(v, sizeof v / sizeof *v);
 }
 
 w numtype(w a) {
@@ -111,23 +128,6 @@ void requiretype(w t, w a) {
   defaulttype(t, a);
   if (t != typeof(a))
     throw "type mismatch";
-}
-
-w type(const vec<uint16_t> &v) { return put(v.p, v.n); }
-
-w type(sym *name) {
-  if (name->t)
-    return name->t;
-  if (atoms >= t_compound)
-    err("too many atomic types");
-  return name->t = atoms++;
-}
-
-w type(w r, w t1) {
-  uint16_t v[2];
-  v[0] = r;
-  v[1] = t1;
-  return put(v, sizeof v / sizeof *v);
 }
 
 w typeof(w a) {

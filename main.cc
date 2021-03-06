@@ -299,13 +299,13 @@ int main(int argc, char **argv) {
           r = szs::Theorem;
           break;
         }
-      printf("%% SZS status %s for %s\n", szs_names[(int)r], bname);
+      printf("%% SZS status %s for %s\n", szsnames[(int)r], bname);
 #ifdef DEBUG
       if (expected != szs::none && r != expected)
         switch (r) {
         case szs::CounterSatisfiable:
         case szs::Satisfiable:
-          printf("error: expected %s\n", szs_names[(int)expected]);
+          printf("error: expected %s\n", szsnames[(int)expected]);
           return 1;
         case szs::Theorem:
         case szs::Unsatisfiable:

@@ -6,7 +6,7 @@ enum class szs {
   max
 };
 
-extern const char *szs_names[];
+extern const char *szsnames[];
 
 // SORT
 extern bool complete;

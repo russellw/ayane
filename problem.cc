@@ -2,7 +2,7 @@
 // stdafx.h must be first
 #include "main.h"
 
-const char *szs_names[] = {
+const char *szsnames[] = {
     0,
 #define X(s) #s,
 #include "szs.h"

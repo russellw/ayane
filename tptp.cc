@@ -182,7 +182,7 @@ struct parser1 : parser {
         smatch m;
         if (regex_match(s1, m, regex(R"(% Status\s*:\s*(\w+)\s*)"))) {
           for (int i = 1; i != (int)szs::max; ++i)
-            if (m[1] == szs_names[i]) {
+            if (m[1] == szsnames[i]) {
               expected = (szs)i;
               break;
             }

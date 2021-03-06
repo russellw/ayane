@@ -47,9 +47,9 @@ struct LineParser : parser {
 };
 
 // SORT
+time_t timelimit;
 vec<const char *> files;
 w lang;
-w timelimit;
 ///
 
 void help() {
@@ -317,7 +317,7 @@ int main(int argc, char **argv) {
       prmem();
       putchar('\n');
 #endif
-      printf("%zu seconds\n", (w)(time(0) - start));
+      printf("%d seconds\n", (int)(time(0) - start));
 #endif
     } catch (inappropriate e) {
       printf("%% SZS status Inappropriate for %s\n", bname);

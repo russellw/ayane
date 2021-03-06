@@ -349,7 +349,7 @@ void toclause(w a) {
   assert(!neg.n);
   assert(!pos.n);
   toliterals(a);
-  addclause(i_cnf);
+  addclause(infer::cnf);
 }
 
 w cnf1(w a) {

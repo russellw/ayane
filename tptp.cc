@@ -848,7 +848,7 @@ struct parser1 : parser {
             break;
 
           // clause
-          auto c = addclause(0);
+          auto c = addclause(infer::none);
           clausefiles[c] = file;
           clausenames[c] = forname->v;
           break;
@@ -905,12 +905,12 @@ struct parser1 : parser {
           if (!sel.count(forname))
             break;
 
-          auto f = formula(0, a);
+          auto f = formula(infer::none, a);
           clausefiles[f] = file;
           clausenames[f] = forname->v;
           if (role == k_conjecture) {
             a = term(basic(b_not), a);
-            f = formula(i_negate, a, f);
+            f = formula(infer::negate, a, f);
             conjecture = f;
           }
 
@@ -1221,7 +1221,7 @@ void prclause(clause *c) {
   // role
   if (c == conjecture)
     printf("conjecture");
-  else if (c->infer == i_negate)
+  else if (c->inf == infer::negate)
     printf("negated_conjecture");
   else
     printf("plain");
@@ -1244,7 +1244,7 @@ void prclause(clause *c) {
     quote('\'', basename(file));
     printf(",%s", clausename(c));
   } else if (*c->from) {
-    printf("inference(%s,[status(", infernames[c->infer]);
+    printf("inference(%s,[status(", infernames[(int)c->inf]);
     if (*c->from == conjecture)
       printf("ceq");
     else

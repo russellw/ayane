@@ -19,4 +19,4 @@ extern szs expected;
 #endif
 
 void init_problem();
-clause *addclause(w infer);
+clause *addclause(infer inf);

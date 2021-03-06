@@ -60,11 +60,11 @@ const char *clausename(const clause *c) {
   return name ? name : "?";
 }
 
-clause *formula(int infer, w a, clause *from) {
+clause *formula(infer inf, w a, clause *from) {
   auto r = (clause *)formulas.alloc(offsetof(clause, v) + sizeof a);
   memset(r, 0, offsetof(clause, v));
   r->fof = 1;
-  r->infer = infer;
+  r->inf = inf;
   r->n = 1;
   r->from[0] = from;
   r->v[0] = a;
@@ -81,7 +81,7 @@ void init_clauses() {
   memset(entries, 0, cap * sizeof *entries);
 }
 
-clause *mkclause(int infer, clause *from, clause *from1) {
+clause *mkclause(infer inf, clause *from, clause *from1) {
   // remove redundancy
   neg.erase(remove(neg.p, neg.end(), basic(b_true)), neg.end());
   pos.erase(remove(pos.p, pos.end(), basic(b_false)), pos.end());
@@ -147,7 +147,7 @@ clause *mkclause(int infer, clause *from, clause *from1) {
   // make new clause
   auto c = entries[i] = (clause *)xmalloc(offsetof(clause, v) + n * sizeof *p);
   memset(c, 0, offsetof(clause, v));
-  c->infer = infer;
+  c->inf = inf;
   c->nn = nn;
   c->n = n;
   c->from[0] = from;

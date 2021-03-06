@@ -1,6 +1,6 @@
-enum {
-  i_none,
-#define X(s) i_##s,
+enum class infer : char {
+  none,
+#define X(s) s,
 #include "infer.h"
 #undef X
 };
@@ -18,7 +18,7 @@ struct clause {
   bool subsumed;
 
   // which inference rule derived it?
-  uint8_t infer;
+  infer inf;
 
   // number of negative and total literals
   // the literals are laid out in an array, negative then positive
@@ -43,7 +43,7 @@ extern unordered_map<const clause *, const char *> clausenames;
 
 // SORT
 const char *clausename(const clause *c);
-clause *formula(int infer, w a, clause *from = 0);
+clause *formula(infer inf, w a, clause *from = 0);
 void init_clauses();
-clause *mkclause(int infer, clause *from = 0, clause *from1 = 0);
+clause *mkclause(infer inf, clause *from = 0, clause *from1 = 0);
 ///

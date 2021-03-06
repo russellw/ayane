@@ -124,9 +124,9 @@ void normvars() {
 
 // make a clause and if successful (not a tautology or duplicate) add it to the
 // passive queue
-void qclause(w infer) {
+void qclause(infer inf) {
   normvars();
-  auto c = mkclause(infer);
+  auto c = mkclause(inf);
   if (c)
     passive.push(c);
 }
@@ -160,7 +160,7 @@ void resolveq() {
   for (auto i = c->v + c->nn, e = c->v + c->n; i != e; ++i)
     pos.push(replace(*i));
 
-  qclause(0);
+  qclause(infer::resolve);
 }
 
 // for each negative equation
@@ -217,7 +217,7 @@ void factorq() {
     if (i != di)
       pos.push(replace(*i));
 
-  qclause(0);
+  qclause(infer::factor);
 }
 
 // for each positive equation (both directions) again
@@ -285,7 +285,7 @@ void superpositionq(w d0c1) {
   auto &v = di < (d->v + d->nn) ? neg : pos;
   v.push(equate(replace(d0c1), replace(d1)));
 
-  qclause(0);
+  qclause(infer::sp);
 }
 
 vec<w> position;

@@ -65,18 +65,18 @@ void test_clause() {
   // a simple clause, x!=y
   neg.n = pos.n = 0;
   neg.push(term(basic(b_eq), x, y));
-  auto c = mkclause(0);
+  auto c = mkclause(infer::none);
 
   // duplicate returns null
   neg.n = pos.n = 0;
   neg.push(term(basic(b_eq), x, y));
-  auto d = mkclause(0);
+  auto d = mkclause(infer::none);
   assert(!d);
 
   // the duplicate check distinguishes between negative and positive literals
   neg.n = pos.n = 0;
   pos.push(term(basic(b_eq), x, y));
-  d = mkclause(0);
+  d = mkclause(infer::none);
   assert(c != d);
 }
 

@@ -27,8 +27,8 @@ void init_problem() {
 #endif
 }
 
-clause *addclause(w infer) {
-  auto c = mkclause(infer);
+clause *addclause(infer inf) {
+  auto c = mkclause(inf);
   if (c)
     clauses.push_back(c);
   return c;

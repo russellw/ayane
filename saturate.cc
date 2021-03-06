@@ -4,10 +4,10 @@
 
 namespace {
 // passive clauses are stored in a priority queue with smaller clauses first
-size_t weight(w a) {
+si weight(w a) {
   if ((a & 7) == a_compound) {
     auto p = compoundp(a);
-    size_t n = 0;
+    si n = 0;
     for (auto i = p->v, e = p->v + p->n; i != e; ++i)
       n += weight(*i);
     return n;
@@ -15,8 +15,8 @@ size_t weight(w a) {
   return 1;
 }
 
-size_t weight(clause *c) {
-  size_t n = 0;
+si weight(clause *c) {
+  si n = 0;
   for (auto i = c->v, e = c->v + c->n; i != e; ++i)
     n += weight(*i);
   return n;

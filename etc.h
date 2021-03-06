@@ -4,6 +4,7 @@
 #define noret void
 #endif
 
+typedef intptr_t si;
 typedef intptr_t w;
 
 #ifdef DEBUG
@@ -13,7 +14,7 @@ bool assertfail(const char *file, int line, const char *s);
 #define assert(a) (a) || assertfail(__FILE__, __LINE__, #a)
 #define unreachable assert(0)
 #define debug(a)                                                               \
-  fprintf(stderr, "%s:%d: %s: %zx\n", __FILE__, __LINE__, #a, (size_t)a)
+  fprintf(stderr, "%s:%d: %s: %zx\n", __FILE__, __LINE__, #a, (si)a)
 
 #else
 
@@ -36,7 +37,7 @@ inline bool isdigit1(char c) { return '0' <= c && c <= '9'; }
 
 inline bool islower1(char c) { return 'a' <= c && c <= 'z'; }
 
-inline bool ispow2(size_t n) {
+inline bool ispow2(si n) {
   // doesn't work for 0
   assert(n);
   return !(n & n - 1);
@@ -53,9 +54,9 @@ inline bool isalpha1(char c) { return islower1(c) || isupper1(c); }
 const char *basename(const char *file);
 noret err(const char *msg);
 size_t fnv(const void *p, int n);
-void *mmalloc(size_t n);
+void *mmalloc(si n);
 void quote(char q, const char *s);
-void *xcalloc(size_t n, size_t size);
-void *xmalloc(size_t n);
-void *xrealloc(void *p, size_t n);
+void *xcalloc(si n, si size);
+void *xmalloc(si n);
+void *xrealloc(void *p, si n);
 ///

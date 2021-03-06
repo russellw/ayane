@@ -16,8 +16,8 @@ unordered_map<const clause *, const char *> clausenames;
 ///
 
 namespace {
-size_t cap = 0x1000;
-size_t count;
+si cap = 0x1000;
+si count;
 clause **entries = (clause **)xcalloc(cap, sizeof *entries);
 
 bool eq(const clause *c, const w *p, int nn, int n) {
@@ -28,7 +28,7 @@ bool eq(const clause *c, const w *p, int nn, int n) {
   return !memcmp(c->v, p, n * sizeof *p);
 }
 
-size_t slot(clause **entries, size_t cap, const w *p, int nn, int n) {
+si slot(clause **entries, si cap, const w *p, int nn, int n) {
   auto mask = cap - 1;
   auto i = XXH64(p, n * sizeof *p, nn) & mask;
   while (entries[i] && !eq(entries[i], p, nn, n))

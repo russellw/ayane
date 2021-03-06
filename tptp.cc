@@ -39,7 +39,7 @@ struct selection : unordered_set<sym *> {
 
   explicit selection(bool all) : all(all) {}
 
-  size_t count(sym *s) const {
+  si count(sym *s) const {
     if (all)
       return 1;
     return unordered_set<sym *>::count(s);
@@ -455,7 +455,7 @@ struct parser1 : parser {
     // decimal part
     mpz_t mantissa;
     mpz_init(mantissa);
-    size_t scale = 0;
+    si scale = 0;
     if (*p == '.') {
       ++p;
       q = p;
@@ -485,7 +485,7 @@ struct parser1 : parser {
 
     // exponent
     bool exponentsign = 0;
-    size_t exponent = 0;
+    si exponent = 0;
     if (*p == 'e' || *p == 'e') {
       ++p;
       switch (*p) {
@@ -872,7 +872,7 @@ struct parser1 : parser {
 
           // type
           if (role == k_type) {
-            size_t parens = 0;
+            si parens = 0;
             while (eat('('))
               ++parens;
             auto s = name();

@@ -4,14 +4,14 @@
 
 // SORT
 ary<w> freevars;
-size_t skolemi;
+si skolemi;
 ///
 
 namespace syms {
 // must be a power of 2, and large enough to hold the largest collection of
 // entries that will be loaded at initialization time
-size_t cap = 0x100;
-size_t count;
+si cap = 0x100;
+si count;
 sym **entries = (sym **)xcalloc(cap, sizeof *entries);
 
 bool strmemeq(const char *s, const char *p, int n) {
@@ -21,7 +21,7 @@ bool strmemeq(const char *s, const char *p, int n) {
   return !*s;
 }
 
-w slot(sym **entries, size_t cap, const char *p, int n) {
+w slot(sym **entries, si cap, const char *p, int n) {
   auto mask = cap - 1;
   auto i = fnv(p, n) & mask;
   while (entries[i] && !strmemeq(entries[i]->v, p, n))
@@ -79,11 +79,11 @@ sym *put(const char *p, int n) {
 
 namespace nums {
 template <class T> class bank {
-  size_t cap = 0x10;
-  size_t count;
+  si cap = 0x10;
+  si count;
   T **entries = (T **)xcalloc(cap, sizeof *entries);
 
-  size_t slot(T **entries, size_t cap, const T &x) {
+  si slot(T **entries, si cap, const T &x) {
     auto mask = cap - 1;
     auto i = x.hash() & mask;
     while (entries[i] && !entries[i]->eq(x))
@@ -95,7 +95,7 @@ template <class T> class bank {
     assert(ispow2(cap));
     auto cap1 = cap * 2;
     auto entries1 = (T **)xcalloc(cap1, sizeof *entries);
-    for (size_t i = 0; i != cap; ++i) {
+    for (si i = 0; i != cap; ++i) {
       auto x = entries[i];
       if (x)
         entries1[slot(entries1, cap1, *x)] = x;
@@ -131,8 +131,8 @@ bank<Rat> rats;
 } // namespace nums
 
 namespace compounds {
-size_t cap = 0x1000;
-size_t count;
+si cap = 0x1000;
+si count;
 compound **entries = (compound **)xcalloc(cap, sizeof *entries);
 
 bool eq(const compound *x, const w *p, int n) {
@@ -141,7 +141,7 @@ bool eq(const compound *x, const w *p, int n) {
   return !memcmp(x->v, p, n * sizeof *p);
 }
 
-w slot(compound **entries, size_t cap, const w *p, int n) {
+w slot(compound **entries, si cap, const w *p, int n) {
   auto mask = cap - 1;
   auto i = XXH64(p, n * sizeof *p, 0) & mask;
   while (entries[i] && !eq(entries[i], p, n))
@@ -153,7 +153,7 @@ void expand() {
   assert(ispow2(cap));
   auto cap1 = cap * 2;
   auto entries1 = (compound **)xcalloc(cap1, sizeof *entries);
-  for (size_t i = 0; i != cap; ++i) {
+  for (si i = 0; i != cap; ++i) {
     auto x = entries[i];
     if (x)
       entries1[slot(entries1, cap1, x->v, x->n)] = x;

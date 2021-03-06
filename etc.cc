@@ -77,7 +77,7 @@ size_t fnv(const void *p, int n) {
   return h;
 }
 
-void *mmalloc(size_t n) {
+void *mmalloc(si n) {
   // monotonic malloc, for memory that does not need to be freed until the
   // program exits
   n = n + 7 & ~7;
@@ -86,7 +86,7 @@ void *mmalloc(size_t n) {
   assert(!((w)p & 7));
   assert(!((w)e & 7));
   if (e - p < n) {
-    auto chunk = max(n, (size_t)10000);
+    auto chunk = max(n, (si)10000);
     p = (char *)xmalloc(chunk);
     e = p + chunk;
   }
@@ -109,7 +109,7 @@ void quote(char q, const char *s) {
   putchar(q);
 }
 
-void *xcalloc(size_t n, size_t size) {
+void *xcalloc(si n, si size) {
   auto r = calloc(n, size);
   if (!r) {
     perror("calloc");
@@ -118,7 +118,7 @@ void *xcalloc(size_t n, size_t size) {
   return r;
 }
 
-void *xmalloc(size_t n) {
+void *xmalloc(si n) {
   auto r = malloc(n);
   if (!r) {
     perror("malloc");
@@ -130,7 +130,7 @@ void *xmalloc(size_t n) {
   return r;
 }
 
-void *xrealloc(void *p, size_t n) {
+void *xrealloc(void *p, si n) {
   auto r = realloc(p, n);
   if (!r) {
     perror("realloc");

@@ -202,7 +202,7 @@ language getlang(const char *file) {
 
 #ifdef DEBUG
 #ifdef _WIN32
-void pr(size_t n, const char *caption) {
+void pr(si n, const char *caption) {
   auto s = buf + sizeof buf - 1;
   *s = 0;
   int i = 0;

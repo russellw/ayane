@@ -96,7 +96,7 @@ extern sym keywords[];
 
 // SORT
 extern ary<w> freevars;
-extern size_t skolemi;
+extern si skolemi;
 ///
 
 // SORT
@@ -149,7 +149,7 @@ inline Int *intp(w a) {
   return (Int *)(a - a_int);
 }
 
-inline size_t keyword(const sym *s) {
+inline si keyword(const sym *s) {
   // turn a symbol into a keyword number by subtracting the base of the keyword
   // array and dividing by the declared size of a symbol structure (which is
   // efficient as long as that size is a power of 2)

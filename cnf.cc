@@ -269,7 +269,7 @@ w distrib(w a) {
     // that will provide a slice through the and arguments
     // to create a single or term
     auto n = ands.n;
-    vec<w> j;
+    vec<int> j;
     j.resize(n);
     memset(j.p, 0, n * sizeof *j.p);
 

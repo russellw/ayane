@@ -39,7 +39,7 @@ struct selection : unordered_set<sym *> {
 
   explicit selection(bool all) : all(all) {}
 
-  w count(sym *s) const {
+  size_t count(sym *s) const {
     if (all)
       return 1;
     return unordered_set<sym *>::count(s);
@@ -71,7 +71,7 @@ struct parser1 : parser {
   void quote() {
     auto s = text;
     auto q = *s++;
-    w i = 0;
+    int i = 0;
     while (*s != q) {
       if (*s == '\\')
         ++s;
@@ -872,7 +872,7 @@ struct parser1 : parser {
 
           // type
           if (role == k_type) {
-            w parens = 0;
+            size_t parens = 0;
             while (eat('('))
               ++parens;
             auto s = name();

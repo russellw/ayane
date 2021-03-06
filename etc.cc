@@ -65,7 +65,7 @@ noret err(const char *msg) {
   exit(1);
 }
 
-size_t fnv(const void *p, w n) {
+size_t fnv(const void *p, int n) {
   // fowler-noll-vo-1a is slower than more sophisticated hash algorithms for
   // large chunks of data, but faster for tiny ones, so it still sees use
   auto p1 = (const char *)p;
@@ -86,7 +86,7 @@ void *mmalloc(size_t n) {
   assert(!((w)p & 7));
   assert(!((w)e & 7));
   if (e - p < n) {
-    auto chunk = max(n, (w)10000);
+    auto chunk = max(n, (size_t)10000);
     p = (char *)xmalloc(chunk);
     e = p + chunk;
   }

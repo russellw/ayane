@@ -43,8 +43,6 @@ int nclauses(bool pol, w a) {
     return nclauses(pol, at(a, 1));
   case b_and:
     return pol ? nclauses_and(pol, a) : nclauses_or(pol, a);
-  case b_or:
-    return pol ? nclauses_or(pol, a) : nclauses_and(pol, a);
   case b_eqv: {
     auto x = at(a, 1);
     auto x0 = nclauses(0, x);
@@ -63,6 +61,8 @@ int nclauses(bool pol, w a) {
       return many;
     return r;
   }
+  case b_or:
+    return pol ? nclauses_or(pol, a) : nclauses_and(pol, a);
   }
   return 1;
 }

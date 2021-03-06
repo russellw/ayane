@@ -6,7 +6,6 @@ const char *szsnames[] = {
     0,
 #define X(s) #s,
 #include "szs.h"
-#undef X
 };
 
 // SORT

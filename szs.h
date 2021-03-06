@@ -9,3 +9,4 @@ X(Timeout)
 X(Unknown)
 X(Unsatisfiable)
 ///
+#undef X

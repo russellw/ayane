@@ -2,7 +2,6 @@ enum class infer : char {
   none,
 #define X(s) s,
 #include "infer.h"
-#undef X
 };
 
 extern const char *infernames[];

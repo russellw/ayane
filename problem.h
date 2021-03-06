@@ -2,7 +2,6 @@ enum class szs {
   none,
 #define X(s) s,
 #include "szs.h"
-#undef X
   max
 };
 

@@ -5,3 +5,4 @@ X(negate)
 X(resolve)
 X(sp)
 ///
+#undef X

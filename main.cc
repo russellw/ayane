@@ -20,11 +20,11 @@ static VOID CALLBACK timeout(PVOID a, BOOLEAN b) {
 
 #define version "3"
 
-enum {
-  l_unknown,
+enum class language {
+  unknown,
 
-  l_dimacs,
-  l_tptp,
+  dimacs,
+  tptp,
 };
 
 namespace {
@@ -47,9 +47,9 @@ struct LineParser : parser {
 };
 
 // SORT
+language lang;
 time_t timelimit;
 vec<const char *> files;
-w lang;
 ///
 
 void help() {
@@ -171,7 +171,7 @@ void parse(int argc, char **argv) {
              sizeof(void *) * 8);
       exit(0);
     case k_dimacs:
-      lang = l_dimacs;
+      lang = language::dimacs;
       break;
     case k_h:
     case k_help:
@@ -181,7 +181,7 @@ void parse(int argc, char **argv) {
       timelimit = optnum(argc, argv, i, optarg);
       break;
     case k_tptp:
-      lang = l_tptp;
+      lang = language::tptp;
       break;
     default:
       fprintf(stderr, "%s: unknown option\n", argv[i]);
@@ -190,23 +190,21 @@ void parse(int argc, char **argv) {
   }
 }
 
-w language(const char *file) {
-  if (lang)
+language getlang(const char *file) {
+  if (lang != language::unknown)
     return lang;
   switch (keyword(intern(ext(file)))) {
   case k_cnf:
-    return l_dimacs;
+    return language::dimacs;
   }
-  return l_tptp;
+  return language::tptp;
 }
 
 #ifdef DEBUG
 #ifdef _WIN32
-void pr(w n, const char *caption) {
+void pr(size_t n, const char *caption) {
   auto s = buf + sizeof buf - 1;
   *s = 0;
-  // use signed integer calculations for left justification to degrade
-  // gracefully just in case a number does overflow the allocated width
   int i = 0;
   do {
     // extract a digit
@@ -278,11 +276,11 @@ int main(int argc, char **argv) {
     init_terms();
     ///
     try {
-      switch (language(file)) {
-      case l_dimacs:
+      switch (getlang(file)) {
+      case language::dimacs:
         dimacs(file);
         break;
-      case l_tptp:
+      case language::tptp:
         tptp(file);
         break;
       default:

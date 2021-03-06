@@ -4,7 +4,7 @@
 
 // SORT
 ary<w> freevars;
-w skolemi;
+size_t skolemi;
 ///
 
 namespace syms {
@@ -57,7 +57,7 @@ struct init {
   }
 } init1;
 
-sym *store(const char *s, w n) {
+sym *store(const char *s, int n) {
   auto r = (sym *)mmalloc(offsetof(sym, v) + n + 1);
   memset(r, 0, offsetof(sym, v));
   memcpy(r->v, s, n);
@@ -65,7 +65,7 @@ sym *store(const char *s, w n) {
   return r;
 }
 
-sym *put(const char *p, w n) {
+sym *put(const char *p, int n) {
   auto i = slot(entries, cap, p, n);
   if (entries[i])
     return entries[i];
@@ -79,11 +79,11 @@ sym *put(const char *p, w n) {
 
 namespace nums {
 template <class T> class bank {
-  w cap = 0x10;
-  w count;
+  size_t cap = 0x10;
+  size_t count;
   T **entries = (T **)xcalloc(cap, sizeof *entries);
 
-  w slot(T **entries, w cap, const T &x) {
+  size_t slot(T **entries, size_t cap, const T &x) {
     auto mask = cap - 1;
     auto i = x.hash() & mask;
     while (entries[i] && !entries[i]->eq(x))
@@ -95,7 +95,7 @@ template <class T> class bank {
     assert(ispow2(cap));
     auto cap1 = cap * 2;
     auto entries1 = (T **)xcalloc(cap1, sizeof *entries);
-    for (int i = 0; i != cap; ++i) {
+    for (size_t i = 0; i != cap; ++i) {
       auto x = entries[i];
       if (x)
         entries1[slot(entries1, cap1, *x)] = x;
@@ -131,17 +131,17 @@ bank<Rat> rats;
 } // namespace nums
 
 namespace compounds {
-w cap = 0x1000;
-w count;
+size_t cap = 0x1000;
+size_t count;
 compound **entries = (compound **)xcalloc(cap, sizeof *entries);
 
-bool eq(const compound *x, const w *p, w n) {
+bool eq(const compound *x, const w *p, int n) {
   if (x->n != n)
     return 0;
   return !memcmp(x->v, p, n * sizeof *p);
 }
 
-w slot(compound **entries, w cap, const w *p, w n) {
+w slot(compound **entries, size_t cap, const w *p, int n) {
   auto mask = cap - 1;
   auto i = XXH64(p, n * sizeof *p, 0) & mask;
   while (entries[i] && !eq(entries[i], p, n))
@@ -153,7 +153,7 @@ void expand() {
   assert(ispow2(cap));
   auto cap1 = cap * 2;
   auto entries1 = (compound **)xcalloc(cap1, sizeof *entries);
-  for (int i = 0; i != cap; ++i) {
+  for (size_t i = 0; i != cap; ++i) {
     auto x = entries[i];
     if (x)
       entries1[slot(entries1, cap1, x->v, x->n)] = x;
@@ -163,14 +163,14 @@ void expand() {
   entries = entries1;
 }
 
-compound *store(const w *p, w n) {
+compound *store(const w *p, int n) {
   auto r = (compound *)xmalloc(offsetof(compound, v) + n * sizeof *p);
   r->n = n;
   memcpy(r->v, p, n * sizeof *p);
   return r;
 }
 
-w put(const w *p, w n) {
+w put(const w *p, int n) {
   auto i = slot(entries, cap, p, n);
   if (entries[i])
     return tag(entries[i], a_compound);
@@ -233,7 +233,7 @@ void init_terms() {
 
 w int1(Int &x) { return tag(nums::ints.put(x), a_int); }
 
-sym *intern(const char *s, w n) { return syms::put(s, n); }
+sym *intern(const char *s, int n) { return syms::put(s, n); }
 
 w rat(Rat &x) { return tag(nums::rats.put(x), a_rat); }
 
@@ -264,7 +264,7 @@ namespace {
 void ckptr(void *p) {
   assert(p);
   if (sizeof p > 4)
-    assert((w)p < (w)1 << 50);
+    assert((size_t)p < (size_t)1 << 50);
   *buf = *(char *)p;
 }
 

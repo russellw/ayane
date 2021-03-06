@@ -69,7 +69,7 @@ struct Rat {
 };
 
 struct compound {
-  w n;
+  int n;
   w v[0];
 };
 
@@ -96,7 +96,7 @@ extern sym keywords[];
 
 // SORT
 extern ary<w> freevars;
-extern w skolemi;
+extern size_t skolemi;
 ///
 
 // SORT
@@ -104,7 +104,7 @@ void getfree(w a);
 w imp(w a, w b);
 void init_terms();
 w int1(Int &x);
-sym *intern(const char *s, w n);
+sym *intern(const char *s, int n);
 Int *intp(w a);
 w rat(Rat &x);
 Rat *ratp(w a);
@@ -126,7 +126,7 @@ inline compound *compoundp(w a) {
 const w t_compound = 1 << 15;
 
 // SORT
-inline w at(w a, w i) { return compoundp(a)->v[i]; }
+inline w at(w a, int i) { return compoundp(a)->v[i]; }
 
 inline w basic(w op) { return op << 3 | a_basic; }
 
@@ -166,7 +166,7 @@ inline Rat *ratp(w a) {
   return (Rat *)(a & ~(w)7);
 }
 
-inline w size(w a) { return compoundp(a)->n; }
+inline int size(w a) { return compoundp(a)->n; }
 
 inline sym *symp(w a) {
   assert((a & 7) == a_sym);
@@ -175,7 +175,7 @@ inline sym *symp(w a) {
 
 inline w tag(void *p, w a) { return (w)p + a; }
 
-inline w var(w t, w i) {
+inline w var(w t, int i) {
   assert(t < t_compound);
   if (sizeof(w) == 4 && i >= 1 << 12)
     err("too many variables");
@@ -188,7 +188,7 @@ inline w var(w t, w i) {
   return i << (1 + 16 + 3) | t << 3 | a_var;
 }
 
-inline w vari(w a) {
+inline int vari(w a) {
   assert((a & 7) == a_var);
   return a >> (1 + 16 + 3);
 }

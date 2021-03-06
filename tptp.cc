@@ -22,7 +22,7 @@ enum {
 
 char isword[0x100];
 #ifdef DEBUG
-w header;
+int header;
 #endif
 
 struct init {
@@ -437,7 +437,7 @@ struct parser1 : parser {
     auto p = tokstart;
 
     // sign
-    auto sign = 0;
+    bool sign = 0;
     if (*p == '-') {
       ++p;
       sign = 1;
@@ -455,7 +455,7 @@ struct parser1 : parser {
     // decimal part
     mpz_t mantissa;
     mpz_init(mantissa);
-    w scale = 0;
+    size_t scale = 0;
     if (*p == '.') {
       ++p;
       q = p;
@@ -484,8 +484,8 @@ struct parser1 : parser {
     mpq_set_den(x.val, powscale);
 
     // exponent
-    auto exponentsign = 0;
-    w exponent = 0;
+    bool exponentsign = 0;
+    size_t exponent = 0;
     if (*p == 'e' || *p == 'e') {
       ++p;
       switch (*p) {
@@ -528,16 +528,16 @@ struct parser1 : parser {
     expect(')');
   }
 
-  void args(vec<w> &v, w arity) {
+  void args(vec<w> &v, int arity) {
     auto old = v.n;
     args(v);
     if (v.n - old == arity)
       return;
-    sprintf(buf, "expected %zu arguments", arity);
+    sprintf(buf, "expected %d arguments", arity);
     err(buf);
   }
 
-  w defined_functor(w op, w arity) {
+  w defined_functor(w op, int arity) {
     vec<w> v(op);
     args(v, arity);
     auto t = numtype(v[1]);
@@ -1205,7 +1205,7 @@ void prterm(w a, w parent) {
       putchar('A' + i);
       return;
     }
-    printf("Z%zu", i - 25);
+    printf("Z%d", i - 25);
     return;
   }
   }

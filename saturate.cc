@@ -4,10 +4,10 @@
 
 namespace {
 // passive clauses are stored in a priority queue with smaller clauses first
-w weight(w a) {
+size_t weight(w a) {
   if ((a & 7) == a_compound) {
     auto p = compoundp(a);
-    w n = 0;
+    size_t n = 0;
     for (auto i = p->v, e = p->v + p->n; i != e; ++i)
       n += weight(*i);
     return n;
@@ -15,8 +15,8 @@ w weight(w a) {
   return 1;
 }
 
-w weight(clause *c) {
-  w n = 0;
+size_t weight(clause *c) {
+  size_t n = 0;
   for (auto i = c->v, e = c->v + c->n; i != e; ++i)
     n += weight(*i);
   return n;
@@ -288,9 +288,9 @@ void superpositionq(w d0c1) {
   qclause(infer::sp);
 }
 
-vec<w> position;
+vec<int> position;
 
-w splice(w x, w *i) {
+w splice(w x, int *i) {
   if (i == position.end())
     return c1;
   assert((x & 7) == a_compound);
@@ -307,7 +307,7 @@ void descend(w x) {
   if (unify(c0, x))
     superpositionq(splice(d0, position.p));
   if ((x & 7) == a_compound)
-    for (w j = 1, n = size(x); j != n; ++j) {
+    for (int j = 1, n = size(x); j != n; ++j) {
       position.push_back(j);
       descend(at(x, j));
       --position.n;

@@ -10,18 +10,18 @@ w skolemi;
 namespace syms {
 // must be a power of 2, and large enough to hold the largest collection of
 // entries that will be loaded at initialization time
-w cap = 0x100;
-w count;
+size_t cap = 0x100;
+size_t count;
 sym **entries = (sym **)xcalloc(cap, sizeof *entries);
 
-bool strmemeq(const char *s, const char *p, w n) {
+bool strmemeq(const char *s, const char *p, int n) {
   while (n--)
     if (*s++ != *p++)
       return 0;
   return !*s;
 }
 
-w slot(sym **entries, w cap, const char *p, w n) {
+w slot(sym **entries, size_t cap, const char *p, int n) {
   auto mask = cap - 1;
   auto i = fnv(p, n) & mask;
   while (entries[i] && !strmemeq(entries[i]->v, p, n))

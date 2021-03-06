@@ -10,18 +10,18 @@ namespace {
 // a variable to be read without an extra memory access. compound types are
 // therefore tracked with an unusual kind of memory bank in which entries are
 // 16-bit words rather than pointers
-w atoms = nbasictypes;
+int atoms = nbasictypes;
 
-w cap = 0x10;
+int cap = 0x10;
 uint16_t *entries = (uint16_t *)xcalloc(cap, sizeof *entries);
 
-bool eq(const tcompound *t, const uint16_t *p, w n) {
+bool eq(const tcompound *t, const uint16_t *p, int n) {
   if (t->n != n)
     return 0;
   return !memcmp(t->v, p, n * sizeof *p);
 }
 
-w slot(uint16_t *entries, w cap, const uint16_t *p, w n) {
+int slot(uint16_t *entries, int cap, const uint16_t *p, int n) {
   auto mask = cap - 1;
   auto i = fnv(p, n * sizeof *p) & mask;
   while (entries[i] && !eq(tcompounds[entries[i]], p, n))
@@ -45,14 +45,14 @@ void expand() {
   entries = entries1;
 }
 
-tcompound *store(const uint16_t *p, w n) {
+tcompound *store(const uint16_t *p, int n) {
   auto r = (tcompound *)mmalloc(offsetof(tcompound, v) + n * sizeof *p);
   r->n = n;
   memcpy(r->v, p, n * sizeof *p);
   return r;
 }
 
-w put(const uint16_t *p, w n) {
+w put(const uint16_t *p, int n) {
   auto i = slot(entries, cap, p, n);
   if (entries[i])
     return entries[i] | t_compound;

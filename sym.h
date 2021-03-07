@@ -1,5 +1,3 @@
-extern sym keywords[];
-
 // SORT
 void init_syms();
 sym *intern(const char *s, si n);

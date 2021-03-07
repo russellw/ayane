@@ -28,8 +28,8 @@ with open("keywords.h", "w") as f:
     f.write("enum {\n")
     for s in lines:
         f.write("k_" + s + ",\n")
-    f.write("nkeywords\n")
     f.write("};\n")
+    f.write(f"extern sym keywords[{len(lines)}];\n")
 
 # data
 with open("keywords.cc", "w") as f:

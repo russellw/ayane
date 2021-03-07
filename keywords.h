@@ -50,5 +50,5 @@ enum {
   k_uminus,
   k_v,
   k_version,
-  nkeywords
 };
+extern sym keywords[50];

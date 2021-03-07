@@ -40,7 +40,7 @@ void expand() {
 
 struct init {
   init() {
-    for (si i = 0; i != nkeywords; ++i) {
+    for (si i = 0; i != sizeof keywords / sizeof *keywords; ++i) {
       auto s = keywords + i;
       assert(strlen(s->v) < sizeof s->v);
       ++count;

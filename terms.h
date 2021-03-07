@@ -165,7 +165,7 @@ inline w vartype(w a) {
 ///
 
 #ifdef DEBUG
-void ckterm(w a);
+void ck(w a);
 #else
-#define ckterm(a)
+#define ck(a)
 #endif

@@ -160,7 +160,7 @@ void cksym(sym *s) {
 }
 } // namespace
 
-void ckterm(w a) {
+void ck(w a) {
   cktype(typeof(a));
   switch (a & 7) {
   case a_basic:
@@ -173,7 +173,7 @@ void ckterm(w a) {
     assert(1 < n);
     assert(n < 1000000);
     for (si i = 1; i != n; ++i)
-      ckterm(p->v[i]);
+      ck(p->v[i]);
     return;
   }
   case a_distinctobj:

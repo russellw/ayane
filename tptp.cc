@@ -833,7 +833,7 @@ struct parser1 : parser {
           do {
             auto no = eat('~');
             auto a = infix_unary();
-            ckterm(a);
+            ck(a);
             if ((a & 7) == a_compound && at(a, 0) == basic(b_not)) {
               no = !no;
               a = at(a, 1);
@@ -899,7 +899,7 @@ struct parser1 : parser {
           cnfmode = 0;
           auto a = logic_formula();
           assert(!vars.n);
-          ckterm(a);
+          ck(a);
 
           // select
           if (!sel.count(forname))

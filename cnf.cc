@@ -353,16 +353,16 @@ void toclause(w a) {
 }
 
 w cnf1(w a) {
-  ckterm(a);
+  ck(a);
 
   // negation normal form
   nnf nnf1(a);
   a = nnf1.r;
-  ckterm(a);
+  ck(a);
 
   // distribute or into and
   a = distrib(a);
-  ckterm(a);
+  ck(a);
   return a;
 }
 } // namespace

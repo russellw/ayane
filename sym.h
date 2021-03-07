@@ -1,3 +1,21 @@
+struct sym {
+  // type named by this symbol
+  uint16_t t;
+
+  // type of function named by this symbol
+  uint16_t ft;
+
+  // for the keyword system to work, the size of the declared character array
+  // must be large enough to hold the longest keyword
+
+  // for the system to work efficiently, the size of the whole structure must be
+  // a power of 2
+
+  // when symbols are allocated on the heap, the code doing the allocation is
+  // responsible for allocating enough space to hold the corresponding strings
+  char v[0x20 - 2 * sizeof(uint16_t)];
+};
+
 // SORT
 void init_syms();
 sym *intern(const char *s, si n);
@@ -15,6 +33,6 @@ inline si keyword(const sym *s) {
   // number will not correspond to any keyword and will not match any case in a
   // switch statement
   size_t i = (const char *)s - (const char *)keywords;
-  return i / sizeof(sym);
+  return i / sizeof *s;
 }
 ///

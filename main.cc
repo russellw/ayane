@@ -273,6 +273,7 @@ int main(int argc, char **argv) {
     // SORT
     init_clauses();
     init_problem();
+    init_syms();
     init_terms();
     ///
     try {

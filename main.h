@@ -14,6 +14,7 @@
 #include "types.h"
 
 #include "eqn.h"
+#include "sym.h"
 
 #include "clauses.h"
 #include "problem.h"

@@ -74,8 +74,6 @@ struct sym {
 };
 ///
 
-extern sym keywords[];
-
 // SORT
 extern ary<w> freevars;
 extern si skolemi;
@@ -126,18 +124,6 @@ inline w *endp(w a) {
 inline Int *intp(w a) {
   assert((a & 7) == a_int);
   return (Int *)(a - a_int);
-}
-
-inline si keyword(const sym *s) {
-  // turn a symbol into a keyword number by subtracting the base of the keyword
-  // array and dividing by the declared size of a symbol structure (which is
-  // efficient as long as that size is a power of 2)
-
-  // it's okay if the symbol is not a keyword; that just means the resulting
-  // number will not correspond to any keyword and will not match any case in a
-  // switch statement
-  size_t i = (const char *)s - (const char *)keywords;
-  return i / sizeof(sym);
 }
 
 inline Rat *ratp(w a) {

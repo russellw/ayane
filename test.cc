@@ -40,7 +40,7 @@ w replace(w a) {
     v.resize(n);
     for (si i = 0; i != n; ++i)
       v[i] = replace(at(a, i));
-    return term(v);
+    return mk(v);
   }
   case a_var:
     for (auto &p : varmap)
@@ -64,18 +64,18 @@ void test_clause() {
 
   // a simple clause, x!=y
   neg.n = pos.n = 0;
-  neg.push(term(basic(b_eq), x, y));
+  neg.push(mk(basic(b_eq), x, y));
   auto c = mkclause(infer::none);
 
   // duplicate returns null
   neg.n = pos.n = 0;
-  neg.push(term(basic(b_eq), x, y));
+  neg.push(mk(basic(b_eq), x, y));
   auto d = mkclause(infer::none);
   assert(!d);
 
   // the duplicate check distinguishes between negative and positive literals
   neg.n = pos.n = 0;
-  pos.push(term(basic(b_eq), x, y));
+  pos.push(mk(basic(b_eq), x, y));
   d = mkclause(infer::none);
   assert(c != d);
 }
@@ -110,19 +110,19 @@ void test_getfree() {
   assert(freevars.n == 1);
   assert(freevars[0] == x);
 
-  getfree(term(basic(b_eq), x, x));
+  getfree(mk(basic(b_eq), x, x));
   assert(freevars.n == 1);
   assert(freevars[0] == x);
 
-  getfree(term(basic(b_eq), x, y));
+  getfree(mk(basic(b_eq), x, y));
   assert(freevars.n == 2);
   assert(freevars[0] == x);
   assert(freevars[1] == y);
 
-  getfree(term(basic(b_eq), a, a));
+  getfree(mk(basic(b_eq), a, a));
   assert(freevars.n == 0);
 
-  getfree(term(basic(b_all), term(basic(b_eq), x, y), x));
+  getfree(mk(basic(b_all), mk(basic(b_eq), x, y), x));
   assert(freevars.n == 1);
   assert(freevars[0] == y);
 }
@@ -184,35 +184,35 @@ void test_match() {
   assert(replace(x) == replace(y));
 
   // Function and constant symbols match, x is unified with the constant b
-  assert(match0(term(f2, a, x), term(f2, a, b)));
+  assert(match0(mk(f2, a, x), mk(f2, a, b)));
   assert(varmap.n == 1);
   assert(replace(x) == b);
 
   // f and g do not match
-  assert(!match0(term(f1, a), term(g1, a)));
+  assert(!match0(mk(f1, a), mk(g1, a)));
 
   // x and y are aliased
-  assert(match0(term(f1, x), term(f1, y)));
+  assert(match0(mk(f1, x), mk(f1, y)));
   assert(varmap.n == 1);
   assert(replace(x) == replace(y));
 
   // f and g do not match
-  assert(!match0(term(f1, x), term(g1, y)));
+  assert(!match0(mk(f1, x), mk(g1, y)));
 
   // Fails. The f function symbols have different arity
-  assert(!match0(term(f1, x), term(f2, y, z)));
+  assert(!match0(mk(f1, x), mk(f2, y, z)));
 
   // Does not match y with the term g1(x), because the variable is on the
   // right-hand side
-  assert(!match0(term(f1, term(g1, x)), term(f1, y)));
+  assert(!match0(mk(f1, mk(g1, x)), mk(f1, y)));
 
   // Does not match, because the variable is on the right-hand side
-  assert(!match0(term(f2, term(g1, x), x), term(f2, y, a)));
+  assert(!match0(mk(f2, mk(g1, x), x), mk(f2, y, a)));
 
   // Returns false in first-order logic and many modern Prolog dialects
   // (enforced by the occurs check) but returns true here because match has no
   // notion of an occurs check
-  assert(match0(x, term(f1, x)));
+  assert(match0(x, mk(f1, x)));
   assert(varmap.n == 1);
 
   // Both x and y are unified with the constant a
@@ -368,131 +368,131 @@ void test_subsume() {
   assert(!subsumes(d, c));
 
   // p(a) | p(b) | q(a) | q(b) | <= p(a) | q(a) | p(b) | q(b)
-  pos.push(term(p1, a));
-  pos.push(term(p1, b));
-  pos.push(term(q1, a));
-  pos.push(term(q1, b));
+  pos.push(mk(p1, a));
+  pos.push(mk(p1, b));
+  pos.push(mk(q1, a));
+  pos.push(mk(q1, b));
   c = mkclause1();
-  pos.push(term(p1, a));
-  pos.push(term(q1, a));
-  pos.push(term(p1, b));
-  pos.push(term(q1, b));
+  pos.push(mk(p1, a));
+  pos.push(mk(q1, a));
+  pos.push(mk(p1, b));
+  pos.push(mk(q1, b));
   d = mkclause1();
   assert(subsumes(c, d));
   assert(subsumes(d, c));
 
   // p(x,y) <= p(a,b)
-  pos.push(term(p2, x, y));
+  pos.push(mk(p2, x, y));
   c = mkclause1();
-  pos.push(term(p2, a, b));
+  pos.push(mk(p2, a, b));
   d = mkclause1();
   assert(subsumes(c, d));
   assert(!subsumes(d, c));
 
   // p(x,x) !<= p(a,b)
-  pos.push(term(p2, x, x));
+  pos.push(mk(p2, x, x));
   c = mkclause1();
-  pos.push(term(p2, a, b));
+  pos.push(mk(p2, a, b));
   d = mkclause1();
   assert(!subsumes(c, d));
   assert(!subsumes(d, c));
 
   // p(x) <= p(y)
-  pos.push(term(p1, x));
+  pos.push(mk(p1, x));
   c = mkclause1();
-  pos.push(term(p1, y));
+  pos.push(mk(p1, y));
   d = mkclause1();
   assert(subsumes(c, d));
   assert(subsumes(d, c));
 
   // p(x) | p(a(x)) | p(a(a(x))) <= p(y) | p(a(y)) | p(a(a(y)))
-  pos.push(term(p1, x));
-  pos.push(term(p1, term(a1, x)));
-  pos.push(term(p1, term(a1, term(a1, x))));
+  pos.push(mk(p1, x));
+  pos.push(mk(p1, mk(a1, x)));
+  pos.push(mk(p1, mk(a1, mk(a1, x))));
   c = mkclause1();
-  pos.push(term(p1, y));
-  pos.push(term(p1, term(a1, y)));
-  pos.push(term(p1, term(a1, term(a1, y))));
+  pos.push(mk(p1, y));
+  pos.push(mk(p1, mk(a1, y)));
+  pos.push(mk(p1, mk(a1, mk(a1, y))));
   d = mkclause1();
   assert(subsumes(c, d));
   assert(subsumes(d, c));
 
   // p(x) | p(a) <= p(a) | p(b)
-  pos.push(term(p1, x));
-  pos.push(term(p1, a));
+  pos.push(mk(p1, x));
+  pos.push(mk(p1, a));
   c = mkclause1();
-  pos.push(term(p1, a));
-  pos.push(term(p1, b));
+  pos.push(mk(p1, a));
+  pos.push(mk(p1, b));
   d = mkclause1();
   assert(subsumes(c, d));
   assert(!subsumes(d, c));
 
   // p(x) | p(a(x)) <= p(a(y)) | p(y)
-  pos.push(term(p1, x));
-  pos.push(term(p1, term(a1, x)));
+  pos.push(mk(p1, x));
+  pos.push(mk(p1, mk(a1, x)));
   c = mkclause1();
-  pos.push(term(p1, term(a1, y)));
-  pos.push(term(p1, y));
+  pos.push(mk(p1, mk(a1, y)));
+  pos.push(mk(p1, y));
   d = mkclause1();
   assert(subsumes(c, d));
   assert(subsumes(d, c));
 
   // p(x) | p(a(x)) | p(a(a(x))) <= p(a(a(y))) | p(a(y)) | p(y)
-  pos.push(term(p1, x));
-  pos.push(term(p1, term(a1, x)));
-  pos.push(term(p1, term(a1, term(a1, x))));
+  pos.push(mk(p1, x));
+  pos.push(mk(p1, mk(a1, x)));
+  pos.push(mk(p1, mk(a1, mk(a1, x))));
   c = mkclause1();
-  pos.push(term(p1, term(a1, term(a1, y))));
-  pos.push(term(p1, term(a1, y)));
-  pos.push(term(p1, y));
+  pos.push(mk(p1, mk(a1, mk(a1, y))));
+  pos.push(mk(p1, mk(a1, y)));
+  pos.push(mk(p1, y));
   d = mkclause1();
   assert(subsumes(c, d));
   assert(subsumes(d, c));
 
   // (a = x) <= (a = b)
-  pos.push(term(basic(b_eq), a, x));
+  pos.push(mk(basic(b_eq), a, x));
   c = mkclause1();
-  pos.push(term(basic(b_eq), a, b));
+  pos.push(mk(basic(b_eq), a, b));
   d = mkclause1();
   assert(subsumes(c, d));
   assert(!subsumes(d, c));
 
   // (x = a) <= (a = b)
-  pos.push(term(basic(b_eq), x, a));
+  pos.push(mk(basic(b_eq), x, a));
   c = mkclause1();
-  pos.push(term(basic(b_eq), a, b));
+  pos.push(mk(basic(b_eq), a, b));
   d = mkclause1();
   assert(subsumes(c, d));
   assert(!subsumes(d, c));
 
   // !p(y) | !p(x) | q(x) <= !p(a) | !p(b) | q(b)
-  neg.push(term(p1, y));
-  neg.push(term(p1, x));
-  pos.push(term(q1, x));
+  neg.push(mk(p1, y));
+  neg.push(mk(p1, x));
+  pos.push(mk(q1, x));
   c = mkclause1();
-  neg.push(term(p1, a));
-  neg.push(term(p1, b));
-  pos.push(term(q1, b));
+  neg.push(mk(p1, a));
+  neg.push(mk(p1, b));
+  pos.push(mk(q1, b));
   d = mkclause1();
   assert(subsumes(c, d));
   assert(!subsumes(d, c));
 
   // !p(x) | !p(y) | q(x) <= !p(a) | !p(b) | q(b)
-  neg.push(term(p1, x));
-  neg.push(term(p1, y));
-  pos.push(term(q1, x));
+  neg.push(mk(p1, x));
+  neg.push(mk(p1, y));
+  pos.push(mk(q1, x));
   c = mkclause1();
-  neg.push(term(p1, a));
-  neg.push(term(p1, b));
-  pos.push(term(q1, b));
+  neg.push(mk(p1, a));
+  neg.push(mk(p1, b));
+  pos.push(mk(q1, b));
   d = mkclause1();
   assert(subsumes(c, d));
   assert(!subsumes(d, c));
 
   // p(x,a(x)) !<= p(a(y),a(y))
-  pos.push(term(p2, x, term(a1, x)));
+  pos.push(mk(p2, x, mk(a1, x)));
   c = mkclause1();
-  pos.push(term(p2, term(a1, y), term(a1, y)));
+  pos.push(mk(p2, mk(a1, y), mk(a1, y)));
   d = mkclause1();
   assert(!subsumes(c, d));
   assert(!subsumes(d, c));
@@ -512,19 +512,19 @@ void test_term() {
   auto green = fn(t_bool, intern("green"));
   auto blue = fn(t_bool, intern("blue"));
 
-  auto a = term(basic(b_not), red);
-  assert(a == term(basic(b_not), red));
+  auto a = mk(basic(b_not), red);
+  assert(a == mk(basic(b_not), red));
 
-  a = term(basic(b_and), red, green);
-  assert(a == term(basic(b_and), red, green));
+  a = mk(basic(b_and), red, green);
+  assert(a == mk(basic(b_and), red, green));
 
   vec<w> v;
   v.push_back(basic(b_and));
   v.push_back(red);
   v.push_back(green);
   v.push_back(blue);
-  a = term(v);
-  assert(a == term(v));
+  a = mk(v);
+  assert(a == mk(v));
 }
 
 void test_typeof() {
@@ -577,38 +577,38 @@ void test_unify() {
   assert(replace(x) == replace(y));
 
   // Function and constant symbols match, x is unified with the constant b
-  assert(unify(term(f2, a, x), term(f2, a, b)));
+  assert(unify(mk(f2, a, x), mk(f2, a, b)));
   assert(varmap.n == 1);
   assert(replace(x) == b);
 
   // f and g do not match
-  assert(!unify(term(f1, a), term(g1, a)));
+  assert(!unify(mk(f1, a), mk(g1, a)));
 
   // x and y are aliased
-  assert(unify(term(f1, x), term(f1, y)));
+  assert(unify(mk(f1, x), mk(f1, y)));
   assert(varmap.n == 1);
   assert(replace(x) == replace(y));
 
   // f and g do not match
-  assert(!unify(term(f1, x), term(g1, y)));
+  assert(!unify(mk(f1, x), mk(g1, y)));
 
   // Fails. The f function symbols have different arity
-  assert(!unify(term(f1, x), term(f2, y, z)));
+  assert(!unify(mk(f1, x), mk(f2, y, z)));
 
   // Unifies y with the term g1(x)
-  assert(unify(term(f1, term(g1, x)), term(f1, y)));
+  assert(unify(mk(f1, mk(g1, x)), mk(f1, y)));
   assert(varmap.n == 1);
-  assert(replace(y) == term(g1, x));
+  assert(replace(y) == mk(g1, x));
 
   // Unifies x with constant a, and y with the term g1(a)
-  assert(unify(term(f2, term(g1, x), x), term(f2, y, a)));
+  assert(unify(mk(f2, mk(g1, x), x), mk(f2, y, a)));
   assert(varmap.n == 2);
   assert(replace(x) == a);
-  assert(replace(y) == term(g1, a));
+  assert(replace(y) == mk(g1, a));
 
   // Returns false in first-order logic and many modern Prolog dialects
   // (enforced by the occurs check).
-  assert(!unify(x, term(f1, x)));
+  assert(!unify(x, mk(f1, x)));
 
   // Both x and y are unified with the constant a
   assert(unify(x, y));

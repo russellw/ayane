@@ -100,7 +100,7 @@ w normvars(w a) {
     v.resize(n);
     for (si i = 0; i != n; ++i)
       v[i] = normvars(at(a, i));
-    return term(v);
+    return mk(v);
   }
   case a_var: {
     for (auto &p : varmap)
@@ -197,7 +197,7 @@ w equate(w a, w b) {
     return b;
   if (b == basic(b_true))
     return a;
-  return term(basic(b_eq), a, b);
+  return mk(basic(b_eq), a, b);
 }
 
 // substitute and make new clause
@@ -298,7 +298,7 @@ w splice(w x, si *i) {
   v.insert(v.p, beginp(x), endp(x));
   auto j = *i++;
   v[j] = splice(v[j], i);
-  return term(v);
+  return mk(v);
 }
 
 void descend(w x) {

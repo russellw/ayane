@@ -106,13 +106,13 @@ void init_terms();
 w int1(Int &x);
 sym *intern(const char *s, si n);
 Int *intp(w a);
+w mk(const ary<w> &v);
+w mk(const vec<w> &v);
+w mk(w op, w a);
+w mk(w op, w a, w b);
 w rat(Rat &x);
 Rat *ratp(w a);
 w real(Rat &x);
-w term(const ary<w> &v);
-w term(const vec<w> &v);
-w term(w op, w a);
-w term(w op, w a, w b);
 ///
 
 inline compound *compoundp(w a) {

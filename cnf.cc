@@ -90,7 +90,7 @@ w skolemize(w rt) {
 
   // compound
   freevars.insert(freevars.p, skolem(mktype(t)));
-  return term(freevars);
+  return mk(freevars);
 }
 
 w skolemize(w rt, const vec<pair<w, w>> &u) {
@@ -114,7 +114,7 @@ w rename_both(w a) {
   a = cnf1(a);
   getfree(a);
   auto b = skolemize(t_bool);
-  cnf(term(basic(b_and), imp(b, a), imp(a, b)), 0);
+  cnf(mk(basic(b_and), imp(b, a), imp(a, b)), 0);
   return b;
 }
 
@@ -135,7 +135,7 @@ struct nnf {
     v[0] = op;
     for (si i = 1; i != n; ++i)
       v[i] = convert(pol, at(a, i));
-    return term(v);
+    return mk(v);
   }
 
   w all(bool pol, w a) {
@@ -187,9 +187,9 @@ struct nnf {
           auto y = at(a, 2);
           if (nclauses(0, y) >= many || nclauses(1, y) >= many)
             y = rename_both(y);
-          return term(basic(b_and),
-                      term(basic(b_or), convert(0, x), convert(pol, y)),
-                      term(basic(b_or), convert(1, x), convert(pol ^ 1, y)));
+          return mk(basic(b_and),
+                    mk(basic(b_or), convert(0, x), convert(pol, y)),
+                    mk(basic(b_or), convert(1, x), convert(pol ^ 1, y)));
         }
         case b_all:
           return pol ? all(pol, a) : exists(pol, a);
@@ -219,7 +219,7 @@ struct nnf {
       freevars.push_back(make_pair(a, b));
       return b;
     }
-    return pol ? a : term(basic(b_not), a);
+    return pol ? a : mk(basic(b_not), a);
   }
 
   nnf(w a) { r = convert(1, a); }
@@ -243,7 +243,7 @@ w distrib(w a) {
       }
       v.push_back(b);
     }
-    return term(v);
+    return mk(v);
   }
   if (op == basic(b_or)) {
     // take possibly nested ands and turn them into a layer no more than one
@@ -293,13 +293,13 @@ w distrib(w a) {
           assert(!j[i]);
         or1[i + 1] = b;
       }
-      ors.push_back(term(or1));
+      ors.push_back(mk(or1));
 
       // take the next slice
       for (si i = n;;) {
         // if we have done all the slices, return and of ors
         if (!i)
-          return term(ors);
+          return mk(ors);
 
         // next element of the index vector
         // this is equivalent to increment with carry, of a multi-precision

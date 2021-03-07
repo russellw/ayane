@@ -220,7 +220,7 @@ void getfree(w a) {
   getfree1(a);
 }
 
-w imp(w a, w b) { return term(basic(b_or), term(basic(b_not), a), b); }
+w imp(w a, w b) { return mk(basic(b_or), mk(basic(b_not), a), b); }
 
 void init_terms() {
   skolemi = 0;
@@ -235,28 +235,28 @@ w int1(Int &x) { return tag(nums::ints.put(x), a_int); }
 
 sym *intern(const char *s, si n) { return syms::put(s, n); }
 
-w rat(Rat &x) { return tag(nums::rats.put(x), a_rat); }
+w mk(const ary<w> &v) { return compounds::put(v.p, v.n); }
 
-w real(Rat &x) { return tag(nums::rats.put(x), a_real); }
+w mk(const vec<w> &v) { return compounds::put(v.p, v.n); }
 
-w term(const ary<w> &v) { return compounds::put(v.p, v.n); }
-
-w term(const vec<w> &v) { return compounds::put(v.p, v.n); }
-
-w term(w op, w a) {
+w mk(w op, w a) {
   w v[2];
   v[0] = op;
   v[1] = a;
   return compounds::put(v, sizeof v / sizeof *v);
 }
 
-w term(w op, w a, w b) {
+w mk(w op, w a, w b) {
   w v[3];
   v[0] = op;
   v[1] = a;
   v[2] = b;
   return compounds::put(v, sizeof v / sizeof *v);
 }
+
+w rat(Rat &x) { return tag(nums::rats.put(x), a_rat); }
+
+w real(Rat &x) { return tag(nums::rats.put(x), a_real); }
 ///
 
 #ifdef DEBUG

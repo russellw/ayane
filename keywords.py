@@ -4,6 +4,11 @@
 # that must correspond to each other
 # so generate both lists
 
+# this cannot just be an X macro
+# like some of the other cases where enum and array must correspond to each other
+# because some keywords contain punctuation characters
+# therefore cannot be C++ identifiers
+
 
 def read_lines(filename):
     with open(filename) as f:

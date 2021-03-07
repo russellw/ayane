@@ -8,6 +8,7 @@
 
 // data
 #include "keywords.h"
+#include "num.h"
 #include "terms.h"
 
 #include "types.h"

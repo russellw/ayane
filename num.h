@@ -15,3 +15,6 @@ struct Rat {
   bool eq(const Rat &x) const { return mpq_equal(val, x.val); }
   void clear() { mpq_clear(val); }
 };
+
+Int *intern(Int &x);
+Rat *intern(Rat &x);

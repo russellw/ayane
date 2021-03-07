@@ -77,59 +77,6 @@ sym *put(const char *p, si n) {
 }
 } // namespace syms
 
-namespace nums {
-template <class T> class bank {
-  si cap = 0x10;
-  si count;
-  T **entries = (T **)xcalloc(cap, sizeof *entries);
-
-  si slot(T **entries, si cap, const T &x) {
-    auto mask = cap - 1;
-    auto i = x.hash() & mask;
-    while (entries[i] && !entries[i]->eq(x))
-      i = (i + 1) & mask;
-    return i;
-  }
-
-  void expand() {
-    assert(ispow2(cap));
-    auto cap1 = cap * 2;
-    auto entries1 = (T **)xcalloc(cap1, sizeof *entries);
-    for (si i = 0; i != cap; ++i) {
-      auto x = entries[i];
-      if (x)
-        entries1[slot(entries1, cap1, *x)] = x;
-    }
-    free(entries);
-    cap = cap1;
-    entries = entries1;
-  }
-
-  T *store(const T &x) {
-    auto r = (T *)xmalloc(sizeof x);
-    *r = x;
-    return r;
-  }
-
-public:
-  T *put(T &x) {
-    auto i = slot(entries, cap, x);
-    if (entries[i]) {
-      x.clear();
-      return entries[i];
-    }
-    if (++count > cap * 3 / 4) {
-      expand();
-      i = slot(entries, cap, x);
-    }
-    return entries[i] = store(x);
-  }
-};
-
-bank<Int> ints;
-bank<Rat> rats;
-} // namespace nums
-
 namespace compounds {
 si cap = 0x1000;
 si count;
@@ -231,7 +178,7 @@ void init_terms() {
   }
 }
 
-w int1(Int &x) { return tag(nums::ints.put(x), a_int); }
+w int1(Int &x) { return tag(intern(x), a_int); }
 
 sym *intern(const char *s, si n) { return syms::put(s, n); }
 
@@ -254,9 +201,9 @@ w mk(w op, w a, w b) {
   return compounds::put(v, sizeof v / sizeof *v);
 }
 
-w rat(Rat &x) { return tag(nums::rats.put(x), a_rat); }
+w rat(Rat &x) { return tag(intern(x), a_rat); }
 
-w real(Rat &x) { return tag(nums::rats.put(x), a_real); }
+w real(Rat &x) { return tag(intern(x), a_real); }
 ///
 
 #ifdef DEBUG

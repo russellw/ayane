@@ -230,6 +230,26 @@ void test_match() {
   assert(!match(b, x));
 }
 
+void test_mk() {
+  auto red = fn(t_bool, intern("red"));
+  auto green = fn(t_bool, intern("green"));
+  auto blue = fn(t_bool, intern("blue"));
+
+  auto a = mk(basic(b_not), red);
+  assert(a == mk(basic(b_not), red));
+
+  a = mk(basic(b_and), red, green);
+  assert(a == mk(basic(b_and), red, green));
+
+  vec<w> v;
+  v.push_back(basic(b_and));
+  v.push_back(red);
+  v.push_back(green);
+  v.push_back(blue);
+  a = mk(v);
+  assert(a == mk(v));
+}
+
 void test_mktype() {
   auto bird = mktype(intern("bird"));
   assert(bird == mktype(intern("bird")));
@@ -507,26 +527,6 @@ void test_sym() {
   assert(intern("xyz") == intern("xyz", 3));
 }
 
-void test_term() {
-  auto red = fn(t_bool, intern("red"));
-  auto green = fn(t_bool, intern("green"));
-  auto blue = fn(t_bool, intern("blue"));
-
-  auto a = mk(basic(b_not), red);
-  assert(a == mk(basic(b_not), red));
-
-  a = mk(basic(b_and), red, green);
-  assert(a == mk(basic(b_and), red, green));
-
-  vec<w> v;
-  v.push_back(basic(b_and));
-  v.push_back(red);
-  v.push_back(green);
-  v.push_back(blue);
-  a = mk(v);
-  assert(a == mk(v));
-}
-
 void test_typeof() {
   assert(typeof(var(t_int, 13)) == t_int);
 
@@ -665,11 +665,11 @@ void test() {
   test_getfree();
   test_int();
   test_match();
+  test_mk();
   test_mktype();
   test_rat();
   test_subsume();
   test_sym();
-  test_term();
   test_typeof();
   test_unify();
   test_var();

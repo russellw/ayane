@@ -2,7 +2,7 @@
 // stdafx.h must be first
 #include "main.h"
 
-namespace  {
+namespace {
 // must be a power of 2, and large enough to hold the largest collection of
 // entries that will be loaded at initialization time
 si cap = 0x100;
@@ -70,7 +70,7 @@ sym *put(const char *p, si n) {
   }
   return entries[i] = store(p, n);
 }
-} // namespace syms
+} // namespace
 
 void init_syms() {
   for (auto i = entries, e = entries + cap; i != e; ++i) {

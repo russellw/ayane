@@ -86,7 +86,6 @@ void getfree(w a);
 w imp(w a, w b);
 void init_terms();
 w int1(Int &x);
-sym *intern(const char *s, si n);
 Int *intp(w a);
 w mk(const ary<w> &v);
 w mk(const vec<w> &v);
@@ -123,8 +122,6 @@ inline w *endp(w a) {
   auto p = compoundp(a);
   return p->v + p->n;
 }
-
-inline sym *intern(const char *s) { return intern(s, strlen(s)); }
 
 inline Int *intp(w a) {
   assert((a & 7) == a_int);

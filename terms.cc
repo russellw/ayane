@@ -99,9 +99,7 @@ void getfree(w a) {
 
 w imp(w a, w b) { return mk(basic(b_or), mk(basic(b_not), a), b); }
 
-void init_terms() {
-  skolemi = 0;
-}
+void init_terms() { skolemi = 0; }
 
 w int1(Int &x) { return tag(intern(x), a_int); }
 

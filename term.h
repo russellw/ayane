@@ -145,10 +145,6 @@ inline compound *compoundp(w a) {
   return (compound *)a;
 }
 
-// this logically belongs in types.h but is moved up here for the benefit of
-// inline functions that want to use it
-const w t_compound = 1 << 15;
-
 // SORT
 inline w at(w a, si i) { return compoundp(a)->v[i]; }
 

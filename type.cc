@@ -2,7 +2,7 @@
 // stdafx.h must be first
 #include "main.h"
 
-ary<tcompound *> tcompounds(0);
+ary<tcompound *, t_compound> tcompounds(0);
 
 namespace {
 // the number of types is expected to be small. it is therefore possible to fit

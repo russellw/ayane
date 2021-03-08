@@ -7,10 +7,10 @@
 #include "vec.h"
 
 // data
+#include "type.h"
+
 #include "num.h"
 #include "term.h"
-
-#include "type.h"
 
 #include "eqn.h"
 #include "keywords.h"

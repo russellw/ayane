@@ -1,5 +1,3 @@
-w typeof(w a);
-
 struct eqn {
   w left, right;
 

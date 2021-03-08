@@ -15,6 +15,32 @@ struct tcompound {
   uint16_t v[0];
 };
 
+class type {
+  uint16_t x;
+
+public:
+  explicit type(si x) : x(x) {}
+
+  // SORT
+  bool operator==(type b) { return x == b.x; }
+
+  w operator[](si i) {
+    assert(0 <= i);
+    assert(i < size());
+    return compoundp()->v[i];
+  }
+
+  tcompound *compoundp() {
+    assert(iscompound());
+    return tcompounds[x & ~t_compound];
+  }
+
+  bool iscompound() { return x >= t_compound; }
+
+  si size() { return compoundp()->n; }
+  ///
+};
+
 extern ary<tcompound *> tcompounds;
 
 inline tcompound *tcompoundp(w t) {

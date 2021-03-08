@@ -56,6 +56,64 @@ struct compound {
 
 struct sym;
 
+class term {
+  union {
+    si a;
+  };
+
+public:
+  explicit term(si a) : a(a) {}
+
+  // SORT
+  w operator[](si i) { return compoundp()->v[i]; }
+
+  w *begin() { return compoundp()->v; }
+
+  compound *compoundp() {
+    assert((a & 7) == a_compound);
+    assert(!a_compound);
+    return (compound *)a;
+  }
+
+  sym *distinctobjp() {
+    assert((a & 7) == a_distinctobj);
+    return (sym *)(a - a_distinctobj);
+  }
+
+  w *end() {
+    auto p = compoundp();
+    return p->v + p->n;
+  }
+
+  Int *intp() {
+    assert((a & 7) == a_int);
+    return (Int *)(a - a_int);
+  }
+
+  Rat *ratp() {
+    assert((a & 7) == a_rat || (a & 7) == a_real);
+    return (Rat *)(a & ~(w)7);
+  }
+
+  si size() { return compoundp()->n; }
+
+  sym *symp() {
+    assert((a & 7) == a_sym);
+    return (sym *)(a - a_sym);
+  }
+
+  si vari() {
+    assert((a & 7) == a_var);
+    return a >> (1 + 16 + 3);
+  }
+
+  w vartype() {
+    assert((a & 7) == a_var);
+    return a >> 3 & 0xffff;
+  }
+  ///
+};
+
 // SORT
 extern ary<w> freevars;
 extern si skolemi;

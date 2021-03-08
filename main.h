@@ -8,15 +8,15 @@
 
 // data
 #include "num.h"
-#include "terms.h"
+#include "term.h"
 
-#include "types.h"
+#include "type.h"
 
 #include "eqn.h"
 #include "keywords.h"
 #include "sym.h"
 
-#include "clauses.h"
+#include "clause.h"
 #include "problem.h"
 
 // parsers

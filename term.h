@@ -63,6 +63,8 @@ public:
   explicit term(si x) : x(x) {}
 
   // SORT
+  bool operator==(term b) { return x == b.x; }
+
   w operator[](si i) { return compoundp()->v[i]; }
 
   w *begin() { return compoundp()->v; }
@@ -99,6 +101,8 @@ public:
     assert((x & 7) == a_sym);
     return (sym *)(x - a_sym);
   }
+
+  si tag() { return x & 7; }
 
   si vari() {
     assert((x & 7) == a_var);

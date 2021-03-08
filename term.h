@@ -65,18 +65,21 @@ public:
   // SORT
   bool operator==(term b) { return x == b.x; }
 
-  w operator[](si i) { return compoundp()->v[i]; }
+  w operator[](si i) {
+    assert(0 <= i);
+    assert(i < size());
+    return compoundp()->v[i];
+  }
 
   w *begin() { return compoundp()->v; }
 
   compound *compoundp() {
-    assert((x & 7) == a_compound);
-    assert(!a_compound);
-    return (compound *)x;
+    assert(tag() == a_compound);
+    return (compound *)(x - a_compound);
   }
 
   sym *distinctobjp() {
-    assert((x & 7) == a_distinctobj);
+    assert(tag() == a_distinctobj);
     return (sym *)(x - a_distinctobj);
   }
 
@@ -86,31 +89,31 @@ public:
   }
 
   Int *intp() {
-    assert((x & 7) == a_int);
+    assert(tag() == a_int);
     return (Int *)(x - a_int);
   }
 
   Rat *ratp() {
-    assert((x & 7) == a_rat || (x & 7) == a_real);
-    return (Rat *)(x & ~(w)7);
+    assert(tag() == a_rat || tag() == a_real);
+    return (Rat *)(x - tag());
   }
 
   si size() { return compoundp()->n; }
 
   sym *symp() {
-    assert((x & 7) == a_sym);
+    assert(tag() == a_sym);
     return (sym *)(x - a_sym);
   }
 
   si tag() { return x & 7; }
 
   si vari() {
-    assert((x & 7) == a_var);
+    assert(tag() == a_var);
     return x >> (1 + 16 + 3);
   }
 
   w vartype() {
-    assert((x & 7) == a_var);
+    assert(tag() == a_var);
     return x >> 3 & 0xffff;
   }
   ///

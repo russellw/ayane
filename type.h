@@ -30,9 +30,14 @@ public:
     return compoundp()->v[i];
   }
 
+  si atom() {
+    assert(!iscompound());
+    return x;
+  }
+
   tcompound *compoundp() {
     assert(iscompound());
-    return tcompounds[x & ~t_compound];
+    return tcompounds[x - t_compound];
   }
 
   bool iscompound() { return x >= t_compound; }

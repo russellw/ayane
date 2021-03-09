@@ -201,7 +201,7 @@ inline si vari(w a) {
 
 inline type vartype(w a) {
   assert((a & 7) == a_var);
-  return type(a >> 3 & 0xffff);
+  return type(a >> 3);
 }
 ///
 

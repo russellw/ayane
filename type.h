@@ -10,7 +10,7 @@ enum class type : uint16_t {
   max
 };
 
-const uint16_t t_compound = 1 << 15;
+const uint16_t t_compound = 1000;
 
 inline bool iscompound(type t) { return (uint16_t)t >= t_compound; }
 

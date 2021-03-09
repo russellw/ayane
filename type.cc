@@ -66,6 +66,27 @@ type put(const type *p, si n) {
 }
 } // namespace
 
+type mktype(sym *name) {
+  if (name->t != type::none)
+    return name->t;
+  if (atoms >= tcompoundoffset)
+    err("too many atomic types");
+  return name->t = (type)atoms++;
+}
+
+type mktype(const vec<type> &v) {
+  if (v.n > 0xffff)
+    throw "type too complex";
+  return put(v.p, v.n);
+}
+
+type mktype(type r, type t1) {
+  type v[2];
+  v[0] = r;
+  v[1] = t1;
+  return put(v, sizeof v / sizeof *v);
+}
+
 // SORT
 void defaulttype(type t, w a) {
   assert(!iscompound(t));
@@ -91,23 +112,6 @@ void defaulttype(type t, w a) {
       symp(a)->ft = t;
     break;
   }
-}
-
-type mktype(const vec<type> &v) { return put(v.p, v.n); }
-
-type mktype(sym *name) {
-  if (name->t != type::none)
-    return name->t;
-  if (atoms >= tcompoundoffset)
-    err("too many atomic types");
-  return name->t = (type)atoms++;
-}
-
-type mktype(type r, type t1) {
-  type v[2];
-  v[0] = r;
-  v[1] = t1;
-  return put(v, sizeof v / sizeof *v);
 }
 
 type numtype(w a) {

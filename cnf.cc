@@ -69,20 +69,20 @@ si nclauses(bool pol, w a) {
 
 // creating new functions is necessary both to skolemize existential variables
 // and to rename subformulas to avoid exponential blowup
-w skolem(w t) {
+w skolem(type t) {
   auto n = sprintf(buf, "\1%zu", skolemi++);
   auto s = intern(buf, n);
   s->ft = t;
   return tag(s, a_sym);
 }
 
-w skolemize(w rt) {
+w skolemize(type rt) {
   // atom
   if (!freevars.n)
     return skolem(rt);
 
   // compound type
-  vec<uint16_t> t;
+  vec<type> t;
   t.resize(freevars.n + 1);
   t[0] = rt;
   for (si i = 0; i != freevars.n; ++i)
@@ -93,7 +93,7 @@ w skolemize(w rt) {
   return mk(freevars);
 }
 
-w skolemize(w rt, const vec<pair<w, w>> &u) {
+w skolemize(type rt, const vec<pair<w, w>> &u) {
   freevars.resize(u.n);
   for (si i = 0; i != u.n; ++i)
     freevars[i] = u[i].second;
@@ -103,7 +103,7 @@ w skolemize(w rt, const vec<pair<w, w>> &u) {
 // rename subformulas to avoid exponential blowup
 w rename_pos(w a) {
   getfree(a);
-  auto b = skolemize(t_bool);
+  auto b = skolemize(type::Bool);
   cnf(imp(b, a), 0);
   return b;
 }
@@ -113,7 +113,7 @@ w cnf1(w a);
 w rename_both(w a) {
   a = cnf1(a);
   getfree(a);
-  auto b = skolemize(t_bool);
+  auto b = skolemize(type::Bool);
   cnf(mk(basic(b_and), imp(b, a), imp(a, b)), 0);
   return b;
 }
@@ -144,7 +144,7 @@ struct nnf {
     allvars.resize(old + n - 2);
     for (si i = 2; i != n; ++i) {
       auto t = vartype(at(a, i));
-      auto &j = newvars[t];
+      auto &j = newvars[(si)t];
       allvars[old + i - 2] = make_pair(at(a, i), var(t, j++));
     }
     a = convert(pol, at(a, 1));
@@ -214,7 +214,7 @@ struct nnf {
         if (p.first == a)
           return p.second;
       auto t = vartype(a);
-      auto &j = newvars[t];
+      auto &j = newvars[(uint16_t)t];
       auto b = var(t, j++);
       freevars.push_back(make_pair(a, b));
       return b;

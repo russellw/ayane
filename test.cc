@@ -5,8 +5,8 @@
 #ifdef DEBUG
 namespace {
 // SORT
-w fn(w t, sym *s) {
-  if (!s->ft)
+w fn(type t, sym *s) {
+  if (s->ft == type::none)
     s->ft = t;
   assert(s->ft == t);
   return tag(s, a_sym);
@@ -51,16 +51,16 @@ w replace(w a) {
   return a;
 }
 
-w type(w r, w t1, w t2) {
-  vec<uint16_t> v(r, t1, t2);
+type mktype(type r, type t1, type t2) {
+  vec<type> v(r, t1, t2);
   return mktype(v);
 }
 ///
 
 // SORT
 void test_clause() {
-  auto x = var(t_int, 0);
-  auto y = var(t_int, 1);
+  auto x = var(type::Int, 0);
+  auto y = var(type::Int, 1);
 
   // a simple clause, x!=y
   neg.n = pos.n = 0;
@@ -81,17 +81,17 @@ void test_clause() {
 }
 
 void test_fn() {
-  auto red = fn(t_bool, intern("red"));
+  auto red = fn(type::Bool, intern("red"));
   auto redp = symp(red);
-  assert(redp->ft == t_bool);
+  assert(redp->ft == type::Bool);
 
-  auto green = fn(t_bool, intern("green"));
+  auto green = fn(type::Bool, intern("green"));
   auto greenp = symp(green);
-  assert(greenp->ft == t_bool);
+  assert(greenp->ft == type::Bool);
 
-  auto blue = fn(t_bool, intern("blue"));
+  auto blue = fn(type::Bool, intern("blue"));
   auto bluep = symp(blue);
-  assert(bluep->ft == t_bool);
+  assert(bluep->ft == type::Bool);
 
   assert(redp == intern("red"));
   assert(greenp == intern("green"));
@@ -99,9 +99,9 @@ void test_fn() {
 }
 
 void test_getfree() {
-  auto a = fn(t_individual, intern("a"));
-  auto x = var(t_individual, 0);
-  auto y = var(t_individual, 1);
+  auto a = fn(type::Individual, intern("a"));
+  auto x = var(type::Individual, 0);
+  auto y = var(type::Individual, 1);
 
   getfree(a);
   assert(freevars.n == 0);
@@ -154,14 +154,15 @@ void test_match() {
   // as unify, gives the same results in some cases, but different results in
   // others. in particular, has no notion of an occurs check; in actual use, it
   // is assumed that the arguments will have disjoint variables
-  auto a = fn(t_individual, intern("a"));
-  auto b = fn(t_individual, intern("b"));
-  auto f1 = fn(mktype(t_individual, t_individual), intern("f1"));
-  auto f2 = fn(type(t_individual, t_individual, t_individual), intern("f2"));
-  auto g1 = fn(mktype(t_individual, t_individual), intern("g1"));
-  auto x = var(t_individual, 0);
-  auto y = var(t_individual, 1);
-  auto z = var(t_individual, 2);
+  auto a = fn(type::Individual, intern("a"));
+  auto b = fn(type::Individual, intern("b"));
+  auto f1 = fn(mktype(type::Individual, type::Individual), intern("f1"));
+  auto f2 = fn(mktype(type::Individual, type::Individual, type::Individual),
+               intern("f2"));
+  auto g1 = fn(mktype(type::Individual, type::Individual), intern("g1"));
+  auto x = var(type::Individual, 0);
+  auto y = var(type::Individual, 1);
+  auto z = var(type::Individual, 2);
 
   // Succeeds. (tautology)
   assert(match0(a, a));
@@ -231,9 +232,9 @@ void test_match() {
 }
 
 void test_mk() {
-  auto red = fn(t_bool, intern("red"));
-  auto green = fn(t_bool, intern("green"));
-  auto blue = fn(t_bool, intern("blue"));
+  auto red = fn(type::Bool, intern("red"));
+  auto green = fn(type::Bool, intern("green"));
+  auto blue = fn(type::Bool, intern("blue"));
 
   auto a = mk(basic(b_not), red);
   assert(a == mk(basic(b_not), red));
@@ -253,39 +254,39 @@ void test_mk() {
 void test_mktype() {
   auto bird = mktype(intern("bird"));
   assert(bird == mktype(intern("bird")));
-  assert(bird < t_compound);
+  assert(!iscompound(bird));
 
   auto plane = mktype(intern("plane"));
   assert(plane == mktype(intern("plane")));
-  assert(plane < t_compound);
+  assert(!iscompound(plane));
 
   assert(bird != plane);
 
-  vec<uint16_t> v;
-  v.push_back(t_bool);
-  v.push_back(t_int);
-  v.push_back(t_int);
+  vec<type> v;
+  v.push_back(type::Bool);
+  v.push_back(type::Int);
+  v.push_back(type::Int);
   auto t_predicate_int_int = mktype(v);
   assert(t_predicate_int_int == mktype(v));
-  assert(t_predicate_int_int & t_compound);
+  assert(iscompound(t_predicate_int_int));
   auto t = tcompoundp(t_predicate_int_int);
   assert(t->n == 3);
-  assert(t->v[0] == t_bool);
-  assert(t->v[1] == t_int);
-  assert(t->v[2] == t_int);
+  assert(t->v[0] == type::Bool);
+  assert(t->v[1] == type::Int);
+  assert(t->v[2] == type::Int);
 
   v.n = 0;
-  v.push_back(t_bool);
-  v.push_back(t_rat);
-  v.push_back(t_rat);
+  v.push_back(type::Bool);
+  v.push_back(type::Rat);
+  v.push_back(type::Rat);
   auto t_predicate_rat_rat = mktype(v);
   assert(t_predicate_rat_rat == mktype(v));
-  assert(t_predicate_rat_rat & t_compound);
+  assert(iscompound(t_predicate_rat_rat));
   t = tcompoundp(t_predicate_rat_rat);
   assert(t->n == 3);
-  assert(t->v[0] == t_bool);
-  assert(t->v[1] == t_rat);
-  assert(t->v[2] == t_rat);
+  assert(t->v[0] == type::Bool);
+  assert(t->v[1] == type::Rat);
+  assert(t->v[2] == type::Rat);
 }
 
 void test_rat() {
@@ -312,16 +313,17 @@ void test_rat() {
 }
 
 void test_subsume() {
-  auto a = fn(t_individual, intern("a"));
-  auto a1 = fn(mktype(t_individual, t_individual), intern("a1"));
-  auto b = fn(t_individual, intern("b"));
-  auto p = fn(t_bool, intern("p"));
-  auto p1 = fn(mktype(t_bool, t_individual), intern("p1"));
-  auto p2 = fn(type(t_bool, t_individual, t_individual), intern("p2"));
-  auto q = fn(t_bool, intern("q"));
-  auto q1 = fn(mktype(t_bool, t_individual), intern("q1"));
-  auto x = var(t_individual, 0);
-  auto y = var(t_individual, 1);
+  auto a = fn(type::Individual, intern("a"));
+  auto a1 = fn(mktype(type::Individual, type::Individual), intern("a1"));
+  auto b = fn(type::Individual, intern("b"));
+  auto p = fn(type::Bool, intern("p"));
+  auto p1 = fn(mktype(type::Bool, type::Individual), intern("p1"));
+  auto p2 =
+      fn(mktype(type::Bool, type::Individual, type::Individual), intern("p2"));
+  auto q = fn(type::Bool, intern("q"));
+  auto q1 = fn(mktype(type::Bool, type::Individual), intern("q1"));
+  auto x = var(type::Individual, 0);
+  auto y = var(type::Individual, 1);
   clause *c;
   clause *d;
 
@@ -528,32 +530,33 @@ void test_sym() {
 }
 
 void test_typeof() {
-  assert(typeof(var(t_int, 13)) == t_int);
+  assert(typeof(var(type::Int, 13)) == type::Int);
 
   Int i1;
   mpz_init_set_ui(i1.val, 1);
-  assert(typeof(int1(i1)) == t_int);
+  assert(typeof(int1(i1)) == type::Int);
 
   Rat r1;
   mpq_init(r1.val);
   mpq_set_ui(r1.val, 1, 3);
-  assert(typeof(rat(r1)) == t_rat);
-  assert(typeof(real(r1)) == t_real);
+  assert(typeof(rat(r1)) == type::Rat);
+  assert(typeof(real(r1)) == type::Real);
 
-  auto red = fn(t_bool, intern("red"));
-  assert(typeof(red) == t_bool);
+  auto red = fn(type::Bool, intern("red"));
+  assert(typeof(red) == type::Bool);
 }
 
 void test_unify() {
   // https://en.wikipedia.org/wiki/Unification_(computer_science)#Examples_of_syntactic_unification_of_first-order_terms
-  auto a = fn(t_individual, intern("a"));
-  auto b = fn(t_individual, intern("b"));
-  auto f1 = fn(mktype(t_individual, t_individual), intern("f1"));
-  auto f2 = fn(type(t_individual, t_individual, t_individual), intern("f2"));
-  auto g1 = fn(mktype(t_individual, t_individual), intern("g1"));
-  auto x = var(t_individual, 0);
-  auto y = var(t_individual, 1);
-  auto z = var(t_individual, 2);
+  auto a = fn(type::Individual, intern("a"));
+  auto b = fn(type::Individual, intern("b"));
+  auto f1 = fn(mktype(type::Individual, type::Individual), intern("f1"));
+  auto f2 = fn(mktype(type::Individual, type::Individual, type::Individual),
+               intern("f2"));
+  auto g1 = fn(mktype(type::Individual, type::Individual), intern("g1"));
+  auto x = var(type::Individual, 0);
+  auto y = var(type::Individual, 1);
+  auto z = var(type::Individual, 2);
 
   // Succeeds. (tautology)
   assert(unify(a, a));
@@ -630,10 +633,10 @@ void test_unify() {
 }
 
 void test_var() {
-  auto x = var(t_int, 0);
+  auto x = var(type::Int, 0);
   assert(vari(x) == 0);
 
-  auto y = var(t_int, 1);
+  auto y = var(type::Int, 1);
   assert(vari(y) == 1);
 
   assert(x != y);

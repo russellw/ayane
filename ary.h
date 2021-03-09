@@ -7,14 +7,6 @@ template <class T, si cap = 100000> struct ary {
   si n;
   T p[cap];
 
-  // construct/copy/destroy
-  ary() {}
-
-  explicit ary(T a) : n(1) {
-    assert(n <= cap);
-    p[0] = a;
-  }
-
   // iterators
   iterator begin() { return p; }
   const_iterator begin() const { return p; }

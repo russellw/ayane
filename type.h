@@ -1,37 +1,39 @@
-enum {
-  t_none,
+enum class type : uint16_t {
+  none,
 
-  t_bool,
-  t_int,
-  t_rat,
-  t_real,
-  t_individual,
+  Bool,
+  Int,
+  Rat,
+  Real,
+  Individual,
 
-  nbasictypes
+  max
 };
 
-const w t_compound = 1 << 15;
+const uint16_t t_compound = 1 << 15;
+
+inline bool iscompound(type t) { return (uint16_t)t >= t_compound; }
 
 struct sym;
 
 struct tcompound {
   uint16_t n;
-  uint16_t v[0];
+  type v[0];
 };
 
-extern ary<tcompound *, t_compound> tcompounds;
+extern ary<tcompound *, 0x10000 - t_compound> tcompounds;
 
-inline tcompound *tcompoundp(w t) {
-  assert(t & t_compound);
-  return tcompounds[t & ~t_compound];
+inline tcompound *tcompoundp(type t) {
+  assert(iscompound(t));
+  return tcompounds[(uint16_t)t - t_compound];
 }
 
 // SORT
-void defaulttype(w t, w a);
-w mktype(const vec<uint16_t> &v);
-w mktype(sym *name);
-w mktype(w r, w t1);
-w numtype(w a);
-void requiretype(w t, w a);
-w typeof(w a);
+void defaulttype(type t, w a);
+type mktype(const vec<type> &v);
+type mktype(sym *name);
+type mktype(type r, type t1);
+type numtype(w a);
+void requiretype(type t, w a);
+type typeof(w a);
 ///

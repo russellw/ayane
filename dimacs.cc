@@ -67,7 +67,7 @@ struct parser1 : parser {
   w fn() {
     auto s = toksym;
     lex();
-    s->ft = t_bool;
+    s->ft = type::Bool;
     return tag(s, a_sym);
   }
 

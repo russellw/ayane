@@ -181,8 +181,8 @@ inline sym *symp(w a) {
 
 inline w tag(void *p, w a) { return (w)p + a; }
 
-inline w var(w t, si i) {
-  assert(t < t_compound);
+inline w var(type t, si i) {
+  assert(!iscompound(t));
   if (sizeof(w) == 4 && i >= 1 << 12)
     err("too many variables");
   // variable is composed of:
@@ -191,7 +191,7 @@ inline w var(w t, si i) {
   // 1 bit flag e.g. for renamed variables
   // and the rest of the bits in the word are for a number that identifies the
   // variable
-  return i << (1 + 16 + 3) | t << 3 | a_var;
+  return i << (1 + 16 + 3) | (si)t << 3 | a_var;
 }
 
 inline si vari(w a) {
@@ -199,9 +199,9 @@ inline si vari(w a) {
   return a >> (1 + 16 + 3);
 }
 
-inline w vartype(w a) {
+inline type vartype(w a) {
   assert((a & 7) == a_var);
-  return a >> 3 & 0xffff;
+  return type(a >> 3 & 0xffff);
 }
 ///
 

@@ -2,7 +2,7 @@
 // stdafx.h must be first
 #include "main.h"
 
-ary<tcompound *, t_compound> tcompounds(0);
+ary<tcompound *, 0x10000 - t_compound> tcompounds;
 
 namespace {
 // the number of types is expected to be small. it is therefore possible to fit
@@ -10,21 +10,21 @@ namespace {
 // a variable to be read without an extra memory access. compound types are
 // therefore tracked with an unusual kind of memory bank in which entries are
 // 16-bit words rather than pointers
-si atoms = nbasictypes;
+si atoms = (si)type::max;
 
 si cap = 0x10;
-uint16_t *entries = (uint16_t *)xcalloc(cap, sizeof *entries);
+type *entries = (type *)xcalloc(cap, sizeof *entries);
 
-bool eq(const tcompound *t, const uint16_t *p, si n) {
+bool eq(const tcompound *t, const type *p, si n) {
   if (t->n != n)
     return 0;
   return !memcmp(t->v, p, n * sizeof *p);
 }
 
-si slot(uint16_t *entries, si cap, const uint16_t *p, si n) {
+si slot(type *entries, si cap, const type *p, si n) {
   auto mask = cap - 1;
   auto i = fnv(p, n * sizeof *p) & mask;
-  while (entries[i] && !eq(tcompounds[entries[i]], p, n))
+  while (entries[i] != type::none && !eq(tcompoundp(entries[i]), p, n))
     i = (i + 1) & mask;
   return i;
 }
@@ -32,11 +32,11 @@ si slot(uint16_t *entries, si cap, const uint16_t *p, si n) {
 void expand() {
   assert(ispow2(cap));
   auto cap1 = cap * 2;
-  auto entries1 = (uint16_t *)xcalloc(cap1, sizeof *entries);
+  auto entries1 = (type *)xcalloc(cap1, sizeof *entries);
   for (si i = 0; i != cap; ++i) {
     auto t = entries[i];
-    if (t) {
-      auto tp = tcompounds[t];
+    if (t != type::none) {
+      auto tp = tcompoundp(t);
       entries1[slot(entries1, cap1, tp->v, tp->n)] = t;
     }
   }
@@ -45,43 +45,40 @@ void expand() {
   entries = entries1;
 }
 
-tcompound *store(const uint16_t *p, si n) {
+tcompound *store(const type *p, si n) {
   auto r = (tcompound *)mmalloc(offsetof(tcompound, v) + n * sizeof *p);
   r->n = n;
   memcpy(r->v, p, n * sizeof *p);
   return r;
 }
 
-w put(const uint16_t *p, si n) {
+type put(const type *p, si n) {
   auto i = slot(entries, cap, p, n);
-  if (entries[i])
-    return entries[i] | t_compound;
+  if (entries[i] != type::none)
+    return entries[i];
   if (tcompounds.n >= cap * 3 / 4) {
-    if (tcompounds.n >= t_compound)
-      err("too many compound types");
     expand();
     i = slot(entries, cap, p, n);
   }
-  auto t = tcompounds.n;
-  entries[i] = t;
+  auto t = entries[i] = type(t_compound + tcompounds.n);
   tcompounds.push(store(p, n));
-  return t | t_compound;
+  return t;
 }
 } // namespace
 
 // SORT
-void defaulttype(w t, w a) {
-  assert(t < t_compound);
+void defaulttype(type t, w a) {
+  assert(!iscompound(t));
   switch (a & 7) {
   case a_compound: {
     auto op = at(a, 0);
     if ((op & 7) != a_sym)
       break;
     auto ft = symp(op)->ft;
-    if (ft)
+    if (ft != type::none)
       break;
     auto n = size(a);
-    vec<uint16_t> v;
+    vec<type> v;
     v.resize(n);
     v[0] = t;
     for (si i = 1; i != n; ++i)
@@ -90,51 +87,51 @@ void defaulttype(w t, w a) {
     break;
   }
   case a_sym:
-    if (!symp(a)->ft)
+    if (symp(a)->ft == type::none)
       symp(a)->ft = t;
     break;
   }
 }
 
-w mktype(const vec<uint16_t> &v) { return put(v.p, v.n); }
+type mktype(const vec<type> &v) { return put(v.p, v.n); }
 
-w mktype(sym *name) {
-  if (name->t)
+type mktype(sym *name) {
+  if (name->t != type::none)
     return name->t;
   if (atoms >= t_compound)
     err("too many atomic types");
-  return name->t = atoms++;
+  return name->t = (type)atoms++;
 }
 
-w mktype(w r, w t1) {
-  uint16_t v[2];
+type mktype(type r, type t1) {
+  type v[2];
   v[0] = r;
   v[1] = t1;
   return put(v, sizeof v / sizeof *v);
 }
 
-w numtype(w a) {
+type numtype(w a) {
   auto t = typeof(a);
   switch (t) {
-  case t_int:
-  case t_rat:
-  case t_real:
+  case type::Int:
+  case type::Rat:
+  case type::Real:
     return t;
   }
   throw "expected number term";
 }
 
-void requiretype(w t, w a) {
+void requiretype(type t, w a) {
   defaulttype(t, a);
   if (t != typeof(a))
     throw "type mismatch";
 }
 
-w typeof(w a) {
+type typeof(w a) {
   switch (a & 7) {
   case a_basic:
     assert(a >> 3 == b_false || a >> 3 == b_true);
-    return t_bool;
+    return type::Bool;
   case a_compound: {
     auto op = at(a, 0);
     switch (op & 7) {
@@ -151,20 +148,20 @@ w typeof(w a) {
       case b_lt:
       case b_not:
       case b_or:
-        return t_bool;
+        return type::Bool;
       case b_toint:
-        return t_int;
+        return type::Int;
       case b_torat:
-        return t_rat;
+        return type::Rat;
       case b_toreal:
-        return t_real;
+        return type::Real;
       }
       return typeof(at(a, 1));
     case a_sym: {
       auto ft = symp(op)->ft;
-      if (!ft)
-        return 0;
-      assert(ft & t_compound);
+      if (ft == type::none)
+        return ft;
+      assert(iscompound(ft));
       auto ftp = tcompoundp(ft);
       assert(size(a) == ftp->n);
       return ftp->v[0];
@@ -173,19 +170,19 @@ w typeof(w a) {
     unreachable;
   }
   case a_distinctobj:
-    return t_individual;
+    return type::Individual;
   case a_int:
-    return t_int;
+    return type::Int;
   case a_rat:
-    return t_rat;
+    return type::Rat;
   case a_real:
-    return t_real;
+    return type::Real;
   case a_sym:
     return symp(a)->ft;
   case a_var:
     return vartype(a);
   }
   unreachable;
-  return 0;
+  return type::none;
 }
 ///

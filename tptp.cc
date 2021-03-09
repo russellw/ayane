@@ -360,7 +360,7 @@ struct parser1 : parser {
   }
 
   // types
-  w atomic_type() {
+  type atomic_type() {
     auto k = tok;
     auto s = toksym;
     auto ts = tokstart;
@@ -377,15 +377,15 @@ struct parser1 : parser {
     case o_dollarword:
       switch (keyword(s)) {
       case k_i:
-        return t_individual;
+        return type::Individual;
       case k_int:
-        return t_int;
+        return type::Int;
       case k_o:
-        return t_bool;
+        return type::Bool;
       case k_rat:
-        return t_rat;
+        return type::Rat;
       case k_real:
-        return t_real;
+        return type::Real;
       }
       throw inappropriate();
     case o_word:
@@ -395,9 +395,9 @@ struct parser1 : parser {
     }
   }
 
-  w top_level_type() {
+  type top_level_type() {
     if (eat('(')) {
-      vec<uint16_t> v(0);
+      vec<type> v(type::none);
       do
         v.push_back(atomic_type());
       while (eat('*'));
@@ -567,7 +567,7 @@ struct parser1 : parser {
         return defined_functor(basic(b_sub), 2);
       case k_distinct: {
         args(v);
-        defaulttype(t_individual, v[0]);
+        defaulttype(type::Individual, v[0]);
         auto t = typeof(v[0]);
         for (auto i = v.p + 1, e = v.end(); i != e; ++i)
           requiretype(t, *i);
@@ -607,7 +607,7 @@ struct parser1 : parser {
         return defined_functor(basic(b_mul), 2);
       case k_quotient: {
         auto a = defined_functor(basic(b_div), 2);
-        if (typeof(at(a, 1)) == t_int)
+        if (typeof(at(a, 1)) == type::Int)
           err("expected fraction term");
         return a;
       }
@@ -657,7 +657,7 @@ struct parser1 : parser {
           return i->second;
       if (!cnfmode)
         err("unknown variable", ts);
-      auto x = var(t_individual, vars.n);
+      auto x = var(type::Individual, vars.n);
       vars.push_back(make_pair(s, x));
       return x;
     }
@@ -669,7 +669,7 @@ struct parser1 : parser {
       vec<w> v(a);
       args(v);
       for (auto i = v.p + 1, e = v.end(); i != e; ++i)
-        defaulttype(t_individual, *i);
+        defaulttype(type::Individual, *i);
       return mk(v);
     }
     }
@@ -682,19 +682,19 @@ struct parser1 : parser {
     case '=': {
       lex();
       auto b = atomic_term();
-      defaulttype(t_individual, a);
+      defaulttype(type::Individual, a);
       requiretype(typeof(a), b);
       return mk(basic(b_eq), a, b);
     }
     case o_ne: {
       lex();
       auto b = atomic_term();
-      defaulttype(t_individual, a);
+      defaulttype(type::Individual, a);
       requiretype(typeof(a), b);
       return mk(basic(b_not), mk(basic(b_eq), a, b));
     }
     }
-    requiretype(t_bool, a);
+    requiretype(type::Bool, a);
     return a;
   }
 
@@ -708,7 +708,7 @@ struct parser1 : parser {
         err("expected variable");
       auto s = toksym;
       lex();
-      w t = t_individual;
+      auto t = type::Individual;
       if (eat(':'))
         t = atomic_type();
       auto x = var(t, vars.n);
@@ -884,11 +884,10 @@ struct parser1 : parser {
                 throw inappropriate();
             } else {
               auto t = top_level_type();
-              if (s->ft) {
-                if (t != s->ft)
-                  err("type mismatch");
-              } else
+              if (s->ft == type::none)
                 s->ft = t;
+              else if (t != s->ft)
+                err("type mismatch");
             }
             while (parens--)
               expect(')');
@@ -1019,7 +1018,7 @@ void quant(char op, w a) {
     auto x = at(a, i);
     prterm(x);
     auto t = vartype(x);
-    if (t != t_individual) {
+    if (t != type::Individual) {
       putchar(':');
       prtype(t);
     }
@@ -1040,21 +1039,21 @@ bool weird(const char *s) {
 ///
 } // namespace
 
-void prtype(w t) {
+void prtype(type t) {
   switch (t) {
-  case t_bool:
+  case type::Bool:
     printf("$o");
     return;
-  case t_individual:
+  case type::Individual:
     printf("$i");
     return;
-  case t_int:
+  case type::Int:
     printf("$int");
     return;
-  case t_rat:
+  case type::Rat:
     printf("$rat");
     return;
-  case t_real:
+  case type::Real:
     printf("$real");
     return;
   }

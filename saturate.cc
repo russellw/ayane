@@ -186,7 +186,7 @@ where
 bool equatable(w a, w b) {
   if (typeof(a) != typeof(b))
     return 0;
-  if (typeof(a) == t_bool)
+  if (typeof(a) == type::Bool)
     return a == basic(b_true) || b == basic(b_true);
   return 1;
 }

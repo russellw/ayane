@@ -76,7 +76,7 @@ void init_syms() {
   for (auto i = entries, e = entries + cap; i != e; ++i) {
     auto s = *i;
     if (s)
-      s->ft = 0;
+      s->ft = type::none;
   }
 }
 

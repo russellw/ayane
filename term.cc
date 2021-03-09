@@ -136,27 +136,25 @@ void ckptr(void *p) {
   *buf = *(char *)p;
 }
 
-void cktype(w t) {
-  if (t >= t_compound) {
-    auto p = tcompoundp(t);
-    ckptr(p);
-    auto n = p->n;
-    assert(1 < n);
-    for (si i = 0; i != n; ++i)
-      cktype(p->v[i]);
+void cktype(type t) {
+  if (!iscompound(t))
     return;
+  auto p = tcompoundp(t);
+  ckptr(p);
+  auto n = p->n;
+  assert(1 < n);
+  for (si i = 0; i != n; ++i) {
+    assert(p->v[i] != type::none);
+    cktype(p->v[i]);
   }
-  assert(t);
 }
 
 void cksym(sym *s) {
   ckptr(s);
   assert(*s->v);
   assert(strlen(s->v) < sizeof buf);
-  if (s->t)
-    cktype(s->t);
-  if (s->ft)
-    cktype(s->ft);
+  cktype(s->t);
+  cktype(s->ft);
 }
 } // namespace
 
@@ -195,7 +193,7 @@ void ck(w a) {
     cksym(symp(a));
     return;
   case a_var: {
-    assert(vartype(a) < t_compound);
+    assert(!iscompound(vartype(a)));
     auto i = vari(a);
     assert(0 <= i);
     assert(i < 1000000);

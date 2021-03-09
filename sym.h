@@ -1,9 +1,9 @@
 struct sym {
   // type named by this symbol
-  uint16_t t;
+  type t;
 
   // type of function named by this symbol
-  uint16_t ft;
+  type ft;
 
   // for the keyword system to work, the size of the declared character array
   // must be large enough to hold the longest keyword
@@ -13,7 +13,7 @@ struct sym {
 
   // when symbols are allocated on the heap, the code doing the allocation is
   // responsible for allocating enough space to hold the corresponding strings
-  char v[0x20 - 2 * sizeof(uint16_t)];
+  char v[0x20 - 2 * sizeof(type)];
 };
 
 // SORT

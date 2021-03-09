@@ -87,7 +87,6 @@ type mktype(type r, type t1) {
   return put(v, sizeof v / sizeof *v);
 }
 
-// SORT
 void defaulttype(type t, w a) {
   assert(!iscompound(t));
   switch (a & 7) {
@@ -112,17 +111,6 @@ void defaulttype(type t, w a) {
       symp(a)->ft = t;
     break;
   }
-}
-
-type numtype(w a) {
-  auto t = typeof(a);
-  switch (t) {
-  case type::Int:
-  case type::Rat:
-  case type::Real:
-    return t;
-  }
-  throw "expected number term";
 }
 
 void requiretype(type t, w a) {
@@ -189,4 +177,14 @@ type typeof(w a) {
   unreachable;
   return type::none;
 }
-///
+
+type numtype(w a) {
+  auto t = typeof(a);
+  switch (t) {
+  case type::Int:
+  case type::Rat:
+  case type::Real:
+    return t;
+  }
+  throw "expected number term";
+}

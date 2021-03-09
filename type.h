@@ -32,9 +32,8 @@ type mktype(sym *name);
 type mktype(const vec<type> &v);
 type mktype(type r, type t1);
 
-// SORT
 void defaulttype(type t, w a);
-type numtype(w a);
 void requiretype(type t, w a);
+
 type typeof(w a);
-///
+type numtype(w a);

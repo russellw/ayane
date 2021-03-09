@@ -2,7 +2,7 @@
 // stdafx.h must be first
 #include "main.h"
 
-ary<tcompound *, 0x10000 - t_compound> tcompounds;
+ary<tcompound *, 0x10000 - tcompoundoffset> tcompounds;
 
 namespace {
 // the number of types is expected to be small. it is therefore possible to fit
@@ -60,7 +60,7 @@ type put(const type *p, si n) {
     expand();
     i = slot(entries, cap, p, n);
   }
-  auto t = entries[i] = type(t_compound + tcompounds.n);
+  auto t = entries[i] = type(tcompoundoffset + tcompounds.n);
   tcompounds.push(store(p, n));
   return t;
 }
@@ -98,7 +98,7 @@ type mktype(const vec<type> &v) { return put(v.p, v.n); }
 type mktype(sym *name) {
   if (name->t != type::none)
     return name->t;
-  if (atoms >= t_compound)
+  if (atoms >= tcompoundoffset)
     err("too many atomic types");
   return name->t = (type)atoms++;
 }

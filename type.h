@@ -10,23 +10,23 @@ enum class type : uint16_t {
   max
 };
 
-const uint16_t t_compound = 1000;
+const uint16_t tcompoundoffset = 1000;
 
-inline bool iscompound(type t) { return (uint16_t)t >= t_compound; }
-
-struct sym;
+inline bool iscompound(type t) { return (uint16_t)t >= tcompoundoffset; }
 
 struct tcompound {
   uint16_t n;
   type v[0];
 };
 
-extern ary<tcompound *, 0x10000 - t_compound> tcompounds;
+extern ary<tcompound *, 0x10000 - tcompoundoffset> tcompounds;
 
 inline tcompound *tcompoundp(type t) {
   assert(iscompound(t));
-  return tcompounds[(uint16_t)t - t_compound];
+  return tcompounds[(uint16_t)t - tcompoundoffset];
 }
+
+struct sym;
 
 // SORT
 void defaulttype(type t, w a);

@@ -652,7 +652,7 @@ struct parser1 : parser {
       auto s = toksym;
       auto ts = tokstart;
       lex();
-      for (auto i = vars.rbegin(); i != vars.rend(); ++i)
+      for (auto i = vars.rbegin(), e = vars.rend(); i != e; ++i)
         if (i->first == s)
           return i->second;
       if (!cnfmode)

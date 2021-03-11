@@ -213,8 +213,8 @@ term distrib(term a) {
   switch (tag(a)) {
   case term::And: {
     vec<term> v;
-    for (auto i = begin(a), e = end(a); i != e; ++i) {
-      auto b = distrib(*i);
+    for (auto b : a) {
+      b = distrib(b);
       if (tag(b) == term::And) {
         v.insert(v.end(), begin(b), end(b));
         continue;
@@ -230,8 +230,8 @@ term distrib(term a) {
     // and rename terms to avoid it
     si product = 1;
     vec<term> ands;
-    for (auto i = begin(a), e = end(a); i != e; ++i) {
-      auto b = distrib(*i);
+    for (auto b : a) {
+      b = distrib(b);
       if (tag(b) == term::And) {
         auto m = size(b) - 1;
         if (product > 1 && m > 1 && product * m > 4) {
@@ -309,8 +309,8 @@ void toliterals(term a) {
     neg.push(at(a, 1));
     return;
   case term::Or:
-    for (auto i = begin(a), e = end(a); i != e; ++i)
-      toliterals(*i);
+    for (auto b : a)
+      toliterals(b);
     return;
   }
   if (pos.n >= 0xffff)
@@ -344,8 +344,8 @@ term cnf1(term a) {
 void cnf(term a, clause *f) {
   try {
     if (tag(a) == term::And)
-      for (auto i = begin(a), e = end(a); i != e; ++i)
-        toclause(*i);
+      for (auto b : a)
+        toclause(b);
     else
       toclause(a);
   } catch (int e) {

@@ -12,8 +12,8 @@ si nclauses(bool pol, term a);
 
 si nclauses_and(bool pol, term a) {
   si r = 0;
-  for (auto i = begin(a), e = end(a); i != e; ++i) {
-    r += nclauses(pol, *i);
+  for (auto b : a) {
+    r += nclauses(pol, b);
     if (r >= many)
       return many;
   }
@@ -22,8 +22,8 @@ si nclauses_and(bool pol, term a) {
 
 si nclauses_or(bool pol, term a) {
   si r = 1;
-  for (auto i = begin(a), e = end(a); i != e; ++i) {
-    r *= nclauses(pol, *i);
+  for (auto b : a) {
+    r *= nclauses(pol, b);
     if (r >= many)
       return many;
   }

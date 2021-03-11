@@ -41,22 +41,18 @@ type mktype(type rt, type param1, type param2) {
 }
 
 term replace(term a) {
-  switch (tag(a)) {
-  case term::Call: {
-    auto n = size(a);
-    vec<term> v;
-    v.resize(n);
-    for (si i = 0; i != n; ++i)
-      v[i] = replace(at(a, i));
-    return mk(tag(a), v);
-  }
-  case term::Var:
+  if (tag(a) == term::Var)
     for (auto &p : varmap)
       if (p.first == a)
         return replace(p.second);
-    break;
-  }
-  return a;
+  if (!iscompound(a))
+    return a;
+  auto n = size(a);
+  vec<term> v;
+  v.resize(n);
+  for (si i = 0; i != n; ++i)
+    v[i] = replace(at(a, i));
+  return mk(tag(a), v);
 }
 ///
 

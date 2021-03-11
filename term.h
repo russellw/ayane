@@ -2,6 +2,7 @@ enum class term : uint64_t {
   False,
   True,
 
+  // atomic terms
   // SORT
   DistinctObj,
   Int,
@@ -11,6 +12,7 @@ enum class term : uint64_t {
   Var,
   ///
 
+  // compound terms
   // SORT
   Add,
   All,

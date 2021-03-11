@@ -65,13 +65,14 @@ ary<term> boundvars;
 void getfree1(term a) {
   switch (tag(a)) {
   case term::All:
-  case term::Exists:
+  case term::Exists: {
     auto old = boundvars.n;
     for (auto i = begin(a) + 1, e = end(a); i != e; ++i)
       boundvars.push(*i);
     getfree1(at(a, 0));
     boundvars.n = old;
     return;
+  }
   case term::Var:
     if (find(boundvars.p, boundvars.end(), a) != boundvars.end())
       return;
@@ -183,9 +184,38 @@ void ck(term a) {
       ck(b);
   }
   switch (tag(a)) {
+  case term::Add:
+  case term::Div:
+  case term::DivE:
+  case term::DivF:
+  case term::DivT:
+  case term::Eq:
+  case term::Eqv:
+  case term::Le:
+  case term::Lt:
+  case term::Mul:
+  case term::RemE:
+  case term::RemF:
+  case term::RemT:
+  case term::Sub:
+    assert(size(a) == 2);
+    break;
   case term::Call:
     assert(1 < size(a));
     assert(tag(at(a, 0)) == term::Sym);
+    break;
+  case term::Ceil:
+  case term::Floor:
+  case term::IsInt:
+  case term::IsRat:
+  case term::Minus:
+  case term::Not:
+  case term::Round:
+  case term::ToInt:
+  case term::ToRat:
+  case term::ToReal:
+  case term::Trunc:
+    assert(size(a) == 1);
     break;
   case term::DistinctObj:
   case term::Sym:

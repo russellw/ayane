@@ -64,13 +64,6 @@ ary<term> boundvars;
 
 void getfree1(term a) {
   switch (tag(a)) {
-  case term::Var:
-    if (find(boundvars.p, boundvars.end(), a) != boundvars.end())
-      return;
-    if (find(freevars.p, freevars.end(), a) != freevars.end())
-      return;
-    freevars.push(a);
-    return;
   case term::All:
   case term::Exists:
     auto old = boundvars.n;
@@ -78,6 +71,13 @@ void getfree1(term a) {
       boundvars.push(*i);
     getfree1(at(a, 0));
     boundvars.n = old;
+    return;
+  case term::Var:
+    if (find(boundvars.p, boundvars.end(), a) != boundvars.end())
+      return;
+    if (find(freevars.p, freevars.end(), a) != freevars.end())
+      return;
+    freevars.push(a);
     return;
   }
   if (!iscompound(a))
@@ -129,7 +129,6 @@ term mk(term op, term a, term b, term c) {
   v[2] = c;
   return mk(compounds::put(v, sizeof v / sizeof *v), op);
 }
-
 ///
 
 #ifdef DEBUG

@@ -15,10 +15,10 @@ enum class term : uint64_t {
   Add,
   All,
   And,
+  Call,
   Ceil,
   Div,
   DivE,
-  Call,
   DivF,
   DivT,
   Eq,
@@ -95,7 +95,6 @@ term mk(term op, term a, term b, term c);
 ///
 
 // SORT
-
 inline term mk(void *p, term a) {
   // this assumes there is a limit to how much address space will actually be
   // used, such that pointers don't actually use the full 64 bits, leaving a few

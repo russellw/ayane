@@ -32,6 +32,14 @@ clause *mkclause1() {
   return c;
 }
 
+type mktype(type rt, type param1, type param2) {
+  vec<type> v(3);
+  v[0] = rt;
+  v[1] = param1;
+  v[2] = param2;
+  return mktype(v);
+}
+
 term replace(term a) {
   switch (tag(a)) {
   case term::Call: {
@@ -49,14 +57,6 @@ term replace(term a) {
     break;
   }
   return a;
-}
-
-type mktype(type rt, type param1, type param2) {
-  vec<type> v(3);
-  v[0] = rt;
-  v[1] = param1;
-  v[2] = param2;
-  return mktype(v);
 }
 ///
 

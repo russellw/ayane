@@ -160,10 +160,6 @@ struct nnf {
 
   term convert(bool pol, term a) {
     switch (tag(a)) {
-    case term::False:
-      return term(pol ^ 1);
-    case term::True:
-      return term(pol);
     case term::And:
       return args(pol, a, pol ? term::And : term::Or);
     case term::Eqv: {
@@ -180,10 +176,14 @@ struct nnf {
       return pol ? all(pol, a) : exists(pol, a);
     case term::Exists:
       return pol ? exists(pol, a) : all(pol, a);
+    case term::False:
+      return term(pol ^ 1);
     case term::Not:
       return convert(pol ^ 1, at(a, 0));
     case term::Or:
       return args(pol, a, pol ? term::Or : term::And);
+    case term::True:
+      return term(pol);
     case term::Var:
       for (auto i = allvars.rbegin(); i != allvars.rend(); ++i)
         if (i->first == a)

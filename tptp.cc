@@ -308,9 +308,9 @@ struct parser1 : parser {
     case 'r':
     case 's':
     case 't':
+    case 'term':
     case 'u':
     case 'v':
-    case 'term':
     case 'x':
     case 'y':
     case 'z':
@@ -1058,9 +1058,29 @@ void prterm(term a, term parent) {
   case term::Add:
     printf("$sum");
     break;
+  case term::All:
+    quant('!', a);
+    return;
+  case term::And:
+    infix(" & ", a, parent);
+    return;
+  case term::Call:
+    prterm(at(a, 0), a);
+    putchar('(');
+    assert(size(a) > 1);
+    for (si i = 1, n = size(a); i != n; ++i) {
+      if (i > 1)
+        putchar(',');
+      prterm(at(a, i), a);
+    }
+    putchar(')');
+    return;
   case term::Ceil:
     printf("$ceiling");
     break;
+  case term::DistinctObj:
+    quote('"', ((sym *)rest(a))->v);
+    return;
   case term::Div:
     printf("$quotient");
     break;
@@ -1073,12 +1093,24 @@ void prterm(term a, term parent) {
   case term::DivT:
     printf("$quotient_t");
     break;
+  case term::Eq:
+    infix("=", a, parent);
+    return;
+  case term::Eqv:
+    infix(" <=> ", a, parent);
+    return;
+  case term::Exists:
+    quant('?', a);
+    return;
   case term::False:
     printf("$false");
     break;
   case term::Floor:
     printf("$floor");
     break;
+  case term::Int:
+    mpz_out_str(stdout, 10, ((Int *)rest(a))->val);
+    return;
   case term::IsInt:
     printf("$is_int");
     break;
@@ -1097,6 +1129,21 @@ void prterm(term a, term parent) {
   case term::Mul:
     printf("$product");
     break;
+  case term::Not:
+    putchar('~');
+    prterm(at(a, 0), a);
+    return;
+  case term::Or:
+    infix(" | ", a, parent);
+    return;
+  case term::Rat:
+    mpq_out_str(stdout, 10, ((Rat *)rest(a))->val);
+    if (!mpz_cmp_ui(mpq_denref(((Rat *)rest(a))->val), 1))
+      printf("/1");
+    return;
+  case term::Real:
+    printf("%f", mpq_get_d(((Rat *)rest(a))->val));
+    return;
   case term::RemE:
     printf("$remainder_e");
     break;
@@ -1112,6 +1159,15 @@ void prterm(term a, term parent) {
   case term::Sub:
     printf("$difference");
     break;
+  case term::Sym: {
+    auto s = ((sym *)rest(a))->v;
+    if (weird(s)) {
+      quote('\'', s);
+      return;
+    }
+    printf("%s", s);
+    return;
+  }
   case term::ToInt:
     printf("$to_int");
     break;
@@ -1127,62 +1183,6 @@ void prterm(term a, term parent) {
   case term::Trunc:
     printf("$truncate");
     break;
-  case term::All:
-    quant('!', a);
-    return;
-  case term::And:
-    infix(" & ", a, parent);
-    return;
-  case term::Eq:
-    infix("=", a, parent);
-    return;
-  case term::Eqv:
-    infix(" <=> ", a, parent);
-    return;
-  case term::Exists:
-    quant('?', a);
-    return;
-  case term::Not:
-    putchar('~');
-    prterm(at(a, 0), a);
-    return;
-  case term::Or:
-    infix(" | ", a, parent);
-    return;
-  case term::Call:
-    prterm(at(a, 0), a);
-    putchar('(');
-    assert(size(a) > 1);
-    for (si i = 1, n = size(a); i != n; ++i) {
-      if (i > 1)
-        putchar(',');
-      prterm(at(a, i), a);
-    }
-    putchar(')');
-    return;
-  case term::DistinctObj:
-    quote('"', ((sym *)rest(a))->v);
-    return;
-  case term::Int:
-    mpz_out_str(stdout, 10, ((Int *)rest(a))->val);
-    return;
-  case term::Rat:
-    mpq_out_str(stdout, 10, ((Rat *)rest(a))->val);
-    if (!mpz_cmp_ui(mpq_denref(((Rat *)rest(a))->val), 1))
-      printf("/1");
-    return;
-  case term::Real:
-    printf("%f", mpq_get_d(((Rat *)rest(a))->val));
-    return;
-  case term::Sym: {
-    auto s = ((sym *)rest(a))->v;
-    if (weird(s)) {
-      quote('\'', s);
-      return;
-    }
-    printf("%s", s);
-    return;
-  }
   case term::Var: {
     auto i = vari(a);
     if (i < 26) {

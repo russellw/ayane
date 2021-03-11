@@ -138,15 +138,6 @@ type typeof(term a) {
   case term::Not:
   case term::Or:
     return type::Bool;
-  case term::ToInt:
-    return type::Int;
-  case term::ToRat:
-    return type::Rat;
-  case term::ToReal:
-    return type::Real;
-  case term::False:
-  case term::True:
-    return type::Bool;
   case term::Call: {
     auto op = at(a, 0);
     assert(tag(op) == term::Sym);
@@ -161,6 +152,9 @@ type typeof(term a) {
   }
   case term::DistinctObj:
     return type::Individual;
+  case term::False:
+  case term::True:
+    return type::Bool;
   case term::Int:
     return type::Int;
   case term::Rat:
@@ -169,6 +163,12 @@ type typeof(term a) {
     return type::Real;
   case term::Sym:
     return ((sym *)rest(a))->ft;
+  case term::ToInt:
+    return type::Int;
+  case term::ToRat:
+    return type::Rat;
+  case term::ToReal:
+    return type::Real;
   case term::Var:
     return vartype(a);
   }

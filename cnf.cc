@@ -183,10 +183,10 @@ struct nnf {
     case term::True:
       return term(pol);
     case term::Var:
-      for (auto i = allvars.rbegin(); i != allvars.rend(); ++i)
+      for (auto i = allvars.rbegin(), e = allvars.rend(); i != e; ++i)
         if (i->first == a)
           return i->second;
-      for (auto i = existsvars.rbegin(); i != existsvars.rend(); ++i)
+      for (auto i = existsvars.rbegin(), e = existsvars.rend(); i != e; ++i)
         if (i->first == a)
           return i->second;
       for (auto &p : freevars)

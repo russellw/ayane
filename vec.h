@@ -5,27 +5,27 @@ template <class T, si small = 4> struct vec {
   typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
   uint32_t cap = small;
-  uint32_t n;
-  T *p = u;
-  T u[small];
+  uint32_t n = 0;
+  T *p = w;
+  T w[small];
 
   // construct/copy/destroy
-  vec() : n(0) {}
+  vec() {}
 
-  vec(si n) : n(n) { assert(n <= cap); }
+  vec(si m) { resize(m); }
 
-  vec(vec &x) : n(x.n) {
-    if (x.p == x.u) {
-      memcpy(u, x.u, n * sizeof(T));
+  vec(vec &b) : n(b.n) {
+    if (b.p == b.w) {
+      memcpy(w, b.w, n * sizeof(T));
       return;
     }
-    cap = x.cap;
-    p = x.p;
-    x.p = x.u;
+    cap = b.cap;
+    p = b.p;
+    b.p = b.w;
   }
 
   ~vec() {
-    if (p != u)
+    if (p != w)
       free(p);
   }
 
@@ -47,9 +47,9 @@ template <class T, si small = 4> struct vec {
     if (m <= cap)
       return;
     cap = max(m, (si)cap * 2);
-    if (p == u) {
+    if (p == w) {
       p = (T *)xmalloc(cap * sizeof *p);
-      memcpy(p, u, n * sizeof(T));
+      memcpy(p, w, n * sizeof(T));
       return;
     }
     p = (T *)xrealloc(p, cap * sizeof *p);

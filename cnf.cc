@@ -77,8 +77,7 @@ term skolemize(type rt) {
     return skolem(rt);
 
   // compound type
-  vec<type> t;
-  t.resize(freevars.n + 1);
+  vec<type> t(freevars.n + 1);
   t[0] = rt;
   for (si i = 0; i != freevars.n; ++i)
     t[i + 1] = vartype(freevars[i]);
@@ -125,8 +124,7 @@ struct nnf {
 
   term args(bool pol, term a, term op) {
     auto n = size(a);
-    vec<term> v;
-    v.resize(n);
+    vec<term> v(n);
     for (si i = 0; i != n; ++i)
       v[i] = convert(pol, at(a, i));
     return mk(op, v);
@@ -249,13 +247,11 @@ term distrib(term a) {
     // that will provide a slice through the and arguments
     // to create a single or term
     auto n = ands.n;
-    vec<si> j;
-    j.resize(n);
+    vec<si> j(n);
     memset(j.p, 0, n * sizeof *j.p);
 
     // the components of a single or term
-    vec<term> or1;
-    or1.resize(n);
+    vec<term> or1(n);
 
     // all the or terms
     // that will become the arguments to an and

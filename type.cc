@@ -98,8 +98,7 @@ void defaulttype(type t, term a) {
     if (ft != type::none)
       break;
     auto n = size(a);
-    vec<type> v;
-    v.resize(n);
+    vec<type> v(n);
     v[0] = t;
     for (si i = 1; i != n; ++i) {
       auto u = typeof(at(a, i));

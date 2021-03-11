@@ -9,12 +9,12 @@
 // data
 #include "type.h"
 
+#include "keywords.h"
 #include "num.h"
+#include "sym.h"
 #include "term.h"
 
 #include "eqn.h"
-#include "keywords.h"
-#include "sym.h"
 
 #include "clause.h"
 #include "problem.h"

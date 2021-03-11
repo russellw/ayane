@@ -4,12 +4,11 @@
 
 namespace {
 // passive clauses are stored in a priority queue with smaller clauses first
-si weight(w a) {
-  if ((a & 7) == a_compound) {
-    auto p = compoundp(a);
+si weight(term a) {
+  if (iscompound(a)) {
     si n = 0;
-    for (auto i = p->v, e = p->v + p->n; i != e; ++i)
-      n += weight(*i);
+    for (auto b : a)
+      n += weight(b);
     return n;
   }
   return 1;
@@ -35,29 +34,25 @@ priority_queue<clause *, vector<clause *>, cmp> passive;
 // variable renaming makes the rest of the code simpler, and because it only
 // needs to be done once each time around the outer loop, it is probably also
 // more efficient
-const w altvar = (w)1 << (16 + 3);
+const uint64_t altvar = (uint64_t)1 << (16 + tagbits);
 pool<> alts;
 
-w altvars(w a) {
-  switch (a & 7) {
-  case a_compound: {
-    auto p = compoundp(a);
-    auto n = p->n;
-    auto q = (compound *)alts.alloc(offsetof(compound, v) + n * sizeof a);
-    q->n = n;
-    for (si i = 0; i != n; ++i)
-      q->v[i] = altvars(p->v[i]);
-    return tag(q, a_compound);
-  }
-  case a_var:
-    return a | altvar;
-  }
-  return a;
+term altvars(term a) {
+  if (tag(a) == term::Var)
+    return term((uint64_t)a | altvar);
+  if (!iscompound(a))
+    return a;
+  auto n = size(a);
+  auto r = (compound *)alts.alloc(offsetof(compound, v) + n * sizeof a);
+  r->n = n;
+  for (si i = 0; i != n; ++i)
+    r->v[i] = altvars(at(a, i));
+  return mk(r, tag(a));
 }
 
 clause *altvars(clause *c) {
   auto n = c->n;
-  auto d = (clause *)alts.alloc(offsetof(clause, v) + n * sizeof(w));
+  auto d = (clause *)alts.alloc(offsetof(clause, v) + n * sizeof(term));
   memcpy(d, c, offsetof(clause, v));
   for (si i = 0; i != n; ++i)
     d->v[i] = altvars(c->v[i]);
@@ -68,23 +63,19 @@ clause *altvars(clause *c) {
 // function is in the alternate variables system because it constructs terms
 // with alternate variable names, so allocates them in temporary rather than
 // permanent/shared-term storage
-w replace(w a) {
-  switch (a & 7) {
-  case a_compound: {
-    auto n = size(a);
-    auto r = (compound *)alts.alloc(offsetof(compound, v) + n * sizeof a);
-    r->n = n;
-    for (si i = 0; i != n; ++i)
-      r->v[i] = replace(at(a, i));
-    return tag(r, a_compound);
-  }
-  case a_var:
+term replace(term a) {
+  if (tag(a) == term::Var)
     for (auto &p : varmap)
       if (p.first == a)
         return replace(p.second);
-    break;
-  }
-  return a;
+  if (!iscompound(a))
+    return a;
+  auto n = size(a);
+  auto r = (compound *)alts.alloc(offsetof(compound, v) + n * sizeof a);
+  r->n = n;
+  for (si i = 0; i != n; ++i)
+    r->v[i] = replace(at(a, i));
+  return mk(r, tag(a));
 }
 
 // once new literals have been constructed from two input clauses with different
@@ -92,17 +83,8 @@ w replace(w a) {
 // the ability of the system to detect duplicate terms and clauses, and to
 // maintain the invariant that the variable names in active clauses are distinct
 // from those in the alternative variable namespace
-w normvars(w a) {
-  switch (a & 7) {
-  case a_compound: {
-    auto n = size(a);
-    vec<w> v;
-    v.resize(n);
-    for (si i = 0; i != n; ++i)
-      v[i] = normvars(at(a, i));
-    return mk(v);
-  }
-  case a_var: {
+term normvars(term a) {
+  if (tag(a) == term::Var) {
     for (auto &p : varmap)
       if (p.first == a)
         return p.second;
@@ -110,8 +92,14 @@ w normvars(w a) {
     varmap.push(make_pair(a, b));
     return b;
   }
-  }
-  return a;
+  if (!iscompound(a))
+    return a;
+  auto n = size(a);
+  auto r = (compound *)alts.alloc(offsetof(compound, v) + n * sizeof a);
+  r->n = n;
+  for (si i = 0; i != n; ++i)
+    r->v[i] = normvars(at(a, i));
+  return mk(r, tag(a));
 }
 
 void normvars() {
@@ -133,12 +121,12 @@ void qclause(infer inf) {
 
 // inputs
 clause *c;
-w *ci;
-w c0, c1;
+term *ci;
+term c0, c1;
 
 clause *d;
-w *di;
-w d0, d1;
+term *di;
+term d0, d1;
 
 /*
 equality resolution
@@ -183,21 +171,21 @@ where
     s = unify(c0, d0)
 */
 
-bool equatable(w a, w b) {
+bool equatable(term a, term b) {
   if (typeof(a) != typeof(b))
     return 0;
   if (typeof(a) == type::Bool)
-    return a == basic(b_true) || b == basic(b_true);
+    return a == term::True || b == term::True;
   return 1;
 }
 
-w equate(w a, w b) {
+term equate(term a, term b) {
   assert(equatable(a, b));
-  if (a == basic(b_true))
+  if (a == term::True)
     return b;
-  if (b == basic(b_true))
+  if (b == term::True)
     return a;
-  return mk(basic(b_eq), a, b);
+  return mk(term::Eq, a, b);
 }
 
 // substitute and make new clause
@@ -265,7 +253,7 @@ where
 */
 
 // substitute and make new clause
-void superpositionq(w d0c1) {
+void superpositionq(term d0c1) {
   assert(!neg.n);
   for (auto i = c->v, e = c->v + c->nn; i != e; ++i)
     neg.push(replace(*i));
@@ -290,24 +278,24 @@ void superpositionq(w d0c1) {
 
 vec<si> position;
 
-w splice(w x, si *i) {
+term splice(term x, si *i) {
   if (i == position.end())
     return c1;
-  assert((x & 7) == a_compound);
-  vec<w> v;
-  v.insert(v.p, beginp(x), endp(x));
+  assert(iscompound(x));
+  vec<term> v;
+  v.insert(v.p, begin(x), end(x));
   auto j = *i++;
   v[j] = splice(v[j], i);
-  return mk(v);
+  return mk(tag(x), v);
 }
 
-void descend(w x) {
-  if ((x & 7) == a_var)
+void descend(term x) {
+  if (tag(x) == term::Var)
     return;
   if (unify(c0, x))
     superpositionq(splice(d0, position.p));
-  if ((x & 7) == a_compound)
-    for (si j = 1, n = size(x); j != n; ++j) {
+  if (iscompound(x))
+    for (si j = 0, n = size(x); j != n; ++j) {
       position.push_back(j);
       descend(at(x, j));
       --position.n;
@@ -316,7 +304,7 @@ void descend(w x) {
 
 // for each equation in d (both directions)
 void superposition1() {
-  if (c0 == basic(b_true))
+  if (c0 == term::True)
     return;
   for (auto i = d->v, e = d->v + d->n; i != e; ++i) {
     eqn de(*i);

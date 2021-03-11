@@ -30,20 +30,20 @@ bool matche(const eqn &a, const eqn &b) {
 struct subsumption {
   // for efficiency, refer to the subsuming clause literals directly with
   // pointers
-  w *cbegin;
-  w *cend;
+  term *cbegin;
+  term *cend;
 
   // refer to the subsumed clause literals with array indexes because we will
   // also need to index the array of flags recording which subsumed literals
   // have been used
-  w dbegin;
-  w dend;
+  si dbegin;
+  si dend;
 };
 
 // multiset avoids breaking completeness when factoring is used
 bool used[0xffff];
 
-bool subsume(subsumption *first, w *ci, subsumption *second) {
+bool subsume(subsumption *first, term *ci, subsumption *second) {
   if (ci == first->cend) {
     // fully subsumed one side
     // have we done the other side yet?

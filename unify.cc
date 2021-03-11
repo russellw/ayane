@@ -2,9 +2,9 @@
 // stdafx.h must be first
 #include "main.h"
 
-ary<pair<w, w>> varmap;
+ary<pair<term, term>> varmap;
 
-bool match(w a, w b) {
+bool match(term a, term b) {
   // equal
   if (a == b)
     return 1;
@@ -14,7 +14,7 @@ bool match(w a, w b) {
     return 0;
 
   // variable
-  if ((a & 7) == a_var) {
+  if (tag(a) == term::Var) {
     // existing mapping
     for (auto &p : varmap) {
       if (p.first == a)
@@ -27,47 +27,41 @@ bool match(w a, w b) {
   }
 
   // atoms
-  if ((a & 7) != a_compound)
+  if (!iscompound(a))
     return 0;
-  if ((b & 7) != a_compound)
+  if (tag(a) != tag(b))
     return 0;
 
   // compounds
   auto n = size(a);
   if (n != size(b))
     return 0;
-  if (at(a, 0) != at(b, 0))
-    return 0;
-  for (si i = 1; i != n; ++i)
+  for (si i = 0; i != n; ++i)
     if (!match(at(a, i), at(b, i)))
       return 0;
   return 1;
 }
 
 namespace {
-bool occurs(w a, w b) {
-  assert((a & 7) == a_var);
-  switch (b & 7) {
-  case a_compound: {
-    auto n = size(b);
-    for (si i = 0; i != n; ++i)
-      if (occurs(a, at(b, i)))
-        return 1;
-    break;
-  }
-  case a_var:
+bool occurs(term a, term b) {
+  assert(tag(a) == term::Var);
+  if (tag(b) == term::Var) {
     if (a == b)
       return 1;
     for (auto &p : varmap)
       if (p.first == b)
         return occurs(a, p.second);
-    break;
   }
+  if (!iscompound(b))
+    return 0;
+  for (auto x : b)
+    if (occurs(a, x))
+      return 1;
   return 0;
 }
 
-bool unifyvar(w a, w b) {
-  assert((a & 7) == a_var);
+bool unifyvar(term a, term b) {
+  assert(tag(a) == term::Var);
   assert(typeof(a) == typeof(b));
 
   // existing mappings
@@ -88,7 +82,7 @@ bool unifyvar(w a, w b) {
 }
 } // namespace
 
-bool unify1(w a, w b) {
+bool unify1(term a, term b) {
   // equal
   if (a == b)
     return 1;
@@ -98,30 +92,28 @@ bool unify1(w a, w b) {
     return 0;
 
   // variables
-  if ((a & 7) == a_var)
+  if (tag(a) == term::Var)
     return unifyvar(a, b);
-  if ((b & 7) == a_var)
+  if (tag(b) == term::Var)
     return unifyvar(b, a);
 
   // atoms
-  if ((a & 7) != a_compound)
+  if (!iscompound(a))
     return 0;
-  if ((b & 7) != a_compound)
+  if (tag(a) != tag(b))
     return 0;
 
   // compounds
   auto n = size(a);
   if (n != size(b))
     return 0;
-  if (at(a, 0) != at(b, 0))
-    return 0;
-  for (si i = 1; i != n; ++i)
+  for (si i = 0; i != n; ++i)
     if (!unify1(at(a, i), at(b, i)))
       return 0;
   return 1;
 }
 
-bool unify(w a, w b) {
+bool unify(term a, term b) {
   varmap.n = 0;
   return unify1(a, b);
 }

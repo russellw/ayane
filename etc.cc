@@ -80,11 +80,11 @@ size_t fnv(const void *p, si n) {
 void *mmalloc(si n) {
   // monotonic malloc, for memory that does not need to be freed until the
   // program exits
-  n = n + 7 & ~7;
+  n = n + 7 & ~(si)7;
   static char *p;
   static char *e;
-  assert(!((w)p & 7));
-  assert(!((w)e & 7));
+  assert(!((si)p & 7));
+  assert(!((si)e & 7));
   if (e - p < n) {
     auto chunk = max(n, (si)10000);
     p = (char *)xmalloc(chunk);

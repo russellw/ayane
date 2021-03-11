@@ -16,7 +16,7 @@ bool strmemeq(const char *s, const char *p, si n) {
   return !*s;
 }
 
-w slot(sym **entries, si cap, const char *p, si n) {
+si slot(sym **entries, si cap, const char *p, si n) {
   auto mask = cap - 1;
   auto i = fnv(p, n) & mask;
   while (entries[i] && !strmemeq(entries[i]->v, p, n))

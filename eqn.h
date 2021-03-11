@@ -1,14 +1,14 @@
 struct eqn {
-  w left, right;
+  term left, right;
 
-  explicit eqn(w a) {
+  explicit eqn(term a) {
     assert(typeof(a) == type::Bool);
-    if ((a & 7) == a_compound && at(a, 0) == basic(b_eq)) {
-      left = at(a, 1);
-      right = at(a, 2);
+    if (tag(a) == term::Eq) {
+      left = at(a, 0);
+      right = at(a, 1);
     } else {
       left = a;
-      right = basic(b_true);
+      right = term::True;
     }
     assert(typeof(left) == typeof(right));
   }

@@ -32,8 +32,10 @@ type mktype(sym *name);
 type mktype(const vec<type> &v);
 type mktype(type r, type t1);
 
-void defaulttype(type t, w a);
-void requiretype(type t, w a);
+enum class term : uint64_t;
 
-type typeof(w a);
-type numtype(w a);
+void defaulttype(type t, term a);
+void requiretype(type t, term a);
+
+type typeof(term a);
+type numtypeof(term a);

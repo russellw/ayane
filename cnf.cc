@@ -8,11 +8,11 @@ namespace {
 // but then we don't actually need the number, we only need to know whether it
 // went over the threshold
 const si many = 10;
-si nclauses(bool pol, w a);
+si nclauses(bool pol, term a);
 
-si nclauses_and(bool pol, w a) {
+si nclauses_and(bool pol, term a) {
   si r = 0;
-  for (auto i = beginp(a) + 1, e = endp(a); i != e; ++i) {
+  for (auto i = begin(a), e = end(a); i != e; ++i) {
     r += nclauses(pol, *i);
     if (r >= many)
       return many;
@@ -20,9 +20,9 @@ si nclauses_and(bool pol, w a) {
   return r;
 }
 
-si nclauses_or(bool pol, w a) {
+si nclauses_or(bool pol, term a) {
   si r = 1;
-  for (auto i = beginp(a) + 1, e = endp(a); i != e; ++i) {
+  for (auto i = begin(a), e = end(a); i != e; ++i) {
     r *= nclauses(pol, *i);
     if (r >= many)
       return many;
@@ -30,28 +30,23 @@ si nclauses_or(bool pol, w a) {
   return r;
 }
 
-si nclauses(bool pol, w a) {
-  if ((a & 7) != a_compound)
-    return 1;
-  auto op = at(a, 0);
-  if ((op & 7) != a_basic)
-    return 1;
-  switch (op >> 3) {
-  case b_all:
-  case b_exists:
-  case b_not:
-    return nclauses(pol, at(a, 1));
-  case b_and:
+si nclauses(bool pol, term a) {
+  switch (tag(a)) {
+  case term::All:
+  case term::Exists:
+  case term::Not:
+    return nclauses(pol, at(a, 0));
+  case term::And:
     return pol ? nclauses_and(pol, a) : nclauses_or(pol, a);
-  case b_eqv: {
-    auto x = at(a, 1);
+  case term::Eqv: {
+    auto x = at(a, 0);
     auto x0 = nclauses(0, x);
     if (x0 >= many - 1)
       return many;
     auto x1 = nclauses(1, x);
     if (x1 >= many - 1)
       return many;
-    auto y = at(a, 2);
+    auto y = at(a, 1);
     auto y0 = nclauses(0, y);
     if (y0 >= many - 1)
       return many;
@@ -61,7 +56,7 @@ si nclauses(bool pol, w a) {
       return many;
     return r;
   }
-  case b_or:
+  case term::Or:
     return pol ? nclauses_or(pol, a) : nclauses_and(pol, a);
   }
   return 1;
@@ -69,14 +64,14 @@ si nclauses(bool pol, w a) {
 
 // creating new functions is necessary both to skolemize existential variables
 // and to rename subformulas to avoid exponential blowup
-w skolem(type t) {
+term skolem(type t) {
   auto n = sprintf(buf, "\1%zu", skolemi++);
   auto s = intern(buf, n);
   s->ft = t;
-  return tag(s, a_sym);
+  return mk(s, term::Sym);
 }
 
-w skolemize(type rt) {
+term skolemize(type rt) {
   // atom
   if (!freevars.n)
     return skolem(rt);
@@ -90,31 +85,31 @@ w skolemize(type rt) {
 
   // compound
   freevars.insert(freevars.p, skolem(mktype(t)));
-  return mk(freevars);
+  return mk(term::Call, freevars);
 }
 
-w skolemize(type rt, const vec<pair<w, w>> &u) {
-  freevars.resize(u.n);
-  for (si i = 0; i != u.n; ++i)
-    freevars[i] = u[i].second;
+term skolemize(type rt, const vec<pair<term, term>> &v) {
+  freevars.resize(v.n);
+  for (si i = 0; i != v.n; ++i)
+    freevars[i] = v[i].second;
   return skolemize(rt);
 }
 
 // rename subformulas to avoid exponential blowup
-w rename_pos(w a) {
+term rename_pos(term a) {
   getfree(a);
   auto b = skolemize(type::Bool);
   cnf(imp(b, a), 0);
   return b;
 }
 
-w cnf1(w a);
+term cnf1(term a);
 
-w rename_both(w a) {
+term rename_both(term a) {
   a = cnf1(a);
   getfree(a);
   auto b = skolemize(type::Bool);
-  cnf(mk(basic(b_and), imp(b, a), imp(a, b)), 0);
+  cnf(mk(term::And, imp(b, a), imp(a, b)), 0);
   return b;
 }
 
@@ -122,88 +117,74 @@ w rename_both(w a) {
 // for-all vars map to fresh vars
 // exists vars map to skolem functions
 struct nnf {
-  vec<pair<w, w>> allvars;
-  vec<pair<w, w>> existsvars;
-  vec<pair<w, w>> freevars;
-  unordered_map<w, w> newvars;
-  w r;
+  vec<pair<term, term>> allvars;
+  vec<pair<term, term>> existsvars;
+  vec<pair<term, term>> freevars;
+  unordered_map<type, si> newvars;
+  term r;
 
-  w args(bool pol, w a, w op) {
+  term args(bool pol, term a, term op) {
     auto n = size(a);
-    vec<w> v;
+    vec<term> v;
     v.resize(n);
-    v[0] = op;
-    for (si i = 1; i != n; ++i)
+    for (si i = 0; i != n; ++i)
       v[i] = convert(pol, at(a, i));
-    return mk(v);
+    return mk(op, v);
   }
 
-  w all(bool pol, w a) {
+  term all(bool pol, term a) {
     auto n = size(a);
     auto old = allvars.n;
-    allvars.resize(old + n - 2);
-    for (si i = 2; i != n; ++i) {
+    allvars.resize(old + n - 1);
+    for (si i = 1; i != n; ++i) {
       auto t = vartype(at(a, i));
-      auto &j = newvars[(si)t];
-      allvars[old + i - 2] = make_pair(at(a, i), var(t, j++));
+      auto &j = newvars[t];
+      allvars[old + i - 1] = make_pair(at(a, i), var(t, j++));
     }
-    a = convert(pol, at(a, 1));
+    a = convert(pol, at(a, 0));
     allvars.n = old;
     return a;
   }
 
-  w exists(bool pol, w a) {
+  term exists(bool pol, term a) {
     auto n = size(a);
     auto old = existsvars.n;
-    existsvars.resize(old + n - 2);
-    for (si i = 2; i != n; ++i)
-      existsvars[old + i - 2] =
+    existsvars.resize(old + n - 1);
+    for (si i = 1; i != n; ++i)
+      existsvars[old + i - 1] =
           make_pair(at(a, i), skolemize(vartype(at(a, i)), allvars));
-    a = convert(pol, at(a, 1));
+    a = convert(pol, at(a, 0));
     existsvars.n = old;
     return a;
   }
 
-  w convert(bool pol, w a) {
-    switch (a & 7) {
-    case a_basic:
-      switch (a >> 3) {
-      case b_false:
-        return basic(pol ^ 1);
-      case b_true:
-        return basic(pol);
-      }
-      unreachable;
-    case a_compound: {
-      auto op = at(a, 0);
-      if ((op & 7) == a_basic)
-        switch (op >> 3) {
-        case b_and:
-          return args(pol, a, pol ? basic(b_and) : basic(b_or));
-        case b_eqv: {
-          auto x = at(a, 1);
-          if (nclauses(0, x) >= many || nclauses(1, x) >= many)
-            x = rename_both(x);
-          auto y = at(a, 2);
-          if (nclauses(0, y) >= many || nclauses(1, y) >= many)
-            y = rename_both(y);
-          return mk(basic(b_and),
-                    mk(basic(b_or), convert(0, x), convert(pol, y)),
-                    mk(basic(b_or), convert(1, x), convert(pol ^ 1, y)));
-        }
-        case b_all:
-          return pol ? all(pol, a) : exists(pol, a);
-        case b_exists:
-          return pol ? exists(pol, a) : all(pol, a);
-        case b_not:
-          return convert(pol ^ 1, at(a, 1));
-        case b_or:
-          return args(pol, a, pol ? basic(b_or) : basic(b_and));
-        }
-      a = args(1, a, op);
-      break;
+  term convert(bool pol, term a) {
+    switch (tag(a)) {
+    case term::False:
+      return term(pol ^ 1);
+    case term::True:
+      return term(pol);
+    case term::And:
+      return args(pol, a, pol ? term::And : term::Or);
+    case term::Eqv: {
+      auto x = at(a, 0);
+      if (nclauses(0, x) >= many || nclauses(1, x) >= many)
+        x = rename_both(x);
+      auto y = at(a, 1);
+      if (nclauses(0, y) >= many || nclauses(1, y) >= many)
+        y = rename_both(y);
+      return mk(term::And, mk(term::Or, convert(0, x), convert(pol, y)),
+                mk(term::Or, convert(1, x), convert(pol ^ 1, y)));
     }
-    case a_var:
+    case term::All:
+      return pol ? all(pol, a) : exists(pol, a);
+    case term::Exists:
+      return pol ? exists(pol, a) : all(pol, a);
+    case term::Not:
+      return convert(pol ^ 1, at(a, 0));
+    case term::Or:
+      return args(pol, a, pol ? term::Or : term::And);
+    case term::Var:
       for (auto i = allvars.rbegin(); i != allvars.rend(); ++i)
         if (i->first == a)
           return i->second;
@@ -214,47 +195,46 @@ struct nnf {
         if (p.first == a)
           return p.second;
       auto t = vartype(a);
-      auto &j = newvars[(uint16_t)t];
+      auto &j = newvars[t];
       auto b = var(t, j++);
       freevars.push_back(make_pair(a, b));
       return b;
     }
-    return pol ? a : mk(basic(b_not), a);
+    a = args(1, a, tag(a));
+    return pol ? a : mk(term::Not, a);
   }
 
-  nnf(w a) { r = convert(1, a); }
+  nnf(term a) { r = convert(1, a); }
 };
 
 // distribute or into and
 // return:
 // at most one layer of and
 // any number of layers of or
-w distrib(w a) {
-  if ((a & 7) != a_compound)
-    return a;
-  auto op = at(a, 0);
-  if (op == basic(b_and)) {
-    vec<w> v(basic(b_and));
-    for (auto i = beginp(a) + 1, e = endp(a); i != e; ++i) {
+term distrib(term a) {
+  switch (tag(a)) {
+  case term::And: {
+    vec<term> v;
+    for (auto i = begin(a), e = end(a); i != e; ++i) {
       auto b = distrib(*i);
-      if ((b & 7) == a_compound && at(b, 0) == basic(b_and)) {
-        v.insert(v.end(), beginp(b) + 1, endp(b));
+      if (tag(b) == term::And) {
+        v.insert(v.end(), begin(b), end(b));
         continue;
       }
       v.push_back(b);
     }
-    return mk(v);
+    return mk(term::And, v);
   }
-  if (op == basic(b_or)) {
+  case term::Or: {
     // take possibly nested ands and turn them into a layer no more than one
     // deep
     // also look for where there is going to be exponential blowup
     // and rename terms to avoid it
     si product = 1;
-    vec<w> ands;
-    for (auto i = beginp(a) + 1, e = endp(a); i != e; ++i) {
+    vec<term> ands;
+    for (auto i = begin(a), e = end(a); i != e; ++i) {
       auto b = distrib(*i);
-      if ((b & 7) == a_compound && at(b, 0) == basic(b_and)) {
+      if (tag(b) == term::And) {
         auto m = size(b) - 1;
         if (product > 1 && m > 1 && product * m > 4) {
           ands.push_back(rename_pos(b));
@@ -274,32 +254,31 @@ w distrib(w a) {
     memset(j.p, 0, n * sizeof *j.p);
 
     // the components of a single or term
-    vec<w> or1;
-    or1.resize(n + 1);
-    or1[0] = basic(b_or);
+    vec<term> or1;
+    or1.resize(n);
 
     // all the or terms
     // that will become the arguments to an and
-    vec<w> ors(basic(b_and));
+    vec<term> ors;
 
     // cartesian product of ands
     for (;;) {
       // make another or that takes a slice through the and args
       for (si i = 0; i != n; ++i) {
         auto b = ands[i];
-        if ((b & 7) == a_compound && at(b, 0) == basic(b_and))
-          b = at(b, j[i] + 1);
+        if (tag(b) == term::And)
+          b = at(b, j[i]);
         else
           assert(!j[i]);
-        or1[i + 1] = b;
+        or1[i] = b;
       }
-      ors.push_back(mk(or1));
+      ors.push_back(mk(term::Or, or1));
 
       // take the next slice
       for (si i = n;;) {
         // if we have done all the slices, return and of ors
         if (!i)
-          return mk(ors);
+          return mk(term::And, ors);
 
         // next element of the index vector
         // this is equivalent to increment with carry, of a multi-precision
@@ -307,7 +286,7 @@ w distrib(w a) {
         // different for each place, being the number of arguments to the and at
         // that position
         auto b = ands[--i];
-        if ((b & 7) == a_compound && at(b, 0) == basic(b_and)) {
+        if (tag(b) == term::And) {
           auto m = size(b) - 1;
           if (++j[i] == m) {
             j[i] = 0;
@@ -319,40 +298,39 @@ w distrib(w a) {
       }
     }
   }
+  }
   return a;
 }
 
 // make clauses
-void toliterals(w a) {
-  if ((a & 7) == a_compound) {
-    auto op = at(a, 0);
-    assert(op != basic(b_and));
-    if (op == basic(b_not)) {
-      if (neg.n == 0xffff)
-        throw 0;
-      neg.push(at(a, 1));
-      return;
-    }
-    if (op == basic(b_or)) {
-      for (auto i = beginp(a) + 1, e = endp(a); i != e; ++i)
-        toliterals(*i);
-      return;
-    }
+void toliterals(term a) {
+  switch (tag(a)) {
+  case term::And:
+    unreachable;
+  case term::Not:
+    if (neg.n >= 0xffff)
+      throw 0;
+    neg.push(at(a, 1));
+    return;
+  case term::Or:
+    for (auto i = begin(a), e = end(a); i != e; ++i)
+      toliterals(*i);
+    return;
   }
-  if (pos.n == 0xffff)
+  if (pos.n >= 0xffff)
     throw 0;
   pos.push(a);
 }
 
-void toclause(w a) {
-  assert(!((a & 7) == a_compound && at(a, 0) == basic(b_and)));
+void toclause(term a) {
+  assert(tag(a) != term::And);
   assert(!neg.n);
   assert(!pos.n);
   toliterals(a);
   addclause(infer::cnf);
 }
 
-w cnf1(w a) {
+term cnf1(term a) {
   ck(a);
 
   // negation normal form
@@ -367,10 +345,10 @@ w cnf1(w a) {
 }
 } // namespace
 
-void cnf(w a, clause *f) {
+void cnf(term a, clause *f) {
   try {
-    if ((a & 7) == a_compound && at(a, 0) == basic(b_and))
-      for (auto i = beginp(a) + 1, e = endp(a); i != e; ++i)
+    if (tag(a) == term::And)
+      for (auto i = begin(a), e = end(a); i != e; ++i)
         toclause(*i);
     else
       toclause(a);

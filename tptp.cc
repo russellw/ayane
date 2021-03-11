@@ -56,7 +56,7 @@ struct parser1 : parser {
   // SORT
   bool cnfmode;
   selection sel;
-  vec<pair<sym *, w>> vars;
+  vec<pair<sym *, term>> vars;
   ///
 
   // tokenizer
@@ -180,7 +180,7 @@ struct parser1 : parser {
       if (expected == szs::none) {
         string s1(s, text);
         smatch m;
-        if (regex_match(s1, m, regex(R"(% Status\s*:\s*(\w+)\s*)"))) {
+        if (regex_match(s1, m, regex(R"(% Status\s*:\s*(\term+)\s*)"))) {
           for (si i = 1; i != (si)szs::max; ++i)
             if (m[1] == szsnames[i]) {
               expected = (szs)i;
@@ -310,7 +310,7 @@ struct parser1 : parser {
     case 't':
     case 'u':
     case 'v':
-    case 'w':
+    case 'term':
     case 'x':
     case 'y':
     case 'z':
@@ -397,7 +397,7 @@ struct parser1 : parser {
 
   type top_level_type() {
     if (eat('(')) {
-      vec<type> v(type::none);
+      vec<type> v(1);
       do
         v.push_back(atomic_type());
       while (eat('*'));
@@ -413,16 +413,16 @@ struct parser1 : parser {
   }
 
   // terms
-  w parse_int() {
+  term parse_int() {
     strmemcpy(buf, tokstart, text);
     Int x;
     if (mpz_init_set_str(x.val, buf, 10))
       err("invalid number");
     lex();
-    return int1(x);
+    return mk(intern(x), term::Int);
   }
 
-  w parse_rat() {
+  term parse_rat() {
     strmemcpy(buf, tokstart, text);
     Rat x;
     mpq_init(x.val);
@@ -430,10 +430,10 @@ struct parser1 : parser {
       err("invalid number");
     mpq_canonicalize(x.val);
     lex();
-    return rat(x);
+    return mk(intern(x), term::Rat);
   }
 
-  w parse_real() {
+  term parse_real() {
     auto p = tokstart;
 
     // sign
@@ -517,10 +517,10 @@ struct parser1 : parser {
     // result
     lex();
     mpq_canonicalize(x.val);
-    return real(x);
+    return mk(intern(x), term::Real);
   }
 
-  void args(vec<w> &v) {
+  void args(vec<term> &v) {
     expect('(');
     do
       v.push_back(atomic_term());
@@ -528,7 +528,7 @@ struct parser1 : parser {
     expect(')');
   }
 
-  void args(vec<w> &v, si arity) {
+  void args(vec<term> &v, si arity) {
     auto old = v.n;
     args(v);
     if (v.n - old == arity)
@@ -537,21 +537,21 @@ struct parser1 : parser {
     err(buf);
   }
 
-  w defined_functor(w op, si arity) {
-    vec<w> v(op);
+  term defined_functor(term op, si arity) {
+    vec<term> v;
     args(v, arity);
-    auto t = numtype(v[1]);
-    for (auto i = v.p + 2, e = v.end(); i != e; ++i)
+    auto t = numtypeof(v[0]);
+    for (auto i = v.p + 1, e = v.end(); i != e; ++i)
       requiretype(t, *i);
-    return mk(v);
+    return mk(op, v);
   }
 
-  w atomic_term() {
+  term atomic_term() {
     switch (tok) {
     case '!':
       throw inappropriate();
     case o_distinctobj: {
-      auto a = tag(toksym, a_distinctobj);
+      auto a = mk(toksym, term::DistinctObj);
       lex();
       return a;
     }
@@ -559,86 +559,86 @@ struct parser1 : parser {
       auto s = toksym;
       auto ts = tokstart;
       lex();
-      vec<w> v;
+      vec<term> v;
       switch (keyword(s)) {
       case k_ceiling:
-        return defined_functor(basic(b_ceil), 1);
+        return defined_functor(term::Ceil, 1);
       case k_difference:
-        return defined_functor(basic(b_sub), 2);
+        return defined_functor(term::Sub, 2);
       case k_distinct: {
         args(v);
         defaulttype(type::Individual, v[0]);
         auto t = typeof(v[0]);
         for (auto i = v.p + 1, e = v.end(); i != e; ++i)
           requiretype(t, *i);
-        vec<w> clauses(basic(b_and));
+        vec<term> clauses;
         for (auto i = v.p, e = v.end(); i != e; ++i)
           for (auto j = v.p; j != i; ++j)
-            clauses.push_back(mk(basic(b_not), mk(basic(b_eq), *i, *j)));
-        return mk(clauses);
+            clauses.push_back(mk(term::Not, mk(term::Eq, *i, *j)));
+        return mk(term::And, clauses);
       }
       case k_false:
-        return basic(b_false);
+        return term::False;
       case k_floor:
-        return defined_functor(basic(b_floor), 1);
+        return defined_functor(term::Floor, 1);
       case k_greater: {
         args(v, 2);
-        auto t = numtype(v[0]);
+        auto t = numtypeof(v[0]);
         requiretype(t, v[1]);
-        return mk(basic(b_lt), v[1], v[0]);
+        return mk(term::Lt, v[1], v[0]);
       }
       case k_greatereq: {
         args(v, 2);
-        auto t = numtype(v[0]);
+        auto t = numtypeof(v[0]);
         requiretype(t, v[1]);
-        return mk(basic(b_le), v[1], v[0]);
+        return mk(term::Le, v[1], v[0]);
       }
       case k_is_int:
-        return defined_functor(basic(b_isint), 1);
+        return defined_functor(term::IsInt, 1);
       case k_is_rat:
-        return defined_functor(basic(b_israt), 1);
+        return defined_functor(term::IsRat, 1);
       case k_ite:
         throw inappropriate();
       case k_less:
-        return defined_functor(basic(b_lt), 2);
+        return defined_functor(term::Lt, 2);
       case k_lesseq:
-        return defined_functor(basic(b_le), 2);
+        return defined_functor(term::Le, 2);
       case k_product:
-        return defined_functor(basic(b_mul), 2);
+        return defined_functor(term::Mul, 2);
       case k_quotient: {
-        auto a = defined_functor(basic(b_div), 2);
+        auto a = defined_functor(term::Div, 2);
         if (typeof(at(a, 1)) == type::Int)
           err("expected fraction term");
         return a;
       }
       case k_quotient_e:
-        return defined_functor(basic(b_dive), 2);
+        return defined_functor(term::DivE, 2);
       case k_quotient_f:
-        return defined_functor(basic(b_divf), 2);
+        return defined_functor(term::DivF, 2);
       case k_quotient_t:
-        return defined_functor(basic(b_divt), 2);
+        return defined_functor(term::DivT, 2);
       case k_remainder_e:
-        return defined_functor(basic(b_reme), 2);
+        return defined_functor(term::RemE, 2);
       case k_remainder_f:
-        return defined_functor(basic(b_remf), 2);
+        return defined_functor(term::RemF, 2);
       case k_remainder_t:
-        return defined_functor(basic(b_remt), 2);
+        return defined_functor(term::RemT, 2);
       case k_round:
-        return defined_functor(basic(b_round), 1);
+        return defined_functor(term::Round, 1);
       case k_sum:
-        return defined_functor(basic(b_add), 2);
+        return defined_functor(term::Add, 2);
       case k_to_int:
-        return defined_functor(basic(b_toint), 1);
+        return defined_functor(term::ToInt, 1);
       case k_to_rat:
-        return defined_functor(basic(b_torat), 1);
+        return defined_functor(term::ToRat, 1);
       case k_to_real:
-        return defined_functor(basic(b_toreal), 1);
+        return defined_functor(term::ToReal, 1);
       case k_true:
-        return basic(b_true);
+        return term::True;
       case k_truncate:
-        return defined_functor(basic(b_trunc), 1);
+        return defined_functor(term::Trunc, 1);
       case k_uminus:
-        return defined_functor(basic(b_minus), 1);
+        return defined_functor(term::Minus, 1);
       }
       err("unknown word", ts);
     }
@@ -662,21 +662,22 @@ struct parser1 : parser {
       return x;
     }
     case o_word: {
-      auto a = tag(toksym, a_sym);
+      auto a = mk(toksym, term::Sym);
       lex();
       if (tok != '(')
         return a;
-      vec<w> v(a);
+      vec<term> v(1);
+      v[0] = a;
       args(v);
       for (auto i = v.p + 1, e = v.end(); i != e; ++i)
         defaulttype(type::Individual, *i);
-      return mk(v);
+      return mk(term::Call, v);
     }
     }
     err("syntax error");
   }
 
-  w infix_unary() {
+  term infix_unary() {
     auto a = atomic_term();
     switch (tok) {
     case '=': {
@@ -684,25 +685,25 @@ struct parser1 : parser {
       auto b = atomic_term();
       defaulttype(type::Individual, a);
       requiretype(typeof(a), b);
-      return mk(basic(b_eq), a, b);
+      return mk(term::Eq, a, b);
     }
     case o_ne: {
       lex();
       auto b = atomic_term();
       defaulttype(type::Individual, a);
       requiretype(typeof(a), b);
-      return mk(basic(b_not), mk(basic(b_eq), a, b));
+      return mk(term::Not, mk(term::Eq, a, b));
     }
     }
     requiretype(type::Bool, a);
     return a;
   }
 
-  w quantified_formula(w op) {
+  term quantified_formula(term op) {
     lex();
     expect('[');
     auto old = vars.n;
-    vec<w> v(op, 0);
+    vec<term> v(1);
     do {
       if (tok != o_var)
         err("expected variable");
@@ -717,15 +718,15 @@ struct parser1 : parser {
     } while (eat(','));
     expect(']');
     expect(':');
-    v[1] = unitary_formula();
+    v[0] = unitary_formula();
     vars.n = old;
-    return mk(v);
+    return mk(op, v);
   }
 
-  w unitary_formula() {
+  term unitary_formula() {
     switch (tok) {
     case '!':
-      return quantified_formula(basic(b_all));
+      return quantified_formula(term::All);
     case '(': {
       lex();
       auto a = logic_formula();
@@ -733,32 +734,33 @@ struct parser1 : parser {
       return a;
     }
     case '?':
-      return quantified_formula(basic(b_exists));
+      return quantified_formula(term::Exists);
     case '~':
       lex();
-      return mk(basic(b_not), unitary_formula());
+      return mk(term::Not, unitary_formula());
     }
     return infix_unary();
   }
 
-  w associative_logic_formula(w op, w a) {
-    vec<w> v(op, a);
+  term associative_logic_formula(term op, term a) {
+    vec<term> v(1);
+    v[0] = a;
     auto o = tok;
     while (eat(o))
       v.push_back(unitary_formula());
-    return mk(v);
+    return mk(op, v);
   }
 
-  w logic_formula() {
+  term logic_formula() {
     auto a = unitary_formula();
     switch (tok) {
     case '&':
-      return associative_logic_formula(basic(b_and), a);
+      return associative_logic_formula(term::And, a);
     case '|':
-      return associative_logic_formula(basic(b_or), a);
+      return associative_logic_formula(term::Or, a);
     case o_eqv:
       lex();
-      return mk(basic(b_eqv), a, unitary_formula());
+      return mk(term::Eqv, a, unitary_formula());
     case o_imp:
       lex();
       return imp(a, unitary_formula());
@@ -767,13 +769,13 @@ struct parser1 : parser {
       return imp(unitary_formula(), a);
     case o_nand:
       lex();
-      return mk(basic(b_not), mk(basic(b_and), a, unitary_formula()));
+      return mk(term::Not, mk(term::And, a, unitary_formula()));
     case o_nor:
       lex();
-      return mk(basic(b_not), mk(basic(b_or), a, unitary_formula()));
+      return mk(term::Not, mk(term::Or, a, unitary_formula()));
     case o_xor:
       lex();
-      return mk(basic(b_not), mk(basic(b_eqv), a, unitary_formula()));
+      return mk(term::Not, mk(term::Eqv, a, unitary_formula()));
     }
     return a;
   }
@@ -834,9 +836,9 @@ struct parser1 : parser {
             auto no = eat('~');
             auto a = infix_unary();
             ck(a);
-            if ((a & 7) == a_compound && at(a, 0) == basic(b_not)) {
-              no = !no;
-              a = at(a, 1);
+            if (tag(a) == term::Not) {
+              no = no ^ 1;
+              a = at(a, 0);
             }
             (no ? neg : pos).push(a);
           } while (eat('|'));
@@ -908,7 +910,7 @@ struct parser1 : parser {
           clausefiles[f] = file;
           clausenames[f] = forname->v;
           if (role == k_conjecture) {
-            a = mk(basic(b_not), a);
+            a = mk(term::Not, a);
             f = formula(infer::negate, a, f);
             conjecture = f;
           }
@@ -968,41 +970,32 @@ void tptp(const char *file) {
 }
 
 namespace {
-bool needparens(w a, w parent) {
-  if (!parent)
-    return 0;
-  auto op = at(a, 0);
-  if ((op & 7) != a_basic)
-    return 0;
-  switch (op >> 3) {
-  case b_and:
-  case b_eqv:
-  case b_or: {
-    auto parentop = at(parent, 0);
-    if ((parentop & 7) != a_basic)
-      return 0;
-    switch (parentop >> 3) {
-    case b_all:
-    case b_and:
-    case b_eqv:
-    case b_exists:
-    case b_not:
-    case b_or:
+bool needparens(term a, term parent) {
+  switch (tag(a)) {
+  case term::And:
+  case term::Eqv:
+  case term::Or:
+    switch (tag(parent)) {
+    case term::All:
+    case term::And:
+    case term::Eqv:
+    case term::Exists:
+    case term::Not:
+    case term::Or:
       return 1;
     }
-    return 0;
-  }
+    break;
   }
   return 0;
 }
 
 // SORT
-void infix(const char *op, w a, w parent) {
+void infix(const char *op, term a, term parent) {
   auto parens = needparens(a, parent);
   if (parens)
     putchar('(');
-  for (si i = 1, n = size(a); i != n; ++i) {
-    if (i > 1)
+  for (si i = 0, n = size(a); i != n; ++i) {
+    if (i)
       printf("%s", op);
     prterm(at(a, i), a);
   }
@@ -1010,10 +1003,10 @@ void infix(const char *op, w a, w parent) {
     putchar(')');
 }
 
-void quant(char op, w a) {
+void quant(char op, term a) {
   printf("%c[", op);
-  for (si i = 2, n = size(a); i != n; ++i) {
-    if (i > 2)
+  for (si i = 1, n = size(a); i != n; ++i) {
+    if (i > 1)
       putchar(',');
     auto x = at(a, i);
     prterm(x);
@@ -1024,7 +1017,7 @@ void quant(char op, w a) {
     }
   }
   printf("]:");
-  prterm(at(a, 1), a);
+  prterm(at(a, 0), a);
 }
 
 bool weird(const char *s) {
@@ -1060,113 +1053,106 @@ void prtype(type t) {
   unreachable;
 }
 
-void prterm(w a, w parent) {
-  switch (a & 7) {
-  case a_basic:
-    switch (a >> 3) {
-    case b_add:
-      printf("$sum");
-      return;
-    case b_ceil:
-      printf("$ceiling");
-      return;
-    case b_div:
-      printf("$quotient");
-      return;
-    case b_dive:
-      printf("$quotient_e");
-      return;
-    case b_divf:
-      printf("$quotient_f");
-      return;
-    case b_divt:
-      printf("$quotient_t");
-      return;
-    case b_false:
-      printf("$false");
-      return;
-    case b_floor:
-      printf("$floor");
-      return;
-    case b_isint:
-      printf("$is_int");
-      return;
-    case b_israt:
-      printf("$is_rat");
-      return;
-    case b_le:
-      printf("$lesseq");
-      return;
-    case b_lt:
-      printf("$less");
-      return;
-    case b_minus:
-      printf("$uminus");
-      return;
-    case b_mul:
-      printf("$product");
-      return;
-    case b_reme:
-      printf("$remainder_e");
-      return;
-    case b_remf:
-      printf("$remainder_f");
-      return;
-    case b_remt:
-      printf("$remainder_t");
-      return;
-    case b_round:
-      printf("$round");
-      return;
-    case b_sub:
-      printf("$difference");
-      return;
-    case b_toint:
-      printf("$to_int");
-      return;
-    case b_torat:
-      printf("$to_rat");
-      return;
-    case b_toreal:
-      printf("$to_real");
-      return;
-    case b_true:
-      printf("$true");
-      return;
-    case b_trunc:
-      printf("$truncate");
-      return;
-    }
+void prterm(term a, term parent) {
+  switch (tag(a)) {
+  case term::Add:
+    printf("$sum");
     break;
-  case a_compound: {
-    auto op = at(a, 0);
-    if ((op & 7) == a_basic)
-      switch (op >> 3) {
-      case b_all:
-        quant('!', a);
-        return;
-      case b_and:
-        infix(" & ", a, parent);
-        return;
-      case b_eq:
-        infix("=", a, parent);
-        return;
-      case b_eqv:
-        infix(" <=> ", a, parent);
-        return;
-      case b_exists:
-        quant('?', a);
-        return;
-      case b_not:
-        putchar('~');
-        prterm(at(a, 1), a);
-        return;
-      case b_or:
-        infix(" | ", a, parent);
-        return;
-      }
+  case term::Ceil:
+    printf("$ceiling");
+    break;
+  case term::Div:
+    printf("$quotient");
+    break;
+  case term::DivE:
+    printf("$quotient_e");
+    break;
+  case term::DivF:
+    printf("$quotient_f");
+    break;
+  case term::DivT:
+    printf("$quotient_t");
+    break;
+  case term::False:
+    printf("$false");
+    break;
+  case term::Floor:
+    printf("$floor");
+    break;
+  case term::IsInt:
+    printf("$is_int");
+    break;
+  case term::IsRat:
+    printf("$is_rat");
+    break;
+  case term::Le:
+    printf("$lesseq");
+    break;
+  case term::Lt:
+    printf("$less");
+    break;
+  case term::Minus:
+    printf("$uminus");
+    break;
+  case term::Mul:
+    printf("$product");
+    break;
+  case term::RemE:
+    printf("$remainder_e");
+    break;
+  case term::RemF:
+    printf("$remainder_f");
+    break;
+  case term::RemT:
+    printf("$remainder_t");
+    break;
+  case term::Round:
+    printf("$round");
+    break;
+  case term::Sub:
+    printf("$difference");
+    break;
+  case term::ToInt:
+    printf("$to_int");
+    break;
+  case term::ToRat:
+    printf("$to_rat");
+    break;
+  case term::ToReal:
+    printf("$to_real");
+    break;
+  case term::True:
+    printf("$true");
+    break;
+  case term::Trunc:
+    printf("$truncate");
+    break;
+  case term::All:
+    quant('!', a);
+    return;
+  case term::And:
+    infix(" & ", a, parent);
+    return;
+  case term::Eq:
+    infix("=", a, parent);
+    return;
+  case term::Eqv:
+    infix(" <=> ", a, parent);
+    return;
+  case term::Exists:
+    quant('?', a);
+    return;
+  case term::Not:
+    putchar('~');
+    prterm(at(a, 0), a);
+    return;
+  case term::Or:
+    infix(" | ", a, parent);
+    return;
+  case term::Call:
     prterm(at(a, 0), a);
     putchar('(');
+    assert(size(a) > 1);
     for (si i = 1, n = size(a); i != n; ++i) {
       if (i > 1)
         putchar(',');
@@ -1174,23 +1160,22 @@ void prterm(w a, w parent) {
     }
     putchar(')');
     return;
-  }
-  case a_distinctobj:
-    quote('"', distinctobjp(a)->v);
+  case term::DistinctObj:
+    quote('"', ((sym *)rest(a))->v);
     return;
-  case a_int:
-    mpz_out_str(stdout, 10, intp(a)->val);
+  case term::Int:
+    mpz_out_str(stdout, 10, ((Int *)rest(a))->val);
     return;
-  case a_rat:
-    mpq_out_str(stdout, 10, ratp(a)->val);
-    if (!mpz_cmp_ui(mpq_denref(ratp(a)->val), 1))
+  case term::Rat:
+    mpq_out_str(stdout, 10, ((Rat *)rest(a))->val);
+    if (!mpz_cmp_ui(mpq_denref(((Rat *)rest(a))->val), 1))
       printf("/1");
     return;
-  case a_real:
-    printf("%f", mpq_get_d(ratp(a)->val));
+  case term::Real:
+    printf("%f", mpq_get_d(((Rat *)rest(a))->val));
     return;
-  case a_sym: {
-    auto s = symp(a)->v;
+  case term::Sym: {
+    auto s = ((sym *)rest(a))->v;
     if (weird(s)) {
       quote('\'', s);
       return;
@@ -1198,7 +1183,7 @@ void prterm(w a, w parent) {
     printf("%s", s);
     return;
   }
-  case a_var: {
+  case term::Var: {
     auto i = vari(a);
     if (i < 26) {
       putchar('A' + i);
@@ -1207,8 +1192,16 @@ void prterm(w a, w parent) {
     printf("Z%zu", i - 25);
     return;
   }
+  default:
+    unreachable;
   }
-  unreachable;
+  putchar('(');
+  for (si i = 0, n = size(a); i != n; ++i) {
+    if (i)
+      putchar(',');
+    prterm(at(a, i), a);
+  }
+  putchar(')');
 }
 
 void prclause(clause *c) {

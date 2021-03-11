@@ -1,10 +1,10 @@
-extern ary<pair<w, w>> varmap;
+extern ary<pair<term, term>> varmap;
 
 // match on top of existing map
-bool match(w a, w b);
+bool match(term a, term b);
 
 // unify on top of existing map
-bool unify1(w a, w b);
+bool unify1(term a, term b);
 
 // unify after clearing existing map
-bool unify(w a, w b);
+bool unify(term a, term b);

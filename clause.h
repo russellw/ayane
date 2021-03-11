@@ -30,11 +30,11 @@ struct clause {
   clause *from[2];
 
   // literals
-  w v[0];
+  term v[0];
 };
 
 // SORT
-extern ary<w> neg, pos;
+extern ary<term> neg, pos;
 extern clause *conjecture;
 extern unordered_map<const clause *, const char *> clausefiles;
 extern unordered_map<const clause *, const char *> clausenames;
@@ -42,7 +42,7 @@ extern unordered_map<const clause *, const char *> clausenames;
 
 // SORT
 const char *clausename(const clause *c);
-clause *formula(infer inf, w a, clause *from = 0);
+clause *formula(infer inf, term a, clause *from = 0);
 void init_clauses();
 clause *mkclause(infer inf, clause *from = 0, clause *from1 = 0);
 ///

@@ -9,7 +9,7 @@ const char *infernames[] = {
 };
 
 // SORT
-ary<w> neg, pos;
+ary<term> neg, pos;
 clause *conjecture;
 unordered_map<const clause *, const char *> clausefiles;
 unordered_map<const clause *, const char *> clausenames;
@@ -20,7 +20,7 @@ si cap = 0x1000;
 si count;
 clause **entries = (clause **)xcalloc(cap, sizeof *entries);
 
-bool eq(const clause *c, const w *p, si nn, si n) {
+bool eq(const clause *c, const term *p, si nn, si n) {
   if (c->nn != nn)
     return 0;
   if (c->n != n)
@@ -28,7 +28,7 @@ bool eq(const clause *c, const w *p, si nn, si n) {
   return !memcmp(c->v, p, n * sizeof *p);
 }
 
-si slot(clause **entries, si cap, const w *p, si nn, si n) {
+si slot(clause **entries, si cap, const term *p, si nn, si n) {
   auto mask = cap - 1;
   auto i = XXH64(p, n * sizeof *p, nn) & mask;
   while (entries[i] && !eq(entries[i], p, nn, n))
@@ -59,7 +59,7 @@ const char *clausename(const clause *c) {
   return name ? name : "?";
 }
 
-clause *formula(infer inf, w a, clause *from) {
+clause *formula(infer inf, term a, clause *from) {
   auto r = (clause *)formulas.alloc(offsetof(clause, v) + sizeof a);
   memset(r, 0, offsetof(clause, v));
   r->fof = 1;
@@ -82,8 +82,8 @@ void init_clauses() {
 
 clause *mkclause(infer inf, clause *from, clause *from1) {
   // remove redundancy
-  neg.erase(remove(neg.p, neg.end(), basic(b_true)), neg.end());
-  pos.erase(remove(pos.p, pos.end(), basic(b_false)), pos.end());
+  neg.erase(remove(neg.p, neg.end(), term::True), neg.end());
+  pos.erase(remove(pos.p, pos.end(), term::False), pos.end());
 
   // sort the literals. it's not that the order is meaningful, but that sorting
   // them into canonical order (even if that order is different in each run due
@@ -119,10 +119,10 @@ clause *mkclause(infer inf, clause *from, clause *from1) {
   // quadratic time, it is here being done after the efforts to reduce the
   // number of literals)
   for (auto i = p, e = p + nn; i != e; ++i)
-    if (*i == basic(b_false))
+    if (*i == term::False)
       return 0;
   for (auto i = p + nn, e = p + n; i != e; ++i)
-    if (*i == basic(b_true))
+    if (*i == term::True)
       return 0;
   for (auto i = p, e = p + nn; i != e; ++i) {
     auto a = *i;

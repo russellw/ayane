@@ -3,7 +3,7 @@
 #include "main.h"
 
 // SORT
-ary<w> freevars;
+ary<term> freevars;
 si skolemi;
 ///
 
@@ -12,13 +12,13 @@ si cap = 0x1000;
 si count;
 compound **entries = (compound **)xcalloc(cap, sizeof *entries);
 
-bool eq(const compound *x, const w *p, si n) {
+bool eq(const compound *x, const term *p, si n) {
   if (x->n != n)
     return 0;
   return !memcmp(x->v, p, n * sizeof *p);
 }
 
-w slot(compound **entries, si cap, const w *p, si n) {
+si slot(compound **entries, si cap, const term *p, si n) {
   auto mask = cap - 1;
   auto i = XXH64(p, n * sizeof *p, 0) & mask;
   while (entries[i] && !eq(entries[i], p, n))
@@ -40,99 +40,115 @@ void expand() {
   entries = entries1;
 }
 
-compound *store(const w *p, si n) {
+compound *store(const term *p, si n) {
   auto r = (compound *)xmalloc(offsetof(compound, v) + n * sizeof *p);
   r->n = n;
   memcpy(r->v, p, n * sizeof *p);
   return r;
 }
 
-w put(const w *p, si n) {
+compound *put(const term *p, si n) {
   auto i = slot(entries, cap, p, n);
   if (entries[i])
-    return tag(entries[i], a_compound);
+    return entries[i];
   if (++count > cap * 3 / 4) {
     expand();
     i = slot(entries, cap, p, n);
   }
-  entries[i] = store(p, n);
-  return tag(entries[i], a_compound);
+  return entries[i] = store(p, n);
 }
 } // namespace compounds
 
 namespace {
-ary<w> boundvars;
+ary<term> boundvars;
 
-void getfree1(w a) {
-  switch (a & 7) {
-  case a_compound: {
-    auto e = endp(a);
-    if (at(a, 0) == basic(b_all) || at(a, 0) == basic(b_exists)) {
-      auto old = boundvars.n;
-      for (auto i = beginp(a) + 2; i != e; ++i)
-        boundvars.push(*i);
-      getfree1(at(a, 1));
-      boundvars.n = old;
-      break;
-    }
-    for (auto i = beginp(a) + 1; i != e; ++i)
-      getfree1(*i);
-    break;
-  }
-  case a_var:
+void getfree1(term a) {
+  switch (tag(a)) {
+  case term::Var:
     if (find(boundvars.p, boundvars.end(), a) != boundvars.end())
-      break;
+      return;
     if (find(freevars.p, freevars.end(), a) != freevars.end())
-      break;
+      return;
     freevars.push(a);
-    break;
+    return;
+  case term::All:
+  case term::Exists:
+    auto old = boundvars.n;
+    for (auto i = begin(a) + 1, e = end(a); i != e; ++i)
+      boundvars.push(*i);
+    getfree1(at(a, 0));
+    boundvars.n = old;
+    return;
   }
+  if (!iscompound(a))
+    return;
+  for (auto b : a)
+    getfree1(b);
 }
 } // namespace
 
 // SORT
-void getfree(w a) {
+void getfree(term a) {
   assert(!boundvars.n);
   freevars.n = 0;
   getfree1(a);
 }
 
-w imp(w a, w b) { return mk(basic(b_or), mk(basic(b_not), a), b); }
+term imp(term a, term b) { return mk(term::Or, mk(term::Not, a), b); }
 
 void init_terms() { skolemi = 0; }
 
-w int1(Int &x) { return tag(intern(x), a_int); }
-
-w mk(const ary<w> &v) { return compounds::put(v.p, v.n); }
-
-w mk(const vec<w> &v) { return compounds::put(v.p, v.n); }
-
-w mk(w op, w a) {
-  w v[2];
-  v[0] = op;
-  v[1] = a;
-  return compounds::put(v, sizeof v / sizeof *v);
+term mk(term op, const ary<term> &args) {
+  assert(op == tag(op));
+  return mk(compounds::put(args.p, args.n), op);
 }
 
-w mk(w op, w a, w b) {
-  w v[3];
-  v[0] = op;
-  v[1] = a;
-  v[2] = b;
-  return compounds::put(v, sizeof v / sizeof *v);
+term mk(term op, const vec<term> &args) {
+  assert(op == tag(op));
+  return mk(compounds::put(args.p, args.n), op);
 }
 
-w rat(Rat &x) { return tag(intern(x), a_rat); }
+term mk(term op, term a) {
+  assert(op == tag(op));
+  return mk(compounds::put(&a, 1), op);
+}
 
-w real(Rat &x) { return tag(intern(x), a_real); }
+term mk(term op, term a, term b) {
+  assert(op == tag(op));
+  term v[2];
+  v[0] = a;
+  v[1] = b;
+  return mk(compounds::put(v, sizeof v / sizeof *v), op);
+}
+
+term mk(term op, term a, term b, term c) {
+  assert(op == tag(op));
+  term v[3];
+  v[0] = a;
+  v[1] = b;
+  v[2] = c;
+  return mk(compounds::put(v, sizeof v / sizeof *v), op);
+}
+
 ///
 
 #ifdef DEBUG
 namespace {
 void ckptr(void *p) {
-  assert(p);
-  if (sizeof p > 4)
-    assert((size_t)p < (size_t)1 << 50);
+  // a valid pointer will not point to the first page of address space
+  assert(0xfff < (si)p);
+
+  // a valid pointer is unlikely to point past the first petabyte of address
+  // space
+  assert((uint64_t)p < (uint64_t)1 << 50);
+
+  // a valid pointer should be aligned to 64 bits
+  assert(!((si)p & 7));
+
+  // testing the validity of a pointer by trying to read a byte is not
+  // guaranteed to give useful diagnostics (if p is not in fact valid then it is
+  // undefined behavior) but for debug-build checking code, heuristic usefulness
+  // is all that's expected
   *buf = *(char *)p;
 }
 
@@ -158,47 +174,41 @@ void cksym(sym *s) {
 }
 } // namespace
 
-void ck(w a) {
+void ck(term a) {
   cktype(typeof(a));
-  switch (a & 7) {
-  case a_basic:
-    assert(a >> 3 <= b_true);
-    return;
-  case a_compound: {
-    auto p = compoundp(a);
-    ckptr(p);
-    auto n = p->n;
-    assert(1 < n);
+  if (iscompound(a)) {
+    auto n = size(a);
+    assert(0 < n);
     assert(n < 1000000);
-    for (si i = 1; i != n; ++i)
-      ck(p->v[i]);
-    return;
+    for (auto b : a)
+      ck(b);
   }
-  case a_distinctobj:
-    cksym(distinctobjp(a));
-    return;
-  case a_int:
-    ckptr(intp(a));
-    return;
-  case a_rat:
-  case a_real: {
-    auto p = ratp(a);
+  switch (tag(a)) {
+  case term::Call:
+    assert(1 < size(a));
+    assert(tag(at(a, 0)) == term::Sym);
+    break;
+  case term::DistinctObj:
+  case term::Sym:
+    cksym((sym *)rest(a));
+    break;
+  case term::Int:
+    ckptr((Int *)rest(a));
+    break;
+  case term::Rat:
+  case term::Real: {
+    auto p = (Rat *)rest(a);
     ckptr(p);
     ckptr(mpq_numref(p->val));
     ckptr(mpq_denref(p->val));
     assert(mpz_cmp_ui(mpq_denref(p->val), 0) > 0);
-    return;
+    break;
   }
-  case a_sym:
-    cksym(symp(a));
-    return;
-  case a_var: {
+  case term::Var:
     assert(!iscompound(vartype(a)));
-    auto i = vari(a);
-    assert(0 <= i);
-    assert(i < 1000000);
-    return;
-  }
+    assert(0 <= vari(a));
+    assert(vari(a) < 1000000);
+    break;
   }
 }
 #endif

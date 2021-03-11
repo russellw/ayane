@@ -64,11 +64,11 @@ struct parser1 : parser {
   }
 
   // terms
-  w fn() {
+  term fn() {
     auto s = toksym;
     lex();
     s->ft = type::Bool;
-    return tag(s, a_sym);
+    return mk(s, term::Sym);
   }
 
   // top level

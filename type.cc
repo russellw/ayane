@@ -80,105 +80,103 @@ type mktype(const vec<type> &v) {
   return put(v.p, v.n);
 }
 
-type mktype(type r, type t1) {
+type mktype(type rt, type param1) {
   type v[2];
-  v[0] = r;
-  v[1] = t1;
+  v[0] = rt;
+  v[1] = param1;
   return put(v, sizeof v / sizeof *v);
 }
 
-void defaulttype(type t, w a) {
+void defaulttype(type t, term a) {
   assert(!iscompound(t));
-  switch (a & 7) {
-  case a_compound: {
+  switch (tag(a)) {
+  case term::Call: {
     auto op = at(a, 0);
-    if ((op & 7) != a_sym)
-      break;
-    auto ft = symp(op)->ft;
+    assert(tag(op) == term::Sym);
+    auto s = (sym *)rest(op);
+    auto ft = s->ft;
     if (ft != type::none)
       break;
     auto n = size(a);
     vec<type> v;
     v.resize(n);
     v[0] = t;
-    for (si i = 1; i != n; ++i)
-      v[i] = typeof(at(a, i));
-    symp(op)->ft = mktype(v);
+    for (si i = 1; i != n; ++i) {
+      auto u = typeof(at(a, i));
+      assert(u != type::none);
+      v[i] = u;
+    }
+    s->ft = mktype(v);
     break;
   }
-  case a_sym:
-    if (symp(a)->ft == type::none)
-      symp(a)->ft = t;
+  case term::Sym: {
+    auto s = (sym *)rest(a);
+    if (s->ft == type::none)
+      s->ft = t;
     break;
+  }
   }
 }
 
-void requiretype(type t, w a) {
+void requiretype(type t, term a) {
   defaulttype(t, a);
   if (t != typeof(a))
     throw "type mismatch";
 }
 
-type typeof(w a) {
-  switch (a & 7) {
-  case a_basic:
-    assert(a >> 3 == b_false || a >> 3 == b_true);
+type typeof(term a) {
+  switch (tag(a)) {
+  case term::All:
+  case term::And:
+  case term::Eq:
+  case term::Eqv:
+  case term::Exists:
+  case term::IsInt:
+  case term::IsRat:
+  case term::Le:
+  case term::Lt:
+  case term::Not:
+  case term::Or:
     return type::Bool;
-  case a_compound: {
-    auto op = at(a, 0);
-    switch (op & 7) {
-    case a_basic:
-      switch (op >> 3) {
-      case b_all:
-      case b_and:
-      case b_eq:
-      case b_eqv:
-      case b_exists:
-      case b_isint:
-      case b_israt:
-      case b_le:
-      case b_lt:
-      case b_not:
-      case b_or:
-        return type::Bool;
-      case b_toint:
-        return type::Int;
-      case b_torat:
-        return type::Rat;
-      case b_toreal:
-        return type::Real;
-      }
-      return typeof(at(a, 1));
-    case a_sym: {
-      auto ft = symp(op)->ft;
-      if (ft == type::none)
-        return ft;
-      assert(iscompound(ft));
-      auto ftp = tcompoundp(ft);
-      assert(size(a) == ftp->n);
-      return ftp->v[0];
-    }
-    }
-    unreachable;
-  }
-  case a_distinctobj:
-    return type::Individual;
-  case a_int:
+  case term::ToInt:
     return type::Int;
-  case a_rat:
+  case term::ToRat:
     return type::Rat;
-  case a_real:
+  case term::ToReal:
     return type::Real;
-  case a_sym:
-    return symp(a)->ft;
-  case a_var:
+  case term::False:
+  case term::True:
+    return type::Bool;
+  case term::Call: {
+    auto op = at(a, 0);
+    assert(tag(op) == term::Sym);
+    auto s = (sym *)rest(op);
+    auto ft = s->ft;
+    if (ft == type::none)
+      return ft;
+    assert(iscompound(ft));
+    auto ftp = tcompoundp(ft);
+    assert(size(a) == ftp->n);
+    return ftp->v[0];
+  }
+  case term::DistinctObj:
+    return type::Individual;
+  case term::Int:
+    return type::Int;
+  case term::Rat:
+    return type::Rat;
+  case term::Real:
+    return type::Real;
+  case term::Sym:
+    return ((sym *)rest(a))->ft;
+  case term::Var:
     return vartype(a);
   }
-  unreachable;
-  return type::none;
+  assert(iscompound(a));
+  return typeof(at(a, 0));
 }
 
-type numtype(w a) {
+type numtypeof(term a) {
   auto t = typeof(a);
   switch (t) {
   case type::Int:

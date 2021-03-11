@@ -5,7 +5,6 @@
 #endif
 
 typedef intptr_t si;
-typedef intptr_t w;
 
 #ifdef DEBUG
 

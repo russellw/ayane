@@ -4,9 +4,9 @@ template <si cap = 300000000> class pool {
 
 public:
   void *alloc(si n) {
-    assert(!((w)p & 7));
+    assert(!((si)p & 7));
     assert(0 <= n);
-    n = n + 7 & ~(w)7;
+    n = n + 7 & ~(si)7;
     auto r = p;
     p += n;
     if (p > v + cap)

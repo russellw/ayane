@@ -2,11 +2,7 @@
 // stdafx.h must be first
 #include "main.h"
 
-// SORT
-ary<term> freevars;
-si skolemi;
-///
-
+// compound terms
 namespace compounds {
 si cap = 0x1000;
 si count;
@@ -59,46 +55,6 @@ compound *put(const term *p, si n) {
 }
 } // namespace compounds
 
-namespace {
-ary<term> boundvars;
-
-void getfree1(term a) {
-  switch (tag(a)) {
-  case term::All:
-  case term::Exists: {
-    auto old = boundvars.n;
-    for (auto i = begin(a) + 1, e = end(a); i != e; ++i)
-      boundvars.push(*i);
-    getfree1(at(a, 0));
-    boundvars.n = old;
-    return;
-  }
-  case term::Var:
-    if (find(boundvars.p, boundvars.end(), a) != boundvars.end())
-      return;
-    if (find(freevars.p, freevars.end(), a) != freevars.end())
-      return;
-    freevars.push(a);
-    return;
-  }
-  if (!iscompound(a))
-    return;
-  for (auto b : a)
-    getfree1(b);
-}
-} // namespace
-
-// SORT
-void getfree(term a) {
-  assert(!boundvars.n);
-  freevars.n = 0;
-  getfree1(a);
-}
-
-term imp(term a, term b) { return mk(term::Or, mk(term::Not, a), b); }
-
-void init_terms() { skolemi = 0; }
-
 term mk(term op, const ary<term> &args) {
   assert(op == tag(op));
   return mk(compounds::put(args.p, args.n), op);
@@ -130,7 +86,51 @@ term mk(term op, term a, term b, term c) {
   v[2] = c;
   return mk(compounds::put(v, sizeof v / sizeof *v), op);
 }
-///
+
+term imp(term a, term b) { return mk(term::Or, mk(term::Not, a), b); }
+
+// variables
+ary<term> freevars;
+
+namespace {
+ary<term> boundvars;
+
+void getfree1(term a) {
+  switch (tag(a)) {
+  case term::All:
+  case term::Exists: {
+    auto old = boundvars.n;
+    for (auto i = begin(a) + 1, e = end(a); i != e; ++i)
+      boundvars.push(*i);
+    getfree1(at(a, 0));
+    boundvars.n = old;
+    return;
+  }
+  case term::Var:
+    if (find(boundvars.p, boundvars.end(), a) != boundvars.end())
+      return;
+    if (find(freevars.p, freevars.end(), a) != freevars.end())
+      return;
+    freevars.push(a);
+    return;
+  }
+  if (!iscompound(a))
+    return;
+  for (auto b : a)
+    getfree1(b);
+}
+} // namespace
+
+void getfree(term a) {
+  assert(!boundvars.n);
+  freevars.n = 0;
+  getfree1(a);
+}
+
+// etc
+si skolemi;
+
+void init_terms() { skolemi = 0; }
 
 #ifdef DEBUG
 namespace {

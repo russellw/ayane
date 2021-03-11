@@ -95,11 +95,10 @@ term normvars(term a) {
   if (!iscompound(a))
     return a;
   auto n = size(a);
-  auto r = (compound *)alts.alloc(offsetof(compound, v) + n * sizeof a);
-  r->n = n;
+  vec<term> v(n);
   for (si i = 0; i != n; ++i)
-    r->v[i] = normvars(at(a, i));
-  return mk(r, tag(a));
+    v[i] = normvars(at(a, i));
+  return mk(tag(a), v);
 }
 
 void normvars() {
@@ -185,7 +184,11 @@ term equate(term a, term b) {
     return b;
   if (b == term::True)
     return a;
-  return mk(term::Eq, a, b);
+  auto r = (compound *)alts.alloc(offsetof(compound, v) + 2 * sizeof a);
+  r->n = 2;
+  r->v[0] = a;
+  r->v[1] = b;
+  return mk(r, term::Eq);
 }
 
 // substitute and make new clause

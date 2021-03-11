@@ -49,12 +49,46 @@ enum class term : uint64_t {
 
 const si tagbits = 6;
 
+// make a term from a pointer
+inline term mk(void *p, term a) {
+  // this assumes there is a limit to how much address space will actually be
+  // used, such that pointers don't actually use the full 64 bits, leaving a few
+  // spare for tag
+  assert((uint64_t)p < (uint64_t)1 << 64 - tagbits);
+  return term((uint64_t)p << tagbits | (uint64_t)a);
+}
+
+// decompose term into components
 inline term tag(term a) { return term((uint64_t)a & (1 << tagbits) - 1); }
 
 inline uint64_t rest(term a) { return (uint64_t)a >> tagbits; }
 
+// variables
+inline term var(type t, si i) {
+  assert(!iscompound(t));
+  // variable is composed of:
+  // 6 bits tag
+  // 16 bits type
+  // 1 bit flag e.g. for renamed variables
+  // and the rest of the bits are for a number that identifies the variable
+  return term((uint64_t)i << (1 + 16 + tagbits) | (uint64_t)t << tagbits |
+              (uint64_t)term::Var);
+}
+
+inline si vari(term a) {
+  assert(tag(a) == term::Var);
+  return (uint64_t)a >> (1 + 16 + tagbits);
+}
+
+inline type vartype(term a) {
+  assert(tag(a) == term::Var);
+  return type((uint64_t)a >> tagbits);
+}
+
+// requires atomic term tag numbers to be contiguous
 inline bool iscompound(term a) { return tag(a) > term::Var; }
 
+// compound terms
 struct compound {
   si n;
   term v[0];
@@ -78,8 +112,6 @@ inline term at(term a, si i) {
   return begin(a)[i];
 }
 
-struct sym;
-
 // SORT
 extern ary<term> freevars;
 extern si skolemi;
@@ -94,37 +126,6 @@ term mk(term op, const vec<term> &args);
 term mk(term op, term a);
 term mk(term op, term a, term b);
 term mk(term op, term a, term b, term c);
-///
-
-// SORT
-inline term mk(void *p, term a) {
-  // this assumes there is a limit to how much address space will actually be
-  // used, such that pointers don't actually use the full 64 bits, leaving a few
-  // spare for tag
-  assert((uint64_t)p < (uint64_t)1 << 64 - tagbits);
-  return term((uint64_t)p << tagbits | (uint64_t)a);
-}
-
-inline term var(type t, si i) {
-  assert(!iscompound(t));
-  // variable is composed of:
-  // 6 bits tag
-  // 16 bits type
-  // 1 bit flag e.g. for renamed variables
-  // and the rest of the bits are for a number that identifies the variable
-  return term((uint64_t)i << (1 + 16 + tagbits) | (uint64_t)t << tagbits |
-              (uint64_t)term::Var);
-}
-
-inline si vari(term a) {
-  assert(tag(a) == term::Var);
-  return (uint64_t)a >> (1 + 16 + tagbits);
-}
-
-inline type vartype(term a) {
-  assert(tag(a) == term::Var);
-  return type((uint64_t)a >> tagbits);
-}
 ///
 
 #ifdef DEBUG

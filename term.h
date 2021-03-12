@@ -124,7 +124,7 @@ void getfree(term a);
 
 // etc
 // SORT
-extern ary<term> terms;
+extern ary<term> termv;
 extern si skolemi;
 ///
 

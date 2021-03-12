@@ -65,7 +65,7 @@ clause *altvars(clause *c) {
 // permanent/shared-term storage
 term replace(term a) {
   if (tag(a) == term::Var)
-    for (auto &i : varmap)
+    for (auto &i : pairv)
       if (i.first == a)
         return replace(i.second);
   if (!iscompound(a))
@@ -85,11 +85,11 @@ term replace(term a) {
 // from those in the alternative variable namespace
 term normvars(term a) {
   if (tag(a) == term::Var) {
-    for (auto &i : varmap)
+    for (auto &i : pairv)
       if (i.first == a)
         return i.second;
-    auto b = var(vartype(a), varmap.n);
-    varmap.push(make_pair(a, b));
+    auto b = var(vartype(a), pairv.n);
+    pairv.push(make_pair(a, b));
     return b;
   }
   if (!iscompound(a))
@@ -102,7 +102,7 @@ term normvars(term a) {
 }
 
 void normvars() {
-  varmap.n = 0;
+  pairv.n = 0;
   for (auto i = neg.p, e = neg.end(); i != e; ++i)
     *i = normvars(*i);
   for (auto i = pos.p, e = pos.end(); i != e; ++i)

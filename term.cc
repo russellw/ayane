@@ -107,9 +107,9 @@ void getfree1(term a) {
   case term::Var:
     if (find(boundvars.p, boundvars.end(), a) != boundvars.end())
       return;
-    if (find(terms.p, terms.end(), a) != terms.end())
+    if (find(termv.p, termv.end(), a) != termv.end())
       return;
-    terms.push(a);
+    termv.push(a);
     return;
   }
   if (!iscompound(a))
@@ -121,13 +121,13 @@ void getfree1(term a) {
 
 void getfree(term a) {
   assert(!boundvars.n);
-  terms.n = 0;
+  termv.n = 0;
   getfree1(a);
 }
 
 // etc
 // SORT
-ary<term> terms;
+ary<term> termv;
 si skolemi;
 ///
 

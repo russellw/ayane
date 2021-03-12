@@ -73,18 +73,18 @@ term skolem(type t) {
 
 term skolemterms(type rt) {
   // atom
-  if (!terms.n)
+  if (!termv.n)
     return skolem(rt);
 
   // compound type
-  vec<type> t(terms.n + 1);
+  vec<type> t(termv.n + 1);
   t[0] = rt;
-  for (si i = 0; i != terms.n; ++i)
-    t[i + 1] = vartype(terms[i]);
+  for (si i = 0; i != termv.n; ++i)
+    t[i + 1] = vartype(termv[i]);
 
   // compound
-  terms.insert(terms.p, skolem(mktype(t)));
-  return intern(term::Call, terms);
+  termv.insert(termv.p, skolem(mktype(t)));
+  return intern(term::Call, termv);
 }
 
 // rename subformulas to avoid exponential blowup
@@ -152,10 +152,10 @@ struct nnf {
     auto old = boundvars.n;
     boundvars.resize(old + n - 1);
     for (si i = 1; i != n; ++i) {
-      terms.n = 0;
+      termv.n = 0;
       for (auto &j : boundvars)
         if (!j.exists)
-          terms.push(j.renamed);
+          termv.push(j.renamed);
       auto x = at(a, i);
       auto y = skolemterms(vartype(x));
       boundvars[old + i - 1] = quant(1, x, y);

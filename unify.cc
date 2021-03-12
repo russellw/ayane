@@ -2,7 +2,7 @@
 // stdafx.h must be first
 #include "main.h"
 
-ary<pair<term, term>> varmap;
+ary<pair<term, term>> pairv;
 
 bool match(term a, term b) {
   // equal
@@ -16,13 +16,13 @@ bool match(term a, term b) {
   // variable
   if (tag(a) == term::Var) {
     // existing mapping
-    for (auto &i : varmap) {
+    for (auto &i : pairv) {
       if (i.first == a)
         return i.second == b;
     }
 
     // new mapping
-    varmap.push(make_pair(a, b));
+    pairv.push(make_pair(a, b));
     return 1;
   }
 
@@ -48,7 +48,7 @@ bool occurs(term a, term b) {
   if (tag(b) == term::Var) {
     if (a == b)
       return 1;
-    for (auto &i : varmap)
+    for (auto &i : pairv)
       if (i.first == b)
         return occurs(a, i.second);
   }
@@ -65,7 +65,7 @@ bool unifyvar(term a, term b) {
   assert(typeof(a) == typeof(b));
 
   // existing mappings
-  for (auto &i : varmap) {
+  for (auto &i : pairv) {
     if (i.first == a)
       return unify1(i.second, b);
     if (i.first == b)
@@ -77,7 +77,7 @@ bool unifyvar(term a, term b) {
     return 0;
 
   // new mapping
-  varmap.push(make_pair(a, b));
+  pairv.push(make_pair(a, b));
   return 1;
 }
 } // namespace
@@ -114,6 +114,6 @@ bool unify1(term a, term b) {
 }
 
 bool unify(term a, term b) {
-  varmap.n = 0;
+  pairv.n = 0;
   return unify1(a, b);
 }

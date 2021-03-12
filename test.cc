@@ -13,7 +13,7 @@ term fn(type t, sym *s) {
 }
 
 bool match0(term a, term b) {
-  varmap.n = 0;
+  pairv.n = 0;
   return match(a, b);
 }
 
@@ -42,7 +42,7 @@ type mktype(type rt, type param1, type param2) {
 
 term replace(term a) {
   if (tag(a) == term::Var)
-    for (auto &i : varmap)
+    for (auto &i : pairv)
       if (i.first == a)
         return replace(i.second);
   if (!iscompound(a))
@@ -103,27 +103,27 @@ void test_getfree() {
   auto y = var(type::Individual, 1);
 
   getfree(a);
-  assert(terms.n == 0);
+  assert(termv.n == 0);
 
   getfree(x);
-  assert(terms.n == 1);
-  assert(terms[0] == x);
+  assert(termv.n == 1);
+  assert(termv[0] == x);
 
   getfree(intern(term::Eq, x, x));
-  assert(terms.n == 1);
-  assert(terms[0] == x);
+  assert(termv.n == 1);
+  assert(termv[0] == x);
 
   getfree(intern(term::Eq, x, y));
-  assert(terms.n == 2);
-  assert(terms[0] == x);
-  assert(terms[1] == y);
+  assert(termv.n == 2);
+  assert(termv[0] == x);
+  assert(termv[1] == y);
 
   getfree(intern(term::Eq, a, a));
-  assert(terms.n == 0);
+  assert(termv.n == 0);
 
   getfree(intern(term::All, intern(term::Eq, x, y), x));
-  assert(terms.n == 1);
-  assert(terms[0] == y);
+  assert(termv.n == 1);
+  assert(termv[0] == y);
 }
 
 void test_int() {
@@ -165,14 +165,14 @@ void test_match() {
 
   // Succeeds. (tautology)
   assert(match0(a, a));
-  assert(varmap.n == 0);
+  assert(pairv.n == 0);
 
   // a and b do not match
   assert(!match0(a, b));
 
   // Succeeds. (tautology)
   assert(match0(x, x));
-  assert(varmap.n == 0);
+  assert(pairv.n == 0);
 
   // x is not matched with the constant a, because the variable is on the
   // right-hand side
@@ -180,12 +180,12 @@ void test_match() {
 
   // x and y are aliased
   assert(match0(x, y));
-  assert(varmap.n == 1);
+  assert(pairv.n == 1);
   assert(replace(x) == replace(y));
 
   // Function and constant symbols match, x is unified with the constant b
   assert(match0(intern(term::Call, f2, a, x), intern(term::Call, f2, a, b)));
-  assert(varmap.n == 1);
+  assert(pairv.n == 1);
   assert(replace(x) == b);
 
   // f and g do not match
@@ -193,7 +193,7 @@ void test_match() {
 
   // x and y are aliased
   assert(match0(intern(term::Call, f1, x), intern(term::Call, f1, y)));
-  assert(varmap.n == 1);
+  assert(pairv.n == 1);
   assert(replace(x) == replace(y));
 
   // f and g do not match
@@ -215,12 +215,12 @@ void test_match() {
   // (enforced by the occurs check) but returns true here because match has no
   // notion of an occurs check
   assert(match0(x, intern(term::Call, f1, x)));
-  assert(varmap.n == 1);
+  assert(pairv.n == 1);
 
   // Both x and y are unified with the constant a
   assert(match0(x, y));
   assert(match(y, a));
-  assert(varmap.n == 2);
+  assert(pairv.n == 2);
   assert(replace(x) == a);
   assert(replace(y) == a);
 
@@ -565,28 +565,28 @@ void test_unify() {
 
   // Succeeds. (tautology)
   assert(unify(a, a));
-  assert(varmap.n == 0);
+  assert(pairv.n == 0);
 
   // a and b do not match
   assert(!unify(a, b));
 
   // Succeeds. (tautology)
   assert(unify(x, x));
-  assert(varmap.n == 0);
+  assert(pairv.n == 0);
 
   // x is unified with the constant a
   assert(unify(a, x));
-  assert(varmap.n == 1);
+  assert(pairv.n == 1);
   assert(replace(x) == a);
 
   // x and y are aliased
   assert(unify(x, y));
-  assert(varmap.n == 1);
+  assert(pairv.n == 1);
   assert(replace(x) == replace(y));
 
   // Function and constant symbols match, x is unified with the constant b
   assert(unify(intern(term::Call, f2, a, x), intern(term::Call, f2, a, b)));
-  assert(varmap.n == 1);
+  assert(pairv.n == 1);
   assert(replace(x) == b);
 
   // f and g do not match
@@ -594,7 +594,7 @@ void test_unify() {
 
   // x and y are aliased
   assert(unify(intern(term::Call, f1, x), intern(term::Call, f1, y)));
-  assert(varmap.n == 1);
+  assert(pairv.n == 1);
   assert(replace(x) == replace(y));
 
   // f and g do not match
@@ -606,13 +606,13 @@ void test_unify() {
   // Unifies y with the term g1(x)
   assert(unify(intern(term::Call, f1, intern(term::Call, g1, x)),
                intern(term::Call, f1, y)));
-  assert(varmap.n == 1);
+  assert(pairv.n == 1);
   assert(replace(y) == intern(term::Call, g1, x));
 
   // Unifies x with constant a, and y with the term g1(a)
   assert(unify(intern(term::Call, f2, intern(term::Call, g1, x), x),
                intern(term::Call, f2, y, a)));
-  assert(varmap.n == 2);
+  assert(pairv.n == 2);
   assert(replace(x) == a);
   assert(replace(y) == intern(term::Call, g1, a));
 
@@ -623,14 +623,14 @@ void test_unify() {
   // Both x and y are unified with the constant a
   assert(unify(x, y));
   assert(unify1(y, a));
-  assert(varmap.n == 2);
+  assert(pairv.n == 2);
   assert(replace(x) == a);
   assert(replace(y) == a);
 
   // As above (order of equations in set doesn't matter)
   assert(unify(a, y));
   assert(unify1(x, y));
-  assert(varmap.n == 2);
+  assert(pairv.n == 2);
   assert(replace(x) == a);
   assert(replace(y) == a);
 

@@ -2,7 +2,10 @@
 // stdafx.h must be first
 #include "main.h"
 
-// compound terms
+// temporary compound terms
+pool<> tmppool;
+
+// permanent/interned compound terms
 namespace compounds {
 si cap = 0x1000;
 si count;

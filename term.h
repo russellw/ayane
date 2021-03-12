@@ -90,6 +90,10 @@ inline term at(term a, si i) {
   return begin(a)[i];
 }
 
+// temporary compound terms
+extern pool<> tmppool;
+
+// permanent/interned compound terms
 term intern(term op, const ary<term> &args);
 term intern(term op, const vec<term> &args);
 term intern(term op, term a);

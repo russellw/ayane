@@ -50,7 +50,7 @@ enum class term : uint64_t {
 const si tagbits = 6;
 
 // make a term from a pointer
-inline term mk(void *p, term a) {
+inline term tag(void *p, term a) {
   // this assumes there is a limit to how much address space will actually be
   // used, such that pointers don't actually use the full 64 bits, leaving a few
   // spare for tag

@@ -47,7 +47,7 @@ term altvars(term a) {
   r->n = n;
   for (si i = 0; i != n; ++i)
     r->v[i] = altvars(at(a, i));
-  return mk(r, tag(a));
+  return tag(r, tag(a));
 }
 
 clause *altvars(clause *c) {
@@ -75,7 +75,7 @@ term replace(term a) {
   r->n = n;
   for (si i = 0; i != n; ++i)
     r->v[i] = replace(at(a, i));
-  return mk(r, tag(a));
+  return tag(r, tag(a));
 }
 
 // once new literals have been constructed from two input clauses with different
@@ -188,7 +188,7 @@ term equate(term a, term b) {
   r->n = 2;
   r->v[0] = a;
   r->v[1] = b;
-  return mk(r, term::Eq);
+  return tag(r, term::Eq);
 }
 
 // substitute and make new clause

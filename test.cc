@@ -9,7 +9,7 @@ term fn(type t, sym *s) {
   if (s->ft == type::none)
     s->ft = t;
   assert(s->ft == t);
-  return mk(s, term::Sym);
+  return tag(s, term::Sym);
 }
 
 bool match0(term a, term b) {
@@ -129,20 +129,20 @@ void test_getfree() {
 void test_int() {
   Int x1;
   mpz_init_set_ui(x1.val, 1);
-  auto a1 = mk(intern(x1), term::Int);
+  auto a1 = tag(intern(x1), term::Int);
   auto y1 = (Int *)rest(a1);
   assert(!mpz_cmp_ui(y1->val, 1));
 
   Int x2;
   mpz_init_set_ui(x2.val, 2);
-  auto a2 = mk(intern(x2), term::Int);
+  auto a2 = tag(intern(x2), term::Int);
   auto y2 = (Int *)rest(a2);
   assert(!mpz_cmp_ui(y2->val, 2));
 
   Int x3;
   mpz_init(x3.val);
   mpz_add(x3.val, y1->val, y2->val);
-  auto a3 = mk(intern(x3), term::Int);
+  auto a3 = tag(intern(x3), term::Int);
   auto y3 = (Int *)rest(a3);
   assert(!mpz_cmp_ui(y3->val, 3));
 }
@@ -293,21 +293,21 @@ void test_rat() {
   Rat x1;
   mpq_init(x1.val);
   mpq_set_ui(x1.val, 1, 1);
-  auto a1 = mk(intern(x1), term::Rat);
+  auto a1 = tag(intern(x1), term::Rat);
   auto y1 = (Rat *)rest(a1);
   assert(!mpq_cmp_ui(y1->val, 1, 1));
 
   Rat x2;
   mpq_init(x2.val);
   mpq_set_ui(x2.val, 2, 1);
-  auto a2 = mk(intern(x2), term::Rat);
+  auto a2 = tag(intern(x2), term::Rat);
   auto y2 = (Rat *)rest(a2);
   assert(!mpq_cmp_ui(y2->val, 2, 1));
 
   Rat x3;
   mpq_init(x3.val);
   mpq_add(x3.val, y1->val, y2->val);
-  auto a3 = mk(intern(x3), term::Rat);
+  auto a3 = tag(intern(x3), term::Rat);
   auto y3 = (Rat *)rest(a3);
   assert(!mpq_cmp_ui(y3->val, 3, 1));
 }
@@ -534,13 +534,13 @@ void test_typeof() {
 
   Int i1;
   mpz_init_set_ui(i1.val, 1);
-  assert(typeof(mk(intern(i1), term::Int)) == type::Int);
+  assert(typeof(tag(intern(i1), term::Int)) == type::Int);
 
   Rat r1;
   mpq_init(r1.val);
   mpq_set_ui(r1.val, 1, 3);
-  assert(typeof(mk(intern(r1), term::Rat)) == type::Rat);
-  assert(typeof(mk(intern(r1), term::Real)) == type::Real);
+  assert(typeof(tag(intern(r1), term::Rat)) == type::Rat);
+  assert(typeof(tag(intern(r1), term::Real)) == type::Real);
 
   auto red = fn(type::Bool, intern("red"));
   assert(typeof(red) == type::Bool);

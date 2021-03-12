@@ -57,17 +57,17 @@ compound *put(const term *p, si n) {
 
 term mk(term op, const ary<term> &args) {
   assert(op == tag(op));
-  return mk(compounds::put(args.p, args.n), op);
+  return tag(compounds::put(args.p, args.n), op);
 }
 
 term mk(term op, const vec<term> &args) {
   assert(op == tag(op));
-  return mk(compounds::put(args.p, args.n), op);
+  return tag(compounds::put(args.p, args.n), op);
 }
 
 term mk(term op, term a) {
   assert(op == tag(op));
-  return mk(compounds::put(&a, 1), op);
+  return tag(compounds::put(&a, 1), op);
 }
 
 term mk(term op, term a, term b) {
@@ -75,7 +75,7 @@ term mk(term op, term a, term b) {
   term v[2];
   v[0] = a;
   v[1] = b;
-  return mk(compounds::put(v, sizeof v / sizeof *v), op);
+  return tag(compounds::put(v, sizeof v / sizeof *v), op);
 }
 
 term mk(term op, term a, term b, term c) {
@@ -84,7 +84,7 @@ term mk(term op, term a, term b, term c) {
   v[0] = a;
   v[1] = b;
   v[2] = c;
-  return mk(compounds::put(v, sizeof v / sizeof *v), op);
+  return tag(compounds::put(v, sizeof v / sizeof *v), op);
 }
 
 term imp(term a, term b) { return mk(term::Or, mk(term::Not, a), b); }

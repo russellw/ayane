@@ -68,7 +68,7 @@ term skolem(type t) {
   auto n = sprintf(buf, "\1%zu", skolemi++);
   auto s = intern(buf, n);
   s->ft = t;
-  return mk(s, term::Sym);
+  return tag(s, term::Sym);
 }
 
 term skolemterms(type rt) {

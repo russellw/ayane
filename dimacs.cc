@@ -68,7 +68,7 @@ struct parser1 : parser {
     auto s = toksym;
     lex();
     s->ft = type::Bool;
-    return mk(s, term::Sym);
+    return tag(s, term::Sym);
   }
 
   // top level

@@ -127,8 +127,8 @@ void getfree(term a) {
 
 // etc
 // SORT
-si skolemi;
 ary<term> terms;
+si skolemi;
 ///
 
 void init_terms() { skolemi = 0; }

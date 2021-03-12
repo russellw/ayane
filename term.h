@@ -54,7 +54,7 @@ inline term mk(void *p, term a) {
   // this assumes there is a limit to how much address space will actually be
   // used, such that pointers don't actually use the full 64 bits, leaving a few
   // spare for tag
-  assert((uint64_t)p < (uint64_t)1 << 64 - tagbits);
+  assert((uint64_t)p < (uint64_t)1 << (64 - tagbits));
   return term((uint64_t)p << tagbits | (uint64_t)a);
 }
 

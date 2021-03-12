@@ -308,9 +308,9 @@ struct parser1 : parser {
     case 'r':
     case 's':
     case 't':
-    case 'term':
     case 'u':
     case 'v':
+    case 'w':
     case 'x':
     case 'y':
     case 'z':

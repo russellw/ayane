@@ -3,6 +3,8 @@ template <si cap = 300000000> class pool {
   char v[cap];
 
 public:
+  void init() { p = v; }
+
   void *alloc(si n) {
     assert(!((si)p & 7));
     assert(0 <= n);
@@ -16,6 +18,4 @@ public:
 #endif
     return r;
   }
-
-  void init() { p = v; }
 };

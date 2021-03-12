@@ -3,7 +3,7 @@
 #include "main.h"
 
 // temporary compound terms
-pool<> tmppool;
+pool<> pool1;
 
 // permanent/interned compound terms
 namespace compounds {

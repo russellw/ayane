@@ -42,7 +42,7 @@ term altvars(term a) {
   if (!iscompound(a))
     return a;
   auto n = size(a);
-  auto r = (compound *)tmppool.alloc(offsetof(compound, v) + n * sizeof a);
+  auto r = (compound *)pool1.alloc(offsetof(compound, v) + n * sizeof a);
   r->n = n;
   for (si i = 0; i != n; ++i)
     r->v[i] = altvars(at(a, i));
@@ -51,7 +51,7 @@ term altvars(term a) {
 
 clause *altvars(clause *c) {
   auto n = c->n;
-  auto d = (clause *)tmppool.alloc(offsetof(clause, v) + n * sizeof(term));
+  auto d = (clause *)pool1.alloc(offsetof(clause, v) + n * sizeof(term));
   memcpy(d, c, offsetof(clause, v));
   for (si i = 0; i != n; ++i)
     d->v[i] = altvars(c->v[i]);
@@ -70,7 +70,7 @@ term replace(term a) {
   if (!iscompound(a))
     return a;
   auto n = size(a);
-  auto r = (compound *)tmppool.alloc(offsetof(compound, v) + n * sizeof a);
+  auto r = (compound *)pool1.alloc(offsetof(compound, v) + n * sizeof a);
   r->n = n;
   for (si i = 0; i != n; ++i)
     r->v[i] = replace(at(a, i));
@@ -183,7 +183,7 @@ term equate(term a, term b) {
     return b;
   if (b == term::True)
     return a;
-  auto r = (compound *)tmppool.alloc(offsetof(compound, v) + 2 * sizeof a);
+  auto r = (compound *)pool1.alloc(offsetof(compound, v) + 2 * sizeof a);
   r->n = 2;
   r->v[0] = a;
   r->v[1] = b;
@@ -368,7 +368,7 @@ loop:
       return szs::Timeout;
 
     // alternate variables
-    tmppool.init();
+    pool1.init();
     auto g1 = altvars(g);
 
     // this is the Discount loop (in which only active clauses participate in

@@ -91,7 +91,7 @@ inline term at(term a, si i) {
 }
 
 // temporary compound terms
-extern pool<> tmppool;
+extern pool<> pool1;
 
 // permanent/interned compound terms
 term intern(term op, const ary<term> &args);

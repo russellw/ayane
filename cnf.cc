@@ -140,8 +140,7 @@ struct nnf {
     for (si i = 1; i != n; ++i) {
       auto x = at(a, i);
       auto t = vartype(x);
-      auto &j = newvars[t];
-      boundvars[old + i - 1] = quant(0, x, var(t, j++));
+      boundvars[old + i - 1] = quant(0, x, var(t, newvars[t]++));
     }
     a = convert(pol, at(a, 0));
     boundvars.n = old;
@@ -200,8 +199,7 @@ struct nnf {
         if (p.first == a)
           return p.second;
       auto t = vartype(a);
-      auto &j = newvars[t];
-      auto b = var(t, j++);
+      auto b = var(t, newvars[t]++);
       freevars.push_back(make_pair(a, b));
       return b;
     }

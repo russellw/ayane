@@ -103,27 +103,27 @@ void test_getfree() {
   auto y = var(type::Individual, 1);
 
   getfree(a);
-  assert(freevars.n == 0);
+  assert(terms.n == 0);
 
   getfree(x);
-  assert(freevars.n == 1);
-  assert(freevars[0] == x);
+  assert(terms.n == 1);
+  assert(terms[0] == x);
 
   getfree(mk(term::Eq, x, x));
-  assert(freevars.n == 1);
-  assert(freevars[0] == x);
+  assert(terms.n == 1);
+  assert(terms[0] == x);
 
   getfree(mk(term::Eq, x, y));
-  assert(freevars.n == 2);
-  assert(freevars[0] == x);
-  assert(freevars[1] == y);
+  assert(terms.n == 2);
+  assert(terms[0] == x);
+  assert(terms[1] == y);
 
   getfree(mk(term::Eq, a, a));
-  assert(freevars.n == 0);
+  assert(terms.n == 0);
 
   getfree(mk(term::All, mk(term::Eq, x, y), x));
-  assert(freevars.n == 1);
-  assert(freevars[0] == y);
+  assert(terms.n == 1);
+  assert(terms[0] == y);
 }
 
 void test_int() {

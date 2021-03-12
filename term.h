@@ -120,12 +120,13 @@ inline type vartype(term a) {
   return type((uint64_t)a >> tagbits);
 }
 
-extern ary<term> freevars;
-
 void getfree(term a);
 
 // etc
+// SORT
+extern ary<term> terms;
 extern si skolemi;
+///
 
 void init_terms();
 

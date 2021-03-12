@@ -71,33 +71,26 @@ term skolem(type t) {
   return mk(s, term::Sym);
 }
 
-term skolemize(type rt) {
+term skolemterms(type rt) {
   // atom
-  if (!freevars.n)
+  if (!terms.n)
     return skolem(rt);
 
   // compound type
-  vec<type> t(freevars.n + 1);
+  vec<type> t(terms.n + 1);
   t[0] = rt;
-  for (si i = 0; i != freevars.n; ++i)
-    t[i + 1] = vartype(freevars[i]);
+  for (si i = 0; i != terms.n; ++i)
+    t[i + 1] = vartype(terms[i]);
 
   // compound
-  freevars.insert(freevars.p, skolem(mktype(t)));
-  return mk(term::Call, freevars);
-}
-
-term skolemize(type rt, const vec<pair<term, term>> &v) {
-  freevars.resize(v.n);
-  for (si i = 0; i != v.n; ++i)
-    freevars[i] = v[i].second;
-  return skolemize(rt);
+  terms.insert(terms.p, skolem(mktype(t)));
+  return mk(term::Call, terms);
 }
 
 // rename subformulas to avoid exponential blowup
 term rename_pos(term a) {
   getfree(a);
-  auto b = skolemize(type::Bool);
+  auto b = skolemterms(type::Bool);
   cnf(imp(b, a), 0);
   return b;
 }
@@ -107,7 +100,7 @@ term cnf1(term a);
 term rename_both(term a) {
   a = cnf1(a);
   getfree(a);
-  auto b = skolemize(type::Bool);
+  auto b = skolemterms(type::Bool);
   cnf(mk(term::And, imp(b, a), imp(a, b)), 0);
   return b;
 }
@@ -115,9 +108,19 @@ term rename_both(term a) {
 // negation normal form
 // for-all vars map to fresh vars
 // exists vars map to skolem functions
+struct quant {
+  bool exists;
+  term var;
+  term renamed;
+
+  quant() {}
+
+  quant(bool exists, term var, term renamed)
+      : exists(exists), var(var), renamed(renamed) {}
+};
+
 struct nnf {
-  vec<pair<term, term>> allvars;
-  vec<pair<term, term>> existsvars;
+  vec<quant> boundvars;
   vec<pair<term, term>> freevars;
   unordered_map<type, si> newvars;
   term r;
@@ -132,27 +135,34 @@ struct nnf {
 
   term all(bool pol, term a) {
     auto n = size(a);
-    auto old = allvars.n;
-    allvars.resize(old + n - 1);
+    auto old = boundvars.n;
+    boundvars.resize(old + n - 1);
     for (si i = 1; i != n; ++i) {
-      auto t = vartype(at(a, i));
+      auto x = at(a, i);
+      auto t = vartype(x);
       auto &j = newvars[t];
-      allvars[old + i - 1] = make_pair(at(a, i), var(t, j++));
+      boundvars[old + i - 1] = quant(0, x, var(t, j++));
     }
     a = convert(pol, at(a, 0));
-    allvars.n = old;
+    boundvars.n = old;
     return a;
   }
 
   term exists(bool pol, term a) {
     auto n = size(a);
-    auto old = existsvars.n;
-    existsvars.resize(old + n - 1);
-    for (si i = 1; i != n; ++i)
-      existsvars[old + i - 1] =
-          make_pair(at(a, i), skolemize(vartype(at(a, i)), allvars));
+    auto old = boundvars.n;
+    boundvars.resize(old + n - 1);
+    for (si i = 1; i != n; ++i) {
+      terms.n = 0;
+      for (auto &j : boundvars)
+        if (!j.exists)
+          terms.push(j.renamed);
+      auto x = at(a, i);
+      auto y = skolemterms(vartype(x));
+      boundvars[old + i - 1] = quant(1, x, y);
+    }
     a = convert(pol, at(a, 0));
-    existsvars.n = old;
+    boundvars.n = old;
     return a;
   }
 
@@ -183,12 +193,9 @@ struct nnf {
     case term::True:
       return term(pol);
     case term::Var:
-      for (auto i = allvars.rbegin(), e = allvars.rend(); i != e; ++i)
-        if (i->first == a)
-          return i->second;
-      for (auto i = existsvars.rbegin(), e = existsvars.rend(); i != e; ++i)
-        if (i->first == a)
-          return i->second;
+      for (auto i = boundvars.rbegin(), e = boundvars.rend(); i != e; ++i)
+        if (i->var == a)
+          return i->renamed;
       for (auto &p : freevars)
         if (p.first == a)
           return p.second;

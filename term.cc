@@ -90,8 +90,6 @@ term mk(term op, term a, term b, term c) {
 term imp(term a, term b) { return mk(term::Or, mk(term::Not, a), b); }
 
 // variables
-ary<term> freevars;
-
 namespace {
 ary<term> boundvars;
 
@@ -109,9 +107,9 @@ void getfree1(term a) {
   case term::Var:
     if (find(boundvars.p, boundvars.end(), a) != boundvars.end())
       return;
-    if (find(freevars.p, freevars.end(), a) != freevars.end())
+    if (find(terms.p, terms.end(), a) != terms.end())
       return;
-    freevars.push(a);
+    terms.push(a);
     return;
   }
   if (!iscompound(a))
@@ -123,12 +121,15 @@ void getfree1(term a) {
 
 void getfree(term a) {
   assert(!boundvars.n);
-  freevars.n = 0;
+  terms.n = 0;
   getfree1(a);
 }
 
 // etc
+// SORT
 si skolemi;
+ary<term> terms;
+///
 
 void init_terms() { skolemi = 0; }
 

@@ -98,7 +98,7 @@ term normvars(term a) {
   vec<term> v(n);
   for (si i = 0; i != n; ++i)
     v[i] = normvars(at(a, i));
-  return mk(tag(a), v);
+  return intern(tag(a), v);
 }
 
 void normvars() {
@@ -289,7 +289,7 @@ term splice(term x, si *i) {
   v.insert(v.p, begin(x), end(x));
   auto j = *i++;
   v[j] = splice(v[j], i);
-  return mk(tag(x), v);
+  return intern(tag(x), v);
 }
 
 void descend(term x) {

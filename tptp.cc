@@ -543,7 +543,7 @@ struct parser1 : parser {
     auto t = numtypeof(v[0]);
     for (auto i = v.p + 1, e = v.end(); i != e; ++i)
       requiretype(t, *i);
-    return mk(op, v);
+    return intern(op, v);
   }
 
   term atomic_term() {
@@ -574,8 +574,8 @@ struct parser1 : parser {
         vec<term> clauses;
         for (auto i = v.p, e = v.end(); i != e; ++i)
           for (auto j = v.p; j != i; ++j)
-            clauses.push_back(mk(term::Not, mk(term::Eq, *i, *j)));
-        return mk(term::And, clauses);
+            clauses.push_back(intern(term::Not, intern(term::Eq, *i, *j)));
+        return intern(term::And, clauses);
       }
       case k_false:
         return term::False;
@@ -585,13 +585,13 @@ struct parser1 : parser {
         args(v, 2);
         auto t = numtypeof(v[0]);
         requiretype(t, v[1]);
-        return mk(term::Lt, v[1], v[0]);
+        return intern(term::Lt, v[1], v[0]);
       }
       case k_greatereq: {
         args(v, 2);
         auto t = numtypeof(v[0]);
         requiretype(t, v[1]);
-        return mk(term::Le, v[1], v[0]);
+        return intern(term::Le, v[1], v[0]);
       }
       case k_is_int:
         return defined_functor(term::IsInt, 1);
@@ -671,7 +671,7 @@ struct parser1 : parser {
       args(v);
       for (auto i = v.p + 1, e = v.end(); i != e; ++i)
         defaulttype(type::Individual, *i);
-      return mk(term::Call, v);
+      return intern(term::Call, v);
     }
     }
     err("syntax error");
@@ -685,14 +685,14 @@ struct parser1 : parser {
       auto b = atomic_term();
       defaulttype(type::Individual, a);
       requiretype(typeof(a), b);
-      return mk(term::Eq, a, b);
+      return intern(term::Eq, a, b);
     }
     case o_ne: {
       lex();
       auto b = atomic_term();
       defaulttype(type::Individual, a);
       requiretype(typeof(a), b);
-      return mk(term::Not, mk(term::Eq, a, b));
+      return intern(term::Not, intern(term::Eq, a, b));
     }
     }
     requiretype(type::Bool, a);
@@ -720,7 +720,7 @@ struct parser1 : parser {
     expect(':');
     v[0] = unitary_formula();
     vars.n = old;
-    return mk(op, v);
+    return intern(op, v);
   }
 
   term unitary_formula() {
@@ -737,7 +737,7 @@ struct parser1 : parser {
       return quantified_formula(term::Exists);
     case '~':
       lex();
-      return mk(term::Not, unitary_formula());
+      return intern(term::Not, unitary_formula());
     }
     return infix_unary();
   }
@@ -748,7 +748,7 @@ struct parser1 : parser {
     auto o = tok;
     while (eat(o))
       v.push_back(unitary_formula());
-    return mk(op, v);
+    return intern(op, v);
   }
 
   term logic_formula() {
@@ -760,7 +760,7 @@ struct parser1 : parser {
       return associative_logic_formula(term::Or, a);
     case o_eqv:
       lex();
-      return mk(term::Eqv, a, unitary_formula());
+      return intern(term::Eqv, a, unitary_formula());
     case o_imp:
       lex();
       return imp(a, unitary_formula());
@@ -769,13 +769,13 @@ struct parser1 : parser {
       return imp(unitary_formula(), a);
     case o_nand:
       lex();
-      return mk(term::Not, mk(term::And, a, unitary_formula()));
+      return intern(term::Not, intern(term::And, a, unitary_formula()));
     case o_nor:
       lex();
-      return mk(term::Not, mk(term::Or, a, unitary_formula()));
+      return intern(term::Not, intern(term::Or, a, unitary_formula()));
     case o_xor:
       lex();
-      return mk(term::Not, mk(term::Eqv, a, unitary_formula()));
+      return intern(term::Not, intern(term::Eqv, a, unitary_formula()));
     }
     return a;
   }
@@ -910,7 +910,7 @@ struct parser1 : parser {
           clausefiles[f] = file;
           clausenames[f] = forname->v;
           if (role == k_conjecture) {
-            a = mk(term::Not, a);
+            a = intern(term::Not, a);
             f = formula(infer::negate, a, f);
             conjecture = f;
           }

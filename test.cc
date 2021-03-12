@@ -52,7 +52,7 @@ term replace(term a) {
   v.resize(n);
   for (si i = 0; i != n; ++i)
     v[i] = replace(at(a, i));
-  return mk(tag(a), v);
+  return intern(tag(a), v);
 }
 ///
 
@@ -63,18 +63,18 @@ void test_clause() {
 
   // a simple clause, x!=y
   neg.n = pos.n = 0;
-  neg.push(mk(term::Eq, x, y));
+  neg.push(intern(term::Eq, x, y));
   auto c = mkclause(infer::none);
 
   // duplicate returns null
   neg.n = pos.n = 0;
-  neg.push(mk(term::Eq, x, y));
+  neg.push(intern(term::Eq, x, y));
   auto d = mkclause(infer::none);
   assert(!d);
 
   // the duplicate check distinguishes between negative and positive literals
   neg.n = pos.n = 0;
-  pos.push(mk(term::Eq, x, y));
+  pos.push(intern(term::Eq, x, y));
   d = mkclause(infer::none);
   assert(c != d);
 }
@@ -109,19 +109,19 @@ void test_getfree() {
   assert(terms.n == 1);
   assert(terms[0] == x);
 
-  getfree(mk(term::Eq, x, x));
+  getfree(intern(term::Eq, x, x));
   assert(terms.n == 1);
   assert(terms[0] == x);
 
-  getfree(mk(term::Eq, x, y));
+  getfree(intern(term::Eq, x, y));
   assert(terms.n == 2);
   assert(terms[0] == x);
   assert(terms[1] == y);
 
-  getfree(mk(term::Eq, a, a));
+  getfree(intern(term::Eq, a, a));
   assert(terms.n == 0);
 
-  getfree(mk(term::All, mk(term::Eq, x, y), x));
+  getfree(intern(term::All, intern(term::Eq, x, y), x));
   assert(terms.n == 1);
   assert(terms[0] == y);
 }
@@ -184,37 +184,37 @@ void test_match() {
   assert(replace(x) == replace(y));
 
   // Function and constant symbols match, x is unified with the constant b
-  assert(match0(mk(term::Call, f2, a, x), mk(term::Call, f2, a, b)));
+  assert(match0(intern(term::Call, f2, a, x), intern(term::Call, f2, a, b)));
   assert(varmap.n == 1);
   assert(replace(x) == b);
 
   // f and g do not match
-  assert(!match0(mk(term::Call, f1, a), mk(term::Call, g1, a)));
+  assert(!match0(intern(term::Call, f1, a), intern(term::Call, g1, a)));
 
   // x and y are aliased
-  assert(match0(mk(term::Call, f1, x), mk(term::Call, f1, y)));
+  assert(match0(intern(term::Call, f1, x), intern(term::Call, f1, y)));
   assert(varmap.n == 1);
   assert(replace(x) == replace(y));
 
   // f and g do not match
-  assert(!match0(mk(term::Call, f1, x), mk(term::Call, g1, y)));
+  assert(!match0(intern(term::Call, f1, x), intern(term::Call, g1, y)));
 
   // Fails. The f function symbols have different arity
-  assert(!match0(mk(term::Call, f1, x), mk(term::Call, f2, y, z)));
+  assert(!match0(intern(term::Call, f1, x), intern(term::Call, f2, y, z)));
 
   // Does not match y with the term g1(x), because the variable is on the
   // right-hand side
-  assert(!match0(mk(term::Call, f1, mk(term::Call, g1, x)),
-                 mk(term::Call, f1, y)));
+  assert(!match0(intern(term::Call, f1, intern(term::Call, g1, x)),
+                 intern(term::Call, f1, y)));
 
   // Does not match, because the variable is on the right-hand side
-  assert(!match0(mk(term::Call, f2, mk(term::Call, g1, x), x),
-                 mk(term::Call, f2, y, a)));
+  assert(!match0(intern(term::Call, f2, intern(term::Call, g1, x), x),
+                 intern(term::Call, f2, y, a)));
 
   // Returns false in first-order logic and many modern Prolog dialects
   // (enforced by the occurs check) but returns true here because match has no
   // notion of an occurs check
-  assert(match0(x, mk(term::Call, f1, x)));
+  assert(match0(x, intern(term::Call, f1, x)));
   assert(varmap.n == 1);
 
   // Both x and y are unified with the constant a
@@ -237,18 +237,18 @@ void test_mk() {
   auto green = fn(type::Bool, intern("green"));
   auto blue = fn(type::Bool, intern("blue"));
 
-  auto a = mk(term::Not, red);
-  assert(a == mk(term::Not, red));
+  auto a = intern(term::Not, red);
+  assert(a == intern(term::Not, red));
 
-  a = mk(term::And, red, green);
-  assert(a == mk(term::And, red, green));
+  a = intern(term::And, red, green);
+  assert(a == intern(term::And, red, green));
 
   vec<term> v;
   v.push_back(red);
   v.push_back(green);
   v.push_back(blue);
-  a = mk(term::And, v);
-  assert(a == mk(term::And, v));
+  a = intern(term::And, v);
+  assert(a == intern(term::And, v));
 }
 
 void test_mktype() {
@@ -390,131 +390,136 @@ void test_subsume() {
   assert(!subsumes(d, c));
 
   // p(a) | p(b) | q(a) | q(b) | <= p(a) | q(a) | p(b) | q(b)
-  pos.push(mk(term::Call, p1, a));
-  pos.push(mk(term::Call, p1, b));
-  pos.push(mk(term::Call, q1, a));
-  pos.push(mk(term::Call, q1, b));
+  pos.push(intern(term::Call, p1, a));
+  pos.push(intern(term::Call, p1, b));
+  pos.push(intern(term::Call, q1, a));
+  pos.push(intern(term::Call, q1, b));
   c = mkclause1();
-  pos.push(mk(term::Call, p1, a));
-  pos.push(mk(term::Call, q1, a));
-  pos.push(mk(term::Call, p1, b));
-  pos.push(mk(term::Call, q1, b));
+  pos.push(intern(term::Call, p1, a));
+  pos.push(intern(term::Call, q1, a));
+  pos.push(intern(term::Call, p1, b));
+  pos.push(intern(term::Call, q1, b));
   d = mkclause1();
   assert(subsumes(c, d));
   assert(subsumes(d, c));
 
   // p(x,y) <= p(a,b)
-  pos.push(mk(term::Call, p2, x, y));
+  pos.push(intern(term::Call, p2, x, y));
   c = mkclause1();
-  pos.push(mk(term::Call, p2, a, b));
+  pos.push(intern(term::Call, p2, a, b));
   d = mkclause1();
   assert(subsumes(c, d));
   assert(!subsumes(d, c));
 
   // p(x,x) !<= p(a,b)
-  pos.push(mk(term::Call, p2, x, x));
+  pos.push(intern(term::Call, p2, x, x));
   c = mkclause1();
-  pos.push(mk(term::Call, p2, a, b));
+  pos.push(intern(term::Call, p2, a, b));
   d = mkclause1();
   assert(!subsumes(c, d));
   assert(!subsumes(d, c));
 
   // p(x) <= p(y)
-  pos.push(mk(term::Call, p1, x));
+  pos.push(intern(term::Call, p1, x));
   c = mkclause1();
-  pos.push(mk(term::Call, p1, y));
+  pos.push(intern(term::Call, p1, y));
   d = mkclause1();
   assert(subsumes(c, d));
   assert(subsumes(d, c));
 
   // p(x) | p(a(x)) | p(a(a(x))) <= p(y) | p(a(y)) | p(a(a(y)))
-  pos.push(mk(term::Call, p1, x));
-  pos.push(mk(term::Call, p1, mk(term::Call, a1, x)));
-  pos.push(mk(term::Call, p1, mk(term::Call, a1, mk(term::Call, a1, x))));
+  pos.push(intern(term::Call, p1, x));
+  pos.push(intern(term::Call, p1, intern(term::Call, a1, x)));
+  pos.push(intern(term::Call, p1,
+                  intern(term::Call, a1, intern(term::Call, a1, x))));
   c = mkclause1();
-  pos.push(mk(term::Call, p1, y));
-  pos.push(mk(term::Call, p1, mk(term::Call, a1, y)));
-  pos.push(mk(term::Call, p1, mk(term::Call, a1, mk(term::Call, a1, y))));
+  pos.push(intern(term::Call, p1, y));
+  pos.push(intern(term::Call, p1, intern(term::Call, a1, y)));
+  pos.push(intern(term::Call, p1,
+                  intern(term::Call, a1, intern(term::Call, a1, y))));
   d = mkclause1();
   assert(subsumes(c, d));
   assert(subsumes(d, c));
 
   // p(x) | p(a) <= p(a) | p(b)
-  pos.push(mk(term::Call, p1, x));
-  pos.push(mk(term::Call, p1, a));
+  pos.push(intern(term::Call, p1, x));
+  pos.push(intern(term::Call, p1, a));
   c = mkclause1();
-  pos.push(mk(term::Call, p1, a));
-  pos.push(mk(term::Call, p1, b));
+  pos.push(intern(term::Call, p1, a));
+  pos.push(intern(term::Call, p1, b));
   d = mkclause1();
   assert(subsumes(c, d));
   assert(!subsumes(d, c));
 
   // p(x) | p(a(x)) <= p(a(y)) | p(y)
-  pos.push(mk(term::Call, p1, x));
-  pos.push(mk(term::Call, p1, mk(term::Call, a1, x)));
+  pos.push(intern(term::Call, p1, x));
+  pos.push(intern(term::Call, p1, intern(term::Call, a1, x)));
   c = mkclause1();
-  pos.push(mk(term::Call, p1, mk(term::Call, a1, y)));
-  pos.push(mk(term::Call, p1, y));
+  pos.push(intern(term::Call, p1, intern(term::Call, a1, y)));
+  pos.push(intern(term::Call, p1, y));
   d = mkclause1();
   assert(subsumes(c, d));
   assert(subsumes(d, c));
 
   // p(x) | p(a(x)) | p(a(a(x))) <= p(a(a(y))) | p(a(y)) | p(y)
-  pos.push(mk(term::Call, p1, x));
-  pos.push(mk(term::Call, p1, mk(term::Call, a1, x)));
-  pos.push(mk(term::Call, p1, mk(term::Call, a1, mk(term::Call, a1, x))));
+  pos.push(intern(term::Call, p1, x));
+  pos.push(intern(term::Call, p1, intern(term::Call, a1, x)));
+  pos.push(intern(term::Call, p1,
+                  intern(term::Call, a1, intern(term::Call, a1, x))));
   c = mkclause1();
-  pos.push(mk(term::Call, p1, mk(term::Call, a1, mk(term::Call, a1, y))));
-  pos.push(mk(term::Call, p1, mk(term::Call, a1, y)));
-  pos.push(mk(term::Call, p1, y));
+  pos.push(intern(term::Call, p1,
+                  intern(term::Call, a1, intern(term::Call, a1, y))));
+  pos.push(intern(term::Call, p1, intern(term::Call, a1, y)));
+  pos.push(intern(term::Call, p1, y));
   d = mkclause1();
   assert(subsumes(c, d));
   assert(subsumes(d, c));
 
   // (a = x) <= (a = b)
-  pos.push(mk(term::Eq, a, x));
+  pos.push(intern(term::Eq, a, x));
   c = mkclause1();
-  pos.push(mk(term::Eq, a, b));
+  pos.push(intern(term::Eq, a, b));
   d = mkclause1();
   assert(subsumes(c, d));
   assert(!subsumes(d, c));
 
   // (x = a) <= (a = b)
-  pos.push(mk(term::Eq, x, a));
+  pos.push(intern(term::Eq, x, a));
   c = mkclause1();
-  pos.push(mk(term::Eq, a, b));
+  pos.push(intern(term::Eq, a, b));
   d = mkclause1();
   assert(subsumes(c, d));
   assert(!subsumes(d, c));
 
   // !p(y) | !p(x) | q(x) <= !p(a) | !p(b) | q(b)
-  neg.push(mk(term::Call, p1, y));
-  neg.push(mk(term::Call, p1, x));
-  pos.push(mk(term::Call, q1, x));
+  neg.push(intern(term::Call, p1, y));
+  neg.push(intern(term::Call, p1, x));
+  pos.push(intern(term::Call, q1, x));
   c = mkclause1();
-  neg.push(mk(term::Call, p1, a));
-  neg.push(mk(term::Call, p1, b));
-  pos.push(mk(term::Call, q1, b));
+  neg.push(intern(term::Call, p1, a));
+  neg.push(intern(term::Call, p1, b));
+  pos.push(intern(term::Call, q1, b));
   d = mkclause1();
   assert(subsumes(c, d));
   assert(!subsumes(d, c));
 
   // !p(x) | !p(y) | q(x) <= !p(a) | !p(b) | q(b)
-  neg.push(mk(term::Call, p1, x));
-  neg.push(mk(term::Call, p1, y));
-  pos.push(mk(term::Call, q1, x));
+  neg.push(intern(term::Call, p1, x));
+  neg.push(intern(term::Call, p1, y));
+  pos.push(intern(term::Call, q1, x));
   c = mkclause1();
-  neg.push(mk(term::Call, p1, a));
-  neg.push(mk(term::Call, p1, b));
-  pos.push(mk(term::Call, q1, b));
+  neg.push(intern(term::Call, p1, a));
+  neg.push(intern(term::Call, p1, b));
+  pos.push(intern(term::Call, q1, b));
   d = mkclause1();
   assert(subsumes(c, d));
   assert(!subsumes(d, c));
 
   // p(x,a(x)) !<= p(a(y),a(y))
-  pos.push(mk(term::Call, p2, x, mk(term::Call, a1, x)));
+  pos.push(intern(term::Call, p2, x, intern(term::Call, a1, x)));
   c = mkclause1();
-  pos.push(mk(term::Call, p2, mk(term::Call, a1, y), mk(term::Call, a1, y)));
+  pos.push(intern(term::Call, p2, intern(term::Call, a1, y),
+                  intern(term::Call, a1, y)));
   d = mkclause1();
   assert(!subsumes(c, d));
   assert(!subsumes(d, c));
@@ -580,40 +585,40 @@ void test_unify() {
   assert(replace(x) == replace(y));
 
   // Function and constant symbols match, x is unified with the constant b
-  assert(unify(mk(term::Call, f2, a, x), mk(term::Call, f2, a, b)));
+  assert(unify(intern(term::Call, f2, a, x), intern(term::Call, f2, a, b)));
   assert(varmap.n == 1);
   assert(replace(x) == b);
 
   // f and g do not match
-  assert(!unify(mk(term::Call, f1, a), mk(term::Call, g1, a)));
+  assert(!unify(intern(term::Call, f1, a), intern(term::Call, g1, a)));
 
   // x and y are aliased
-  assert(unify(mk(term::Call, f1, x), mk(term::Call, f1, y)));
+  assert(unify(intern(term::Call, f1, x), intern(term::Call, f1, y)));
   assert(varmap.n == 1);
   assert(replace(x) == replace(y));
 
   // f and g do not match
-  assert(!unify(mk(term::Call, f1, x), mk(term::Call, g1, y)));
+  assert(!unify(intern(term::Call, f1, x), intern(term::Call, g1, y)));
 
   // Fails. The f function symbols have different arity
-  assert(!unify(mk(term::Call, f1, x), mk(term::Call, f2, y, z)));
+  assert(!unify(intern(term::Call, f1, x), intern(term::Call, f2, y, z)));
 
   // Unifies y with the term g1(x)
-  assert(
-      unify(mk(term::Call, f1, mk(term::Call, g1, x)), mk(term::Call, f1, y)));
+  assert(unify(intern(term::Call, f1, intern(term::Call, g1, x)),
+               intern(term::Call, f1, y)));
   assert(varmap.n == 1);
-  assert(replace(y) == mk(term::Call, g1, x));
+  assert(replace(y) == intern(term::Call, g1, x));
 
   // Unifies x with constant a, and y with the term g1(a)
-  assert(unify(mk(term::Call, f2, mk(term::Call, g1, x), x),
-               mk(term::Call, f2, y, a)));
+  assert(unify(intern(term::Call, f2, intern(term::Call, g1, x), x),
+               intern(term::Call, f2, y, a)));
   assert(varmap.n == 2);
   assert(replace(x) == a);
-  assert(replace(y) == mk(term::Call, g1, a));
+  assert(replace(y) == intern(term::Call, g1, a));
 
   // Returns false in first-order logic and many modern Prolog dialects
   // (enforced by the occurs check).
-  assert(!unify(x, mk(term::Call, f1, x)));
+  assert(!unify(x, intern(term::Call, f1, x)));
 
   // Both x and y are unified with the constant a
   assert(unify(x, y));

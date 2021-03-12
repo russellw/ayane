@@ -90,11 +90,11 @@ inline term at(term a, si i) {
   return begin(a)[i];
 }
 
-term mk(term op, const ary<term> &args);
-term mk(term op, const vec<term> &args);
-term mk(term op, term a);
-term mk(term op, term a, term b);
-term mk(term op, term a, term b, term c);
+term intern(term op, const ary<term> &args);
+term intern(term op, const vec<term> &args);
+term intern(term op, term a);
+term intern(term op, term a, term b);
+term intern(term op, term a, term b, term c);
 
 term imp(term a, term b);
 

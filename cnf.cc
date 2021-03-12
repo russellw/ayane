@@ -84,7 +84,7 @@ term skolemterms(type rt) {
 
   // compound
   terms.insert(terms.p, skolem(mktype(t)));
-  return mk(term::Call, terms);
+  return intern(term::Call, terms);
 }
 
 // rename subformulas to avoid exponential blowup
@@ -101,7 +101,7 @@ term rename_both(term a) {
   a = cnf1(a);
   getfree(a);
   auto b = skolemterms(type::Bool);
-  cnf(mk(term::And, imp(b, a), imp(a, b)), 0);
+  cnf(intern(term::And, imp(b, a), imp(a, b)), 0);
   return b;
 }
 
@@ -130,7 +130,7 @@ struct nnf {
     vec<term> v(n);
     for (si i = 0; i != n; ++i)
       v[i] = convert(pol, at(a, i));
-    return mk(op, v);
+    return intern(op, v);
   }
 
   term all(bool pol, term a) {
@@ -176,8 +176,8 @@ struct nnf {
       auto y = at(a, 1);
       if (nclauses(0, y) >= many || nclauses(1, y) >= many)
         y = rename_both(y);
-      return mk(term::And, mk(term::Or, convert(0, x), convert(pol, y)),
-                mk(term::Or, convert(1, x), convert(pol ^ 1, y)));
+      return intern(term::And, intern(term::Or, convert(0, x), convert(pol, y)),
+                    intern(term::Or, convert(1, x), convert(pol ^ 1, y)));
     }
     case term::All:
       return pol ? all(pol, a) : exists(pol, a);
@@ -204,7 +204,7 @@ struct nnf {
       return b;
     }
     a = args(1, a, tag(a));
-    return pol ? a : mk(term::Not, a);
+    return pol ? a : intern(term::Not, a);
   }
 
   nnf(term a) { r = convert(1, a); }
@@ -226,7 +226,7 @@ term distrib(term a) {
       }
       v.push_back(b);
     }
-    return mk(term::And, v);
+    return intern(term::And, v);
   }
   case term::Or: {
     // take possibly nested ands and turn them into a layer no more than one
@@ -273,13 +273,13 @@ term distrib(term a) {
           assert(!j[i]);
         or1[i] = b;
       }
-      ors.push_back(mk(term::Or, or1));
+      ors.push_back(intern(term::Or, or1));
 
       // take the next slice
       for (si i = n;;) {
         // if we have done all the slices, return and of ors
         if (!i)
-          return mk(term::And, ors);
+          return intern(term::And, ors);
 
         // next element of the index vector
         // this is equivalent to increment with carry, of a multi-precision

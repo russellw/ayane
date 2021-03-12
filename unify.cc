@@ -16,9 +16,9 @@ bool match(term a, term b) {
   // variable
   if (tag(a) == term::Var) {
     // existing mapping
-    for (auto &p : varmap) {
-      if (p.first == a)
-        return p.second == b;
+    for (auto &i : varmap) {
+      if (i.first == a)
+        return i.second == b;
     }
 
     // new mapping
@@ -48,9 +48,9 @@ bool occurs(term a, term b) {
   if (tag(b) == term::Var) {
     if (a == b)
       return 1;
-    for (auto &p : varmap)
-      if (p.first == b)
-        return occurs(a, p.second);
+    for (auto &i : varmap)
+      if (i.first == b)
+        return occurs(a, i.second);
   }
   if (!iscompound(b))
     return 0;
@@ -65,11 +65,11 @@ bool unifyvar(term a, term b) {
   assert(typeof(a) == typeof(b));
 
   // existing mappings
-  for (auto &p : varmap) {
-    if (p.first == a)
-      return unify1(p.second, b);
-    if (p.first == b)
-      return unify1(a, p.second);
+  for (auto &i : varmap) {
+    if (i.first == a)
+      return unify1(i.second, b);
+    if (i.first == b)
+      return unify1(a, i.second);
   }
 
   // occurs check

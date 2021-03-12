@@ -42,9 +42,9 @@ type mktype(type rt, type param1, type param2) {
 
 term replace(term a) {
   if (tag(a) == term::Var)
-    for (auto &p : varmap)
-      if (p.first == a)
-        return replace(p.second);
+    for (auto &i : varmap)
+      if (i.first == a)
+        return replace(i.second);
   if (!iscompound(a))
     return a;
   auto n = size(a);

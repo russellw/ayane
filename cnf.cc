@@ -195,9 +195,9 @@ struct nnf {
       for (auto i = boundvars.rbegin(), e = boundvars.rend(); i != e; ++i)
         if (i->var == a)
           return i->renamed;
-      for (auto &p : freevars)
-        if (p.first == a)
-          return p.second;
+      for (auto &i : freevars)
+        if (i.first == a)
+          return i.second;
       auto t = vartype(a);
       auto b = var(t, newvars[t]++);
       freevars.push_back(make_pair(a, b));

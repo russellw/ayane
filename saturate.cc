@@ -42,8 +42,7 @@ term altvars(term a) {
   if (!iscompound(a))
     return a;
   auto n = size(a);
-  auto r = (compound *)pool1.alloc(offsetof(compound, v) + n * sizeof a);
-  r->n = n;
+  auto r = tmpcompound(n);
   for (si i = 0; i != n; ++i)
     r->v[i] = altvars(at(a, i));
   return tag(r, tag(a));
@@ -70,8 +69,7 @@ term replace(term a) {
   if (!iscompound(a))
     return a;
   auto n = size(a);
-  auto r = (compound *)pool1.alloc(offsetof(compound, v) + n * sizeof a);
-  r->n = n;
+  auto r = tmpcompound(n);
   for (si i = 0; i != n; ++i)
     r->v[i] = replace(at(a, i));
   return tag(r, tag(a));
@@ -183,8 +181,7 @@ term equate(term a, term b) {
     return b;
   if (b == term::True)
     return a;
-  auto r = (compound *)pool1.alloc(offsetof(compound, v) + 2 * sizeof a);
-  r->n = 2;
+  auto r = tmpcompound(2);
   r->v[0] = a;
   r->v[1] = b;
   return tag(r, term::Eq);

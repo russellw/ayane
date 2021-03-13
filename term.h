@@ -93,6 +93,12 @@ inline term at(term a, si i) {
 // temporary compound terms
 extern pool<> pool1;
 
+inline compound *tmpcompound(si n) {
+  auto r = (compound *)pool1.alloc(offsetof(compound, v) + n * sizeof(term));
+  r->n = n;
+  return r;
+}
+
 // permanent/interned compound terms
 term intern(term op, const ary<term> &args);
 term intern(term op, const vec<term> &args);

@@ -45,7 +45,7 @@ term altvars(term a) {
   auto r = tmpcompound(n);
   for (si i = 0; i != n; ++i)
     r->v[i] = altvars(at(a, i));
-  return tag(r, tag(a));
+  return tag(tag(a), r);
 }
 
 clause *altvars(clause *c) {
@@ -72,7 +72,7 @@ term replace(term a) {
   auto r = tmpcompound(n);
   for (si i = 0; i != n; ++i)
     r->v[i] = replace(at(a, i));
-  return tag(r, tag(a));
+  return tag(tag(a), r);
 }
 
 // once new literals have been constructed from two input clauses with different
@@ -181,10 +181,7 @@ term equate(term a, term b) {
     return b;
   if (b == term::True)
     return a;
-  auto r = tmpcompound(2);
-  r->v[0] = a;
-  r->v[1] = b;
-  return tag(r, term::Eq);
+  return tmpcompound(term::Eq, a, b);
 }
 
 // substitute and make new clause

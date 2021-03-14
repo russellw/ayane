@@ -58,7 +58,7 @@ extern si skolemi;
 void init_terms();
 
 // make a term from a pointer
-inline term tag(void *p, term a) {
+inline term tag(term a, void *p) {
   // this assumes there is a limit to how much address space will actually be
   // used, such that pointers don't actually use the full 64 bits, leaving a few
   // spare for tag
@@ -104,6 +104,8 @@ inline compound *tmpcompound(si n) {
   r->n = n;
   return r;
 }
+
+term tmpcompound(term op, term a, term b);
 
 // permanent/interned compound terms
 term intern(term op, const ary<term> &args);

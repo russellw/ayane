@@ -68,26 +68,26 @@ term skolem(type t) {
   auto n = sprintf(buf, "\1%zu", skolemi++);
   auto s = intern(buf, n);
   s->ft = t;
-  return tag(s, term::Sym);
+  return tag(term::Sym, s);
 }
 
 term skolemterms(type rt) {
   // atom
-
-  if (!termv.n)
+  auto n = termv.n;
+  if (!n)
     return skolem(rt);
 
   // compound type
-  vec<type> v(termv.n + 1);
+  vec<type> v(n + 1);
   v[0] = rt;
-  for (si i = 0; i != termv.n; ++i)
+  for (si i = 0; i != n; ++i)
     v[i + 1] = vartype(termv[i]);
 
   // compound
-  auto r=tmpcompound(v.n);
-  *r->v= skolem(mktype(v));
-  memcpy(r->v+1,termv.p,(v.n-1)*sizeof(term));
-  return tag(r,term::Call);
+  auto r = tmpcompound(n + 1);
+  *r->v = skolem(mktype(v));
+  memcpy(r->v + 1, termv.p, n * sizeof(term));
+  return tag(term::Call, r);
 }
 
 // rename subformulas to avoid exponential blowup
@@ -130,10 +130,10 @@ struct nnf {
 
   term args(bool pol, term a, term op) {
     auto n = size(a);
-    vec<term> v(n);
+    auto r = tmpcompound(n);
     for (si i = 0; i != n; ++i)
-      v[i] = convert(pol, at(a, i));
-    return intern(op, v);
+      r->v[i] = convert(pol, at(a, i));
+    return tag(op, r);
   }
 
   term all(bool pol, term a) {

@@ -11,6 +11,12 @@ si skolemi;
 void init_terms() { skolemi = 0; }
 
 // temporary compound terms
+term tmpcompound(term op, term a, term b) {
+  auto r = tmpcompound(2);
+  r->v[0] = a;
+  r->v[1] = b;
+  return tag(op, r);
+}
 
 // permanent/interned compound terms
 namespace compounds {
@@ -67,17 +73,17 @@ compound *put(const term *p, si n) {
 
 term intern(term op, const ary<term> &args) {
   assert(op == tag(op));
-  return tag(compounds::put(args.p, args.n), op);
+  return tag(op, compounds::put(args.p, args.n));
 }
 
 term intern(term op, const vec<term> &args) {
   assert(op == tag(op));
-  return tag(compounds::put(args.p, args.n), op);
+  return tag(op, compounds::put(args.p, args.n));
 }
 
 term intern(term op, term a) {
   assert(op == tag(op));
-  return tag(compounds::put(&a, 1), op);
+  return tag(op, compounds::put(&a, 1));
 }
 
 term intern(term op, term a, term b) {
@@ -85,7 +91,7 @@ term intern(term op, term a, term b) {
   term v[2];
   v[0] = a;
   v[1] = b;
-  return tag(compounds::put(v, sizeof v / sizeof *v), op);
+  return tag(op, compounds::put(v, sizeof v / sizeof *v));
 }
 
 term intern(term op, term a, term b, term c) {
@@ -94,7 +100,7 @@ term intern(term op, term a, term b, term c) {
   v[0] = a;
   v[1] = b;
   v[2] = c;
-  return tag(compounds::put(v, sizeof v / sizeof *v), op);
+  return tag(op, compounds::put(v, sizeof v / sizeof *v));
 }
 
 term imp(term a, term b) { return intern(term::Or, intern(term::Not, a), b); }

@@ -419,7 +419,7 @@ struct parser1 : parser {
     if (mpz_init_set_str(x.val, buf, 10))
       err("invalid number");
     lex();
-    return tag(intern(x), term::Int);
+    return tag(term::Int, intern(x));
   }
 
   term parse_rat() {
@@ -430,7 +430,7 @@ struct parser1 : parser {
       err("invalid number");
     mpq_canonicalize(x.val);
     lex();
-    return tag(intern(x), term::Rat);
+    return tag(term::Rat, intern(x));
   }
 
   term parse_real() {
@@ -517,7 +517,7 @@ struct parser1 : parser {
     // result
     lex();
     mpq_canonicalize(x.val);
-    return tag(intern(x), term::Real);
+    return tag(term::Real, intern(x));
   }
 
   void args(vec<term> &v) {
@@ -551,7 +551,7 @@ struct parser1 : parser {
     case '!':
       throw inappropriate();
     case o_distinctobj: {
-      auto a = tag(toksym, term::DistinctObj);
+      auto a = tag(term::DistinctObj, toksym);
       lex();
       return a;
     }
@@ -662,7 +662,7 @@ struct parser1 : parser {
       return x;
     }
     case o_word: {
-      auto a = tag(toksym, term::Sym);
+      auto a = tag(term::Sym, toksym);
       lex();
       if (tok != '(')
         return a;

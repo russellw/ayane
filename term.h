@@ -91,8 +91,6 @@ inline term at(term a, si i) {
 }
 
 // temporary compound terms
-extern pool<> pool1;
-
 inline compound *tmpcompound(si n) {
   auto r = (compound *)pool1.alloc(offsetof(compound, v) + n * sizeof(term));
   r->n = n;

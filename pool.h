@@ -19,3 +19,5 @@ public:
     return r;
   }
 };
+
+extern pool<> pool1;

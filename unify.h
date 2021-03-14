@@ -1,5 +1,3 @@
-extern ary<pair<term, term>> pairv;
-
 // match on top of existing map
 bool match(term a, term b);
 

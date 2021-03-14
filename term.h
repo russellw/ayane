@@ -49,6 +49,14 @@ enum class term : uint64_t {
 
 const si tagbits = 6;
 
+// SORT
+extern ary<pair<term, term>> pairv;
+extern ary<term> termv;
+extern si skolemi;
+///
+
+void init_terms();
+
 // make a term from a pointer
 inline term tag(void *p, term a) {
   // this assumes there is a limit to how much address space will actually be
@@ -129,14 +137,6 @@ inline type vartype(term a) {
 }
 
 void getfree(term a);
-
-// etc
-// SORT
-extern ary<term> termv;
-extern si skolemi;
-///
-
-void init_terms();
 
 // check terms for structural consistency
 #ifdef DEBUG

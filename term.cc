@@ -2,6 +2,14 @@
 // stdafx.h must be first
 #include "main.h"
 
+// SORT
+ary<pair<term, term>> pairv;
+ary<term> termv;
+si skolemi;
+///
+
+void init_terms() { skolemi = 0; }
+
 // temporary compound terms
 
 // permanent/interned compound terms
@@ -126,14 +134,6 @@ void getfree(term a) {
   termv.n = 0;
   getfree1(a);
 }
-
-// etc
-// SORT
-ary<term> termv;
-si skolemi;
-///
-
-void init_terms() { skolemi = 0; }
 
 #ifdef DEBUG
 namespace {

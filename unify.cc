@@ -2,8 +2,6 @@
 // stdafx.h must be first
 #include "main.h"
 
-ary<pair<term, term>> pairv;
-
 bool match(term a, term b) {
   // equal
   if (a == b)

@@ -108,6 +108,33 @@ term rename_both(term a) {
   return b;
 }
 
+// Conjunction and disjunction
+term and1(const term *p, si n) {
+  auto r = comp(n);
+  memcpy(r->v, p, n * sizeof *p);
+  return tag(term::And, r);
+}
+
+term and1(term a, term b) {
+  term v[2];
+  v[0] = a;
+  v[1] = b;
+  return and1(v, sizeof v / sizeof *v);
+}
+
+term or1(const term *p, si n) {
+  auto r = comp(n);
+  memcpy(r->v, p, n * sizeof *p);
+  return tag(term::Or, r);
+}
+
+term or1(term a, term b) {
+  term v[2];
+  v[0] = a;
+  v[1] = b;
+  return or1(v, sizeof v / sizeof *v);
+}
+
 // negation normal form
 // for-all vars map to fresh vars
 // exists vars map to skolem functions
@@ -166,32 +193,6 @@ struct nnf {
     a = convert(pol, at(a, 0));
     boundvars.n = old;
     return a;
-  }
-
-  term and1(const term *p, si n) {
-    auto r = comp(n);
-    memcpy(r->v, p, n * sizeof *p);
-    return tag(term::And, r);
-  }
-
-  term and1(term a, term b) {
-    term v[2];
-    v[0] = a;
-    v[1] = b;
-    return and1(v, sizeof v / sizeof *v);
-  }
-
-  term or1(const term *p, si n) {
-    auto r = comp(n);
-    memcpy(r->v, p, n * sizeof *p);
-    return tag(term::Or, r);
-  }
-
-  term or1(term a, term b) {
-    term v[2];
-    v[0] = a;
-    v[1] = b;
-    return or1(v, sizeof v / sizeof *v);
   }
 
   term convert(bool pol, term a) {
@@ -260,7 +261,7 @@ term distrib(term a) {
       }
       v.push_back(b);
     }
-    return intern(term::And, v);
+    return and1(v.p, v.n);
   }
   case term::Or: {
     // take possibly nested ands and turn them into a layer no more than one
@@ -290,7 +291,7 @@ term distrib(term a) {
     memset(j.p, 0, n * sizeof *j.p);
 
     // the components of a single or term
-    vec<term> or1(n);
+    vec<term> or2(n);
 
     // all the or terms
     // that will become the arguments to an and
@@ -305,15 +306,15 @@ term distrib(term a) {
           b = at(b, j[i]);
         else
           assert(!j[i]);
-        or1[i] = b;
+        or2[i] = b;
       }
-      ors.push_back(intern(term::Or, or1));
+      ors.push_back(or1(or2.p, or2.n));
 
       // take the next slice
       for (si i = n;;) {
         // if we have done all the slices, return and of ors
         if (!i)
-          return intern(term::And, ors);
+          return and1(ors.p, ors.n);
 
         // next element of the index vector
         // this is equivalent to increment with carry, of a multi-precision

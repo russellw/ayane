@@ -73,18 +73,21 @@ term skolem(type t) {
 
 term skolemterms(type rt) {
   // atom
+
   if (!termv.n)
     return skolem(rt);
 
   // compound type
-  vec<type> t(termv.n + 1);
-  t[0] = rt;
+  vec<type> v(termv.n + 1);
+  v[0] = rt;
   for (si i = 0; i != termv.n; ++i)
-    t[i + 1] = vartype(termv[i]);
+    v[i + 1] = vartype(termv[i]);
 
   // compound
-  termv.insert(termv.p, skolem(mktype(t)));
-  return intern(term::Call, termv);
+  auto r=tmpcompound(v.n);
+  *r->v= skolem(mktype(v));
+  memcpy(r->v+1,termv.p,(v.n-1)*sizeof(term));
+  return tag(r,term::Call);
 }
 
 // rename subformulas to avoid exponential blowup

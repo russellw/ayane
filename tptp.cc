@@ -763,10 +763,10 @@ struct parser1 : parser {
       return intern(term::Eqv, a, unitary_formula());
     case o_imp:
       lex();
-      return imp(a, unitary_formula());
+      return intern(term::Imp, a, unitary_formula());
     case o_impr:
       lex();
-      return imp(unitary_formula(), a);
+      return intern(term::Imp, unitary_formula(), a);
     case o_nand:
       lex();
       return intern(term::Not, intern(term::And, a, unitary_formula()));
@@ -974,12 +974,14 @@ bool needparens(term a, term parent) {
   switch (tag(a)) {
   case term::And:
   case term::Eqv:
+  case term::Imp:
   case term::Or:
     switch (tag(parent)) {
     case term::All:
     case term::And:
     case term::Eqv:
     case term::Exists:
+    case term::Imp:
     case term::Not:
     case term::Or:
       return 1;
@@ -1108,6 +1110,9 @@ void prterm(term a, term parent) {
   case term::Floor:
     printf("$floor");
     break;
+  case term::Imp:
+    infix(" => ", a, parent);
+    return;
   case term::Int:
     mpz_out_str(stdout, 10, ((Int *)rest(a))->val);
     return;

@@ -27,6 +27,7 @@ enum class term : uint64_t {
   Eqv,
   Exists,
   Floor,
+  Imp,
   IsInt,
   IsRat,
   Le,
@@ -99,12 +100,7 @@ inline term at(term a, si i) {
 }
 
 // temporary compound terms
-inline compound *tmpcompound(si n) {
-  auto r = (compound *)pool1.alloc(offsetof(compound, v) + n * sizeof(term));
-  r->n = n;
-  return r;
-}
-
+compound *tmpcompound(si n);
 term tmpcompound(term op, term a, term b);
 
 // permanent/interned compound terms
@@ -113,8 +109,6 @@ term intern(term op, const vec<term> &args);
 term intern(term op, term a);
 term intern(term op, term a, term b);
 term intern(term op, term a, term b, term c);
-
-term imp(term a, term b);
 
 // variables
 inline term var(type t, si i) {

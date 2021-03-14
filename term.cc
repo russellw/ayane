@@ -11,6 +11,12 @@ si skolemi;
 void init_terms() { skolemi = 0; }
 
 // temporary compound terms
+compound *tmpcompound(si n) {
+  auto r = (compound *)pool1.alloc(offsetof(compound, v) + n * sizeof(term));
+  r->n = n;
+  return r;
+}
+
 term tmpcompound(term op, term a, term b) {
   auto r = tmpcompound(2);
   r->v[0] = a;
@@ -102,8 +108,6 @@ term intern(term op, term a, term b, term c) {
   v[2] = c;
   return tag(op, compounds::put(v, sizeof v / sizeof *v));
 }
-
-term imp(term a, term b) { return intern(term::Or, intern(term::Not, a), b); }
 
 // variables
 namespace {

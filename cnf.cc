@@ -94,7 +94,7 @@ term skolemterms(type rt) {
 term rename_pos(term a) {
   getfree(a);
   auto b = skolemterms(type::Bool);
-  cnf(imp(b, a), 0);
+  cnf(tmpcompound(term::Imp, b, a), 0);
   return b;
 }
 
@@ -104,7 +104,9 @@ term rename_both(term a) {
   a = cnf1(a);
   getfree(a);
   auto b = skolemterms(type::Bool);
-  cnf(intern(term::And, imp(b, a), imp(a, b)), 0);
+  cnf(tmpcompound(term::And, tmpcompound(term::Imp, b, a),
+                  tmpcompound(term::Imp, a, b)),
+      0);
   return b;
 }
 

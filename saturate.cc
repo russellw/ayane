@@ -42,7 +42,7 @@ term altvars(term a) {
   if (!iscompound(a))
     return a;
   auto n = size(a);
-  auto r = tmpcompound(n);
+  auto r = comp(n);
   for (si i = 0; i != n; ++i)
     r->v[i] = altvars(at(a, i));
   return tag(tag(a), r);
@@ -69,7 +69,7 @@ term replace(term a) {
   if (!iscompound(a))
     return a;
   auto n = size(a);
-  auto r = tmpcompound(n);
+  auto r = comp(n);
   for (si i = 0; i != n; ++i)
     r->v[i] = replace(at(a, i));
   return tag(tag(a), r);
@@ -181,7 +181,7 @@ term equate(term a, term b) {
     return b;
   if (b == term::True)
     return a;
-  return tmpcompound(term::Eq, a, b);
+  return comp(term::Eq, a, b);
 }
 
 // substitute and make new clause

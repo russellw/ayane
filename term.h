@@ -100,8 +100,9 @@ inline term at(term a, si i) {
 }
 
 // temporary compound terms
-compound *tmpcompound(si n);
-term tmpcompound(term op, term a, term b);
+compound *comp(si n);
+term comp(term op, term a);
+term comp(term op, term a, term b);
 
 // permanent/interned compound terms
 term intern(term op, const ary<term> &args);

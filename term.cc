@@ -11,14 +11,20 @@ si skolemi;
 void init_terms() { skolemi = 0; }
 
 // temporary compound terms
-compound *tmpcompound(si n) {
+compound *comp(si n) {
   auto r = (compound *)pool1.alloc(offsetof(compound, v) + n * sizeof(term));
   r->n = n;
   return r;
 }
 
-term tmpcompound(term op, term a, term b) {
-  auto r = tmpcompound(2);
+term comp(term op, term a) {
+  auto r = comp(1);
+  r->v[0] = a;
+  return tag(op, r);
+}
+
+term comp(term op, term a, term b) {
+  auto r = comp(2);
   r->v[0] = a;
   r->v[1] = b;
   return tag(op, r);

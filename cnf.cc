@@ -84,7 +84,7 @@ term skolemterms(type rt) {
     v[i + 1] = vartype(termv[i]);
 
   // compound
-  auto r = tmpcompound(n + 1);
+  auto r = comp(n + 1);
   *r->v = skolem(mktype(v));
   memcpy(r->v + 1, termv.p, n * sizeof(term));
   return tag(term::Call, r);
@@ -94,7 +94,7 @@ term skolemterms(type rt) {
 term rename_pos(term a) {
   getfree(a);
   auto b = skolemterms(type::Bool);
-  cnf(tmpcompound(term::Imp, b, a), 0);
+  cnf(comp(term::Imp, b, a), 0);
   return b;
 }
 
@@ -104,9 +104,7 @@ term rename_both(term a) {
   a = cnf1(a);
   getfree(a);
   auto b = skolemterms(type::Bool);
-  cnf(tmpcompound(term::And, tmpcompound(term::Imp, b, a),
-                  tmpcompound(term::Imp, a, b)),
-      0);
+  cnf(comp(term::And, comp(term::Imp, b, a), comp(term::Imp, a, b)), 0);
   return b;
 }
 
@@ -132,7 +130,7 @@ struct nnf {
 
   term args(bool pol, term a, term op) {
     auto n = size(a);
-    auto r = tmpcompound(n);
+    auto r = comp(n);
     for (si i = 0; i != n; ++i)
       r->v[i] = convert(pol, at(a, i));
     return tag(op, r);
@@ -170,8 +168,36 @@ struct nnf {
     return a;
   }
 
+  term and1(const term *p, si n) {
+    auto r = comp(n);
+    memcpy(r->v, p, n * sizeof *p);
+    return tag(term::And, r);
+  }
+
+  term and1(term a, term b) {
+    term v[2];
+    v[0] = a;
+    v[1] = b;
+    return and1(v, sizeof v / sizeof *v);
+  }
+
+  term or1(const term *p, si n) {
+    auto r = comp(n);
+    memcpy(r->v, p, n * sizeof *p);
+    return tag(term::Or, r);
+  }
+
+  term or1(term a, term b) {
+    term v[2];
+    v[0] = a;
+    v[1] = b;
+    return or1(v, sizeof v / sizeof *v);
+  }
+
   term convert(bool pol, term a) {
     switch (tag(a)) {
+    case term::All:
+      return pol ? all(pol, a) : exists(pol, a);
     case term::And:
       return args(pol, a, pol ? term::And : term::Or);
     case term::Eqv: {
@@ -181,11 +207,14 @@ struct nnf {
       auto y = at(a, 1);
       if (nclauses(0, y) >= many || nclauses(1, y) >= many)
         y = rename_both(y);
-      return intern(term::And, intern(term::Or, convert(0, x), convert(pol, y)),
-                    intern(term::Or, convert(1, x), convert(pol ^ 1, y)));
+      return and1(or1(convert(0, x), convert(pol, y)),
+                  or1(convert(1, x), convert(pol ^ 1, y)));
     }
-    case term::All:
-      return pol ? all(pol, a) : exists(pol, a);
+    case term::Imp: {
+      auto x = convert(pol ^ 1, at(a, 0));
+      auto y = convert(pol, at(a, 1));
+      return pol ? or1(x, y) : and1(x, y);
+    }
     case term::Exists:
       return pol ? exists(pol, a) : all(pol, a);
     case term::False:
@@ -209,7 +238,7 @@ struct nnf {
       return b;
     }
     a = args(1, a, tag(a));
-    return pol ? a : intern(term::Not, a);
+    return pol ? a : comp(term::Not, a);
   }
 
   nnf(term a) { r = convert(1, a); }

@@ -25,7 +25,7 @@ bool match(term a, term b) {
   }
 
   // atoms
-  if (!iscompound(a))
+  if (!isCompound(a))
     return 0;
   if (tag(a) != tag(b))
     return 0;
@@ -50,7 +50,7 @@ bool occurs(term a, term b) {
       if (i.first == b)
         return occurs(a, i.second);
   }
-  if (!iscompound(b))
+  if (!isCompound(b))
     return 0;
   for (auto x : b)
     if (occurs(a, x))
@@ -58,16 +58,16 @@ bool occurs(term a, term b) {
   return 0;
 }
 
-bool unifyvar(term a, term b) {
+bool unifyVar(term a, term b) {
   assert(tag(a) == term::Var);
   assert(typeof(a) == typeof(b));
 
   // existing mappings
   for (auto &i : pairv) {
     if (i.first == a)
-      return unify1(i.second, b);
+      return unifyMore(i.second, b);
     if (i.first == b)
-      return unify1(a, i.second);
+      return unifyMore(a, i.second);
   }
 
   // occurs check
@@ -80,7 +80,7 @@ bool unifyvar(term a, term b) {
 }
 } // namespace
 
-bool unify1(term a, term b) {
+bool unifyMore(term a, term b) {
   // equal
   if (a == b)
     return 1;
@@ -91,12 +91,12 @@ bool unify1(term a, term b) {
 
   // variables
   if (tag(a) == term::Var)
-    return unifyvar(a, b);
+    return unifyVar(a, b);
   if (tag(b) == term::Var)
-    return unifyvar(b, a);
+    return unifyVar(b, a);
 
   // atoms
-  if (!iscompound(a))
+  if (!isCompound(a))
     return 0;
   if (tag(a) != tag(b))
     return 0;
@@ -106,12 +106,12 @@ bool unify1(term a, term b) {
   if (n != size(b))
     return 0;
   for (si i = 0; i != n; ++i)
-    if (!unify1(at(a, i), at(b, i)))
+    if (!unifyMore(at(a, i), at(b, i)))
       return 0;
   return 1;
 }
 
 bool unify(term a, term b) {
   pairv.n = 0;
-  return unify1(a, b);
+  return unifyMore(a, b);
 }

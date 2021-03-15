@@ -2,7 +2,7 @@
 // stdafx.h must be first
 #include "main.h"
 
-const char *szsnames[] = {
+const char *szsNames[] = {
     0,
 #define X(s) #s,
 #include "szs.h"
@@ -18,7 +18,7 @@ vec<clause *> clauses;
 szs expected;
 #endif
 
-void init_problem() {
+void initProblem() {
   clauses.n = 0;
   complete = 1;
 #ifdef DEBUG
@@ -26,8 +26,8 @@ void init_problem() {
 #endif
 }
 
-clause *addclause(infer inf) {
-  auto c = mkclause(inf);
+clause *addClause(infer inf) {
+  auto c = internClause(inf);
   if (c)
     clauses.push_back(c);
   return c;

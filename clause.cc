@@ -2,7 +2,7 @@
 // stdafx.h must be first
 #include "main.h"
 
-const char *infernames[] = {
+const char *inferNames[] = {
     0,
 #define X(s) #s,
 #include "infer.h"
@@ -11,8 +11,8 @@ const char *infernames[] = {
 // SORT
 ary<term> neg, pos;
 clause *conjecture;
-unordered_map<const clause *, const char *> clausefiles;
-unordered_map<const clause *, const char *> clausenames;
+unordered_map<const clause *, const char *> clauseFiles;
+unordered_map<const clause *, const char *> clauseNames;
 ///
 
 namespace {
@@ -37,7 +37,7 @@ si slot(clause **entries, si cap, const term *p, si nn, si n) {
 }
 
 void expand() {
-  assert(ispow2(cap));
+  assert(isPow2(cap));
   auto cap1 = cap * 2;
   auto entries1 = (clause **)xcalloc(cap1, sizeof *entries);
   for (si i = 0; i != cap; ++i) {
@@ -54,8 +54,8 @@ pool<> formulas;
 } // namespace
 
 // SORT
-const char *clausename(const clause *c) {
-  auto name = clausenames[c];
+const char *clauseName(const clause *c) {
+  auto name = clauseNames[c];
   return name ? name : "?";
 }
 
@@ -70,9 +70,9 @@ clause *formula(infer inf, term a, clause *from) {
   return r;
 }
 
-void init_clauses() {
-  clausefiles.clear();
-  clausenames.clear();
+void initClauses() {
+  clauseFiles.clear();
+  clauseNames.clear();
   conjecture = 0;
   formulas.init();
 
@@ -80,7 +80,7 @@ void init_clauses() {
   memset(entries, 0, cap * sizeof *entries);
 }
 
-clause *mkclause(infer inf, clause *from, clause *from1) {
+clause *internClause(infer inf, clause *from, clause *from1) {
   // remove redundancy
   neg.erase(remove(neg.p, neg.end(), term::True), neg.end());
   pos.erase(remove(pos.p, pos.end(), term::False), pos.end());

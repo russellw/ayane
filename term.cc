@@ -8,7 +8,7 @@ ary<term> termv;
 si skolemi;
 ///
 
-void init_terms() { skolemi = 0; }
+void initTerms() { skolemi = 0; }
 
 // temporary compound terms
 compound *comp(si n) {
@@ -58,7 +58,7 @@ si slot(compound **entries, si cap, const term *p, si n) {
 }
 
 void expand() {
-  assert(ispow2(cap));
+  assert(isPow2(cap));
   auto cap1 = cap * 2;
   auto entries1 = (compound **)xcalloc(cap1, sizeof *entries);
   for (si i = 0; i != cap; ++i) {
@@ -124,38 +124,38 @@ term intern(term op, term a, term b, term c) {
 
 // variables
 namespace {
-ary<term> boundvars;
+ary<term> boundVars;
 
-void getfree1(term a) {
+void getFreeVars1(term a) {
   switch (tag(a)) {
   case term::All:
   case term::Exists: {
-    auto old = boundvars.n;
+    auto old = boundVars.n;
     for (auto i = begin(a) + 1, e = end(a); i != e; ++i)
-      boundvars.push(*i);
-    getfree1(at(a, 0));
-    boundvars.n = old;
+      boundVars.push(*i);
+    getFreeVars1(at(a, 0));
+    boundVars.n = old;
     return;
   }
   case term::Var:
-    if (find(boundvars.p, boundvars.end(), a) != boundvars.end())
+    if (find(boundVars.p, boundVars.end(), a) != boundVars.end())
       return;
     if (find(termv.p, termv.end(), a) != termv.end())
       return;
     termv.push(a);
     return;
   }
-  if (!iscompound(a))
+  if (!isCompound(a))
     return;
   for (auto b : a)
-    getfree1(b);
+    getFreeVars1(b);
 }
 } // namespace
 
-void getfree(term a) {
-  assert(!boundvars.n);
+void getFreeVars(term a) {
+  assert(!boundVars.n);
   termv.n = 0;
-  getfree1(a);
+  getFreeVars1(a);
 }
 
 #ifdef DEBUG
@@ -179,7 +179,7 @@ void ckptr(void *p) {
 }
 
 void cktype(type t) {
-  if (!iscompound(t))
+  if (!isCompound(t))
     return;
   auto p = tcompoundp(t);
   ckptr(p);
@@ -202,7 +202,7 @@ void cksym(sym *s) {
 
 void ck(term a) {
   cktype(typeof(a));
-  if (iscompound(a)) {
+  if (isCompound(a)) {
     auto n = size(a);
     assert(0 < n);
     assert(n < 1000000);
@@ -260,7 +260,7 @@ void ck(term a) {
     break;
   }
   case term::Var:
-    assert(!iscompound(vartype(a)));
+    assert(!isCompound(varType(a)));
     assert(0 <= vari(a));
     assert(vari(a) < 1000000);
     break;

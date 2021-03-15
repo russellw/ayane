@@ -9,7 +9,7 @@ si cap = 0x100;
 si count;
 sym **entries = (sym **)xcalloc(cap, sizeof *entries);
 
-bool strmemeq(const char *s, const char *p, si n) {
+bool eq(const char *s, const char *p, si n) {
   while (n--)
     if (*s++ != *p++)
       return 0;
@@ -19,13 +19,13 @@ bool strmemeq(const char *s, const char *p, si n) {
 si slot(sym **entries, si cap, const char *p, si n) {
   auto mask = cap - 1;
   auto i = fnv(p, n) & mask;
-  while (entries[i] && !strmemeq(entries[i]->v, p, n))
+  while (entries[i] && !eq(entries[i]->v, p, n))
     i = (i + 1) & mask;
   return i;
 }
 
 void expand() {
-  assert(ispow2(cap));
+  assert(isPow2(cap));
   auto cap1 = cap * 2;
   auto entries1 = (sym **)xcalloc(cap1, sizeof *entries);
   for (si i = 0; i != cap; ++i) {
@@ -72,7 +72,7 @@ sym *put(const char *p, si n) {
 }
 } // namespace
 
-void init_syms() {
+void initSyms() {
   for (auto i = entries, e = entries + cap; i != e; ++i) {
     auto s = *i;
     if (s)

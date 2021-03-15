@@ -10,7 +10,7 @@ namespace {
 const si many = 10;
 si nclauses(bool pol, term a);
 
-si nclauses_and(bool pol, term a) {
+si nclausesAnd(bool pol, term a) {
   si r = 0;
   for (auto b : a) {
     r += nclauses(pol, b);
@@ -20,7 +20,7 @@ si nclauses_and(bool pol, term a) {
   return r;
 }
 
-si nclauses_or(bool pol, term a) {
+si nclausesOr(bool pol, term a) {
   si r = 1;
   for (auto b : a) {
     r *= nclauses(pol, b);
@@ -37,7 +37,7 @@ si nclauses(bool pol, term a) {
   case term::Not:
     return nclauses(pol, at(a, 0));
   case term::And:
-    return pol ? nclauses_and(pol, a) : nclauses_or(pol, a);
+    return pol ? nclausesAnd(pol, a) : nclausesOr(pol, a);
   case term::Eqv: {
     auto x = at(a, 0);
     auto x0 = nclauses(0, x);
@@ -57,7 +57,7 @@ si nclauses(bool pol, term a) {
     return r;
   }
   case term::Or:
-    return pol ? nclauses_or(pol, a) : nclauses_and(pol, a);
+    return pol ? nclausesOr(pol, a) : nclausesAnd(pol, a);
   }
   return 1;
 }
@@ -71,7 +71,7 @@ term skolem(type t) {
   return tag(term::Sym, s);
 }
 
-term skolemterms(type rt) {
+term skolemTerms(type rt) {
   // atom
   auto n = termv.n;
   if (!n)
@@ -81,7 +81,7 @@ term skolemterms(type rt) {
   vec<type> v(n + 1);
   v[0] = rt;
   for (si i = 0; i != n; ++i)
-    v[i + 1] = vartype(termv[i]);
+    v[i + 1] = varType(termv[i]);
 
   // compound
   auto r = comp(n + 1);
@@ -91,19 +91,19 @@ term skolemterms(type rt) {
 }
 
 // rename subformulas to avoid exponential blowup
-term rename_pos(term a) {
-  getfree(a);
-  auto b = skolemterms(type::Bool);
+term renamePos(term a) {
+  getFreeVars(a);
+  auto b = skolemTerms(type::Bool);
   cnf(comp(term::Imp, b, a), 0);
   return b;
 }
 
 term cnf1(term a);
 
-term rename_both(term a) {
+term renameBoth(term a) {
   a = cnf1(a);
-  getfree(a);
-  auto b = skolemterms(type::Bool);
+  getFreeVars(a);
+  auto b = skolemTerms(type::Bool);
   cnf(comp(term::And, comp(term::Imp, b, a), comp(term::Imp, a, b)), 0);
   return b;
 }
@@ -123,40 +123,40 @@ struct quant {
 };
 
 struct converting {
-  vec<quant> boundvars;
-  vec<pair<term, term>> freevars;
-  unordered_map<type, si> newvars;
+  vec<quant> boundVars;
+  vec<pair<term, term>> freeVars;
+  unordered_map<type, si> newVars;
   term r;
 
   term all(bool pol, term a) {
     auto n = size(a);
-    auto old = boundvars.n;
-    boundvars.resize(old + n - 1);
+    auto old = boundVars.n;
+    boundVars.resize(old + n - 1);
     for (si i = 1; i != n; ++i) {
       auto x = at(a, i);
-      auto t = vartype(x);
-      boundvars[old + i - 1] = quant(0, x, var(t, newvars[t]++));
+      auto t = varType(x);
+      boundVars[old + i - 1] = quant(0, x, var(t, newVars[t]++));
     }
     a = convert(pol, at(a, 0));
-    boundvars.n = old;
+    boundVars.n = old;
     return a;
   }
 
   term exists(bool pol, term a) {
     auto n = size(a);
-    auto old = boundvars.n;
-    boundvars.resize(old + n - 1);
+    auto old = boundVars.n;
+    boundVars.resize(old + n - 1);
     for (si i = 1; i != n; ++i) {
       termv.n = 0;
-      for (auto &j : boundvars)
+      for (auto &j : boundVars)
         if (!j.exists)
           termv.push(j.renamed);
       auto x = at(a, i);
-      auto y = skolemterms(vartype(x));
-      boundvars[old + i - 1] = quant(1, x, y);
+      auto y = skolemTerms(varType(x));
+      boundVars[old + i - 1] = quant(1, x, y);
     }
     a = convert(pol, at(a, 0));
-    boundvars.n = old;
+    boundVars.n = old;
     return a;
   }
 
@@ -187,10 +187,10 @@ struct converting {
     return comp(term::And, v);
   }
 
-  term andConvert2(bool pol_a, term a, bool pol_b, term b) {
+  term andConvert2(bool pola, term a, bool polb, term b) {
     vec<term> v;
-    andConvertPush(pol_a, a, v);
-    andConvertPush(pol_b, b, v);
+    andConvertPush(pola, a, v);
+    andConvertPush(polb, b, v);
     return comp(term::And, v);
   }
 
@@ -202,7 +202,7 @@ struct converting {
       if (nc >= many) {
         nc = many;
         if (old > 1) {
-          r.push_back(rename_pos(a));
+          r.push_back(renamePos(a));
           return;
         }
       }
@@ -271,11 +271,11 @@ struct converting {
     return distrib(v);
   }
 
-  term orConvert2(bool pol_a, term a, bool pol_b, term b) {
+  term orConvert2(bool pola, term a, bool polb, term b) {
     vec<term> v;
     si nc = 1;
-    orConvertPush(pol_a, a, v, nc);
-    orConvertPush(pol_b, b, v, nc);
+    orConvertPush(pola, a, v, nc);
+    orConvertPush(polb, b, v, nc);
     return distrib(v);
   }
 
@@ -288,21 +288,21 @@ struct converting {
     case term::Eqv: {
       auto x = at(a, 0);
       if (nclauses(0, x) >= many || nclauses(1, x) >= many)
-        x = rename_both(x);
+        x = renameBoth(x);
       auto y = at(a, 1);
       if (nclauses(0, y) >= many || nclauses(1, y) >= many)
-        y = rename_both(y);
+        y = renameBoth(y);
       return and2(orConvert2(0, x, pol, y), orConvert2(1, x, pol ^ 1, y));
-    }
-    case term::Imp: {
-      auto x = at(a, 0);
-      auto y = at(a, 1);
-      return pol ? orConvert2(0, x, 1, y) : andConvert2(1, x, 0, y);
     }
     case term::Exists:
       return pol ? exists(pol, a) : all(pol, a);
     case term::False:
       return term(pol ^ 1);
+    case term::Imp: {
+      auto x = at(a, 0);
+      auto y = at(a, 1);
+      return pol ? orConvert2(0, x, 1, y) : andConvert2(1, x, 0, y);
+    }
     case term::Not:
       return convert(pol ^ 1, at(a, 0));
     case term::Or:
@@ -310,15 +310,15 @@ struct converting {
     case term::True:
       return term(pol);
     case term::Var:
-      for (auto i = boundvars.rbegin(), e = boundvars.rend(); i != e; ++i)
+      for (auto i = boundVars.rbegin(), e = boundVars.rend(); i != e; ++i)
         if (i->var == a)
           return i->renamed;
-      for (auto &i : freevars)
+      for (auto &i : freeVars)
         if (i.first == a)
           return i.second;
-      auto t = vartype(a);
-      auto b = var(t, newvars[t]++);
-      freevars.push_back(make_pair(a, b));
+      auto t = varType(a);
+      auto b = var(t, newVars[t]++);
+      freeVars.push_back(make_pair(a, b));
       return b;
     }
     auto n = size(a);
@@ -333,7 +333,7 @@ struct converting {
 };
 
 // make clauses
-void toliterals(term a) {
+void toLiterals(term a) {
   switch (tag(a)) {
   case term::And:
     unreachable;
@@ -344,7 +344,7 @@ void toliterals(term a) {
     return;
   case term::Or:
     for (auto b : a)
-      toliterals(b);
+      toLiterals(b);
     return;
   }
   if (pos.n >= 0xffff)
@@ -352,12 +352,12 @@ void toliterals(term a) {
   pos.push(a);
 }
 
-void toclause(term a) {
+void toClause(term a) {
   assert(tag(a) != term::And);
   assert(!neg.n);
   assert(!pos.n);
-  toliterals(a);
-  addclause(infer::cnf);
+  toLiterals(a);
+  addClause(infer::cnf);
 }
 
 term cnf1(term a) {
@@ -373,9 +373,9 @@ void cnf(term a, clause *f) {
   try {
     if (tag(a) == term::And)
       for (auto b : a)
-        toclause(b);
+        toClause(b);
     else
-      toclause(a);
+      toClause(a);
   } catch (int e) {
     neg.n = pos.n = 0;
     complete = 0;

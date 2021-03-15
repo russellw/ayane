@@ -8,16 +8,16 @@ typedef intptr_t si;
 
 #ifdef DEBUG
 
-void stacktrace();
-bool assertfail(const char *file, si line, const char *s);
-#define assert(a) (a) || assertfail(__FILE__, __LINE__, #a)
+void stackTrace();
+bool assertFail(const char *file, si line, const char *s);
+#define assert(a) (a) || assertFail(__FILE__, __LINE__, #a)
 #define unreachable assert(0)
 #define debug(a)                                                               \
   fprintf(stderr, "%s:%d: %s: %zx\n", __FILE__, __LINE__, #a, (si)a)
 
 #else
 
-#define stacktrace()
+#define stackTrace()
 #ifdef _MSC_VER
 #define assert(a) __assume(a)
 #define unreachable __assume(0)
@@ -32,22 +32,22 @@ bool assertfail(const char *file, si line, const char *s);
 extern char buf[20000];
 
 // SORT
-inline bool isdigit1(char c) { return '0' <= c && c <= '9'; }
+inline bool isDigit(char c) { return '0' <= c && c <= '9'; }
 
-inline bool islower1(char c) { return 'a' <= c && c <= 'z'; }
+inline bool isLower(char c) { return 'a' <= c && c <= 'z'; }
 
-inline bool ispow2(si n) {
+inline bool isPow2(si n) {
   // doesn't work for 0
   assert(n);
   return !(n & n - 1);
 }
 
-inline bool isspace1(char c) { return c <= ' ' && c; }
+inline bool isSpace(char c) { return c <= ' ' && c; }
 
-inline bool isupper1(char c) { return 'A' <= c && c <= 'Z'; }
+inline bool isUpper(char c) { return 'A' <= c && c <= 'Z'; }
 ///
 
-inline bool isalpha1(char c) { return islower1(c) || isupper1(c); }
+inline bool isAlpha(char c) { return isLower(c) || isUpper(c); }
 
 // SORT
 const char *basename(const char *file);

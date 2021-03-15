@@ -76,32 +76,32 @@ parser::parser(const char *file) : file(file) {
   }
 
   // start at the beginning
-  textstart = s;
+  textStart = s;
   text = s;
-  tokstart = s;
+  tokStart = s;
 }
 
-parser::~parser() { free((void *)textstart); }
+parser::~parser() { free((void *)textStart); }
 
 noret parser::err(const char *msg, const char *ts) {
   // line number
   si line = 1;
-  for (auto s = textstart; s != ts; ++s)
+  for (auto s = textStart; s != ts; ++s)
     if (*s == '\n')
       ++line;
 
   // start of line
-  auto linestart = ts;
-  while (!(linestart == textstart || linestart[-1] == '\n'))
-    --linestart;
+  auto lineStart = ts;
+  while (!(lineStart == textStart || lineStart[-1] == '\n'))
+    --lineStart;
 
   // print context
-  for (auto s = linestart; *s >= ' '; ++s)
+  for (auto s = lineStart; *s >= ' '; ++s)
     fputc(*s, stderr);
   fputc('\n', stderr);
 
   // print caret
-  for (auto s = linestart; s != ts; ++s)
+  for (auto s = lineStart; s != ts; ++s)
     fputc(*s == '\t' ? '\t' : ' ', stderr);
   fprintf(stderr, "^\n");
 
@@ -110,4 +110,4 @@ noret parser::err(const char *msg, const char *ts) {
   exit(1);
 }
 
-noret parser::err(const char *msg) { err(msg, tokstart); }
+noret parser::err(const char *msg) { err(msg, tokStart); }

@@ -5,7 +5,7 @@ enum class szs {
   max
 };
 
-extern const char *szsnames[];
+extern const char *szsNames[];
 
 // SORT
 extern bool complete;
@@ -17,5 +17,5 @@ extern vec<clause *> clauses;
 extern szs expected;
 #endif
 
-void init_problem();
-clause *addclause(infer inf);
+void initProblem();
+clause *addClause(infer inf);

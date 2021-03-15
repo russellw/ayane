@@ -9,7 +9,7 @@
 #include <dbghelp.h>
 #endif
 
-void stacktrace() {
+void stackTrace() {
 #ifdef _WIN32
   auto process = GetCurrentProcess();
   SymInitialize(process, 0, 1);
@@ -32,9 +32,9 @@ void stacktrace() {
 #endif
 }
 
-bool assertfail(const char *file, si line, const char *s) {
+bool assertFail(const char *file, si line, const char *s) {
   fprintf(stderr, "%s:%zu: assert failed: %s\n", file, line, s);
-  stacktrace();
+  stackTrace();
   exit(1);
   // keep the compiler happy about the use of || in the assert macro
   return 0;
@@ -61,7 +61,7 @@ const char *basename(const char *file) {
 
 noret err(const char *msg) {
   fprintf(stderr, "%s\n", msg);
-  stacktrace();
+  stackTrace();
   exit(1);
 }
 

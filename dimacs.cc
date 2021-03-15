@@ -12,7 +12,7 @@ struct parser1 : parser {
   // tokenizer
   void lex() {
   loop:
-    auto s = tokstart = text;
+    auto s = tokStart = text;
     switch (*text) {
     case ' ':
     case '\f':
@@ -23,7 +23,7 @@ struct parser1 : parser {
       text = s + 1;
       goto loop;
     case '0':
-      if (!isdigit1(s[1])) {
+      if (!isDigit(s[1])) {
         text = s + 1;
         tok = o_zero;
         return;
@@ -39,9 +39,9 @@ struct parser1 : parser {
     case '9':
       do
         ++s;
-      while (isdigit1(*s));
+      while (isDigit(*s));
       text = s;
-      toksym = intern(tokstart, s - tokstart);
+      tokSym = intern(tokStart, s - tokStart);
       tok = o_num;
       return;
     case 'c': {
@@ -65,7 +65,7 @@ struct parser1 : parser {
 
   // terms
   term fn() {
-    auto s = toksym;
+    auto s = tokSym;
     lex();
     s->ft = type::Bool;
     return tag(term::Sym, s);
@@ -76,7 +76,7 @@ struct parser1 : parser {
     try {
       lex();
       if (tok == 'p') {
-        while (isspace1(*text))
+        while (isSpace(*text))
           ++text;
 
         if (!(text[0] == 'c' && text[1] == 'n' && text[2] == 'f'))
@@ -99,14 +99,14 @@ struct parser1 : parser {
           break;
         case 0:
           if (neg.n | pos.n)
-            addclause(infer::none);
+            addClause(infer::none);
           return;
         case o_num:
           pos.push(fn());
           break;
         case o_zero:
           lex();
-          addclause(infer::none);
+          addClause(infer::none);
           break;
         default:
           err("syntax error");

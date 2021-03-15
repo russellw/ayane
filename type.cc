@@ -2,7 +2,7 @@
 // stdafx.h must be first
 #include "main.h"
 
-ary<tcompound *, 0x10000 - tcompoundoffset> tcompounds;
+ary<tcompound *, 0x10000 - tcompoundOffset> tcompounds;
 
 namespace {
 // the number of types is expected to be small. it is therefore possible to fit
@@ -30,7 +30,7 @@ si slot(type *entries, si cap, const type *p, si n) {
 }
 
 void expand() {
-  assert(ispow2(cap));
+  assert(isPow2(cap));
   auto cap1 = cap * 2;
   auto entries1 = (type *)xcalloc(cap1, sizeof *entries);
   for (si i = 0; i != cap; ++i) {
@@ -60,7 +60,7 @@ type put(const type *p, si n) {
     expand();
     i = slot(entries, cap, p, n);
   }
-  auto t = entries[i] = type(tcompoundoffset + tcompounds.n);
+  auto t = entries[i] = type(tcompoundOffset + tcompounds.n);
   tcompounds.push(store(p, n));
   return t;
 }
@@ -69,7 +69,7 @@ type put(const type *p, si n) {
 type mktype(sym *name) {
   if (name->t != type::none)
     return name->t;
-  if (atoms >= tcompoundoffset)
+  if (atoms >= tcompoundOffset)
     err("too many atomic types");
   return name->t = (type)atoms++;
 }
@@ -87,8 +87,8 @@ type mktype(type rt, type param1) {
   return put(v, sizeof v / sizeof *v);
 }
 
-void defaulttype(type t, term a) {
-  assert(!iscompound(t));
+void defaultType(type t, term a) {
+  assert(!isCompound(t));
   switch (tag(a)) {
   case term::Call: {
     auto op = at(a, 0);
@@ -117,8 +117,8 @@ void defaulttype(type t, term a) {
   }
 }
 
-void requiretype(type t, term a) {
-  defaulttype(t, a);
+void requireType(type t, term a) {
+  defaultType(t, a);
   if (t != typeof(a))
     throw "type mismatch";
 }
@@ -144,7 +144,7 @@ type typeof(term a) {
     auto ft = s->ft;
     if (ft == type::none)
       return ft;
-    assert(iscompound(ft));
+    assert(isCompound(ft));
     auto ftp = tcompoundp(ft);
     assert(size(a) == ftp->n);
     return ftp->v[0];
@@ -169,13 +169,13 @@ type typeof(term a) {
   case term::ToReal:
     return type::Real;
   case term::Var:
-    return vartype(a);
+    return varType(a);
   }
-  assert(iscompound(a));
+  assert(isCompound(a));
   return typeof(at(a, 0));
 }
 
-type numtypeof(term a) {
+type typeofNum(term a) {
   auto t = typeof(a);
   switch (t) {
   case type::Int:

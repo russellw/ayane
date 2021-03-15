@@ -4,7 +4,7 @@ enum class infer : char {
 #include "infer.h"
 };
 
-extern const char *infernames[];
+extern const char *inferNames[];
 
 struct clause {
   // is this a first-order formula rather than an actual clause?
@@ -36,13 +36,13 @@ struct clause {
 // SORT
 extern ary<term> neg, pos;
 extern clause *conjecture;
-extern unordered_map<const clause *, const char *> clausefiles;
-extern unordered_map<const clause *, const char *> clausenames;
+extern unordered_map<const clause *, const char *> clauseFiles;
+extern unordered_map<const clause *, const char *> clauseNames;
 ///
 
 // SORT
-const char *clausename(const clause *c);
+const char *clauseName(const clause *c);
 clause *formula(infer inf, term a, clause *from = 0);
-void init_clauses();
-clause *mkclause(infer inf, clause *from = 0, clause *from1 = 0);
+void initClauses();
+clause *internClause(infer inf, clause *from = 0, clause *from1 = 0);
 ///

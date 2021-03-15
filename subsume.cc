@@ -7,7 +7,7 @@
 static clause *d;
 
 namespace {
-bool matche(const eqn &a, const eqn &b) {
+bool matchEqn(const eqn &a, const eqn &b) {
   if (typeof(a.left) != typeof(a.right))
     return 0;
 
@@ -58,7 +58,7 @@ bool subsume(subsumption *first, term *ci, subsumption *second) {
       continue;
     eqn b(d->v[di]);
     auto old = pairv.n;
-    if (!matche(a, b))
+    if (!matchEqn(a, b))
       continue;
     used[di] = 1;
     if (subsume(first, ci, second))

@@ -28,8 +28,8 @@ enum class language {
 };
 
 namespace {
-struct LineParser : parser {
-  LineParser(const char *file, vec<char *> &v) : parser(file) {
+struct lineParser : parser {
+  lineParser(const char *file, vec<char *> &v) : parser(file) {
     auto s = text;
     while (*s) {
       auto t = strchr(s, '\n');
@@ -48,7 +48,7 @@ struct LineParser : parser {
 
 // SORT
 language lang;
-time_t timelimit;
+time_t timeLimit;
 vec<const char *> files;
 ///
 
@@ -73,23 +73,23 @@ const char *ext(const char *file) {
   return s ? s + 1 : "";
 }
 
-unsigned long long optnum(si argc, char **argv, si &i, const char *optarg) {
-  if (!optarg) {
+unsigned long long optNum(si argc, char **argv, si &i, const char *optArg) {
+  if (!optArg) {
     if (i + 1 >= argc) {
       fprintf(stderr, "%s: expected argument\n", argv[i]);
       exit(1);
     }
-    optarg = argv[++i];
+    optArg = argv[++i];
   }
   errno = 0;
   char *e = 0;
-  auto r = strtoull(optarg, &e, 10);
+  auto r = strtoull(optArg, &e, 10);
   if (errno) {
-    perror(optarg);
+    perror(optArg);
     exit(1);
   }
-  if (e == optarg) {
-    fprintf(stderr, "%s: expected integer\n", optarg);
+  if (e == optArg) {
+    fprintf(stderr, "%s: expected integer\n", optArg);
     exit(1);
   }
   return r;
@@ -107,7 +107,7 @@ void parse(si argc, char **argv) {
     if (*s != '-') {
       if (!strcmp(ext(s), "lst")) {
         vec<char *> v;
-        LineParser p(s, v);
+        lineParser p(s, v);
         parse(v.n, v.p);
         continue;
       }
@@ -119,11 +119,11 @@ void parse(si argc, char **argv) {
     while (*s == '-')
       ++s;
 
-    // optarg
+    // optArg
     auto t = s;
-    while (isalpha1(*t))
+    while (isAlpha(*t))
       ++t;
-    const char *optarg = 0;
+    const char *optArg = 0;
     switch (*t) {
     case '0':
     case '1':
@@ -136,19 +136,19 @@ void parse(si argc, char **argv) {
     case '8':
     case '9':
       s = intern(s, t - s)->v;
-      optarg = t;
+      optArg = t;
       break;
     case ':':
     case '=':
       *t = 0;
-      optarg = t + 1;
+      optArg = t + 1;
       break;
     }
 
     // option
     switch (keyword(intern(s))) {
     case k_T: {
-      auto seconds = optnum(argc, argv, i, optarg);
+      auto seconds = optNum(argc, argv, i, optArg);
 #ifdef _WIN32
       HANDLE timer = 0;
       CreateTimerQueueTimer(&timer, 0, timeout, 0, (DWORD)(seconds * 1000), 0,
@@ -178,7 +178,7 @@ void parse(si argc, char **argv) {
       help();
       exit(0);
     case k_t:
-      timelimit = optnum(argc, argv, i, optarg);
+      timeLimit = optNum(argc, argv, i, optArg);
       break;
     case k_tptp:
       lang = language::tptp;
@@ -190,7 +190,7 @@ void parse(si argc, char **argv) {
   }
 }
 
-language getlang(const char *file) {
+language getLang(const char *file) {
   if (lang != language::unknown)
     return lang;
   switch (keyword(intern(ext(file)))) {
@@ -202,7 +202,7 @@ language getlang(const char *file) {
 
 #ifdef DEBUG
 #ifdef _WIN32
-void pr(si n, const char *caption) {
+void printItem1(si n, const char *caption) {
   auto s = buf + sizeof buf - 1;
   *s = 0;
   si i = 0;
@@ -225,22 +225,22 @@ void pr(si n, const char *caption) {
   printf("%s  %s\n", s, caption);
 }
 
-#define pritem(x) pr(pmc.x, #x)
+#define printItem(x) printItem1(pmc.x, #x)
 
-void prmem() {
+void printMem() {
   PROCESS_MEMORY_COUNTERS_EX pmc;
   GetProcessMemoryInfo(GetCurrentProcess(), (PPROCESS_MEMORY_COUNTERS)&pmc,
                        sizeof pmc);
-  pritem(PageFaultCount);
-  pritem(PeakWorkingSetSize);
-  pritem(WorkingSetSize);
-  pritem(QuotaPeakPagedPoolUsage);
-  pritem(QuotaPagedPoolUsage);
-  pritem(QuotaPeakNonPagedPoolUsage);
-  pritem(QuotaNonPagedPoolUsage);
-  pritem(PagefileUsage);
-  pritem(PeakPagefileUsage);
-  pritem(PrivateUsage);
+  printItem(PageFaultCount);
+  printItem(PeakWorkingSetSize);
+  printItem(WorkingSetSize);
+  printItem(QuotaPeakPagedPoolUsage);
+  printItem(QuotaPagedPoolUsage);
+  printItem(QuotaPeakNonPagedPoolUsage);
+  printItem(QuotaNonPagedPoolUsage);
+  printItem(PagefileUsage);
+  printItem(PeakPagefileUsage);
+  printItem(PrivateUsage);
 }
 #endif
 #endif
@@ -268,16 +268,16 @@ int main(int argc, char **argv) {
     auto file = files[i];
     auto bname = basename(file);
     auto start = time(0);
-    if (timelimit)
-      deadline = start + timelimit;
+    if (timeLimit)
+      deadline = start + timeLimit;
     // SORT
-    init_clauses();
-    init_problem();
-    init_syms();
-    init_terms();
+    initClauses();
+    initProblem();
+    initSyms();
+    initTerms();
     ///
     try {
-      switch (getlang(file)) {
+      switch (getLang(file)) {
       case language::dimacs:
         dimacs(file);
         break;
@@ -298,13 +298,13 @@ int main(int argc, char **argv) {
           r = szs::Theorem;
           break;
         }
-      printf("%% SZS status %s for %s\n", szsnames[(si)r], bname);
+      printf("%% SZS status %s for %s\n", szsNames[(si)r], bname);
 #ifdef DEBUG
       if (expected != szs::none && r != expected)
         switch (r) {
         case szs::CounterSatisfiable:
         case szs::Satisfiable:
-          printf("error: expected %s\n", szsnames[(si)expected]);
+          printf("error: expected %s\n", szsNames[(si)expected]);
           return 1;
         case szs::Theorem:
         case szs::Unsatisfiable:
@@ -313,7 +313,7 @@ int main(int argc, char **argv) {
         }
 #ifdef _WIN32
       putchar('\n');
-      prmem();
+      printMem();
       putchar('\n');
 #endif
       printf("%zu seconds\n", (si)(time(0) - start));

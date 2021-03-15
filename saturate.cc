@@ -5,7 +5,7 @@
 namespace {
 // passive clauses are stored in a priority queue with smaller clauses first
 si weight(term a) {
-  if (iscompound(a)) {
+  if (isCompound(a)) {
     si n = 0;
     for (auto b : a)
       n += weight(b);
@@ -34,26 +34,26 @@ priority_queue<clause *, vector<clause *>, cmp> passive;
 // variable renaming makes the rest of the code simpler, and because it only
 // needs to be done once each time around the outer loop, it is probably also
 // more efficient
-const uint64_t altvar = (uint64_t)1 << (16 + tagbits);
+const uint64_t altVar = (uint64_t)1 << (16 + tagBits);
 
-term altvars(term a) {
+term altVars(term a) {
   if (tag(a) == term::Var)
-    return term((uint64_t)a | altvar);
-  if (!iscompound(a))
+    return term((uint64_t)a | altVar);
+  if (!isCompound(a))
     return a;
   auto n = size(a);
   auto r = comp(n);
   for (si i = 0; i != n; ++i)
-    r->v[i] = altvars(at(a, i));
+    r->v[i] = altVars(at(a, i));
   return tag(tag(a), r);
 }
 
-clause *altvars(clause *c) {
+clause *altVars(clause *c) {
   auto n = c->n;
   auto d = (clause *)pool1.alloc(offsetof(clause, v) + n * sizeof(term));
   memcpy(d, c, offsetof(clause, v));
   for (si i = 0; i != n; ++i)
-    d->v[i] = altvars(c->v[i]);
+    d->v[i] = altVars(c->v[i]);
   return d;
 }
 
@@ -66,7 +66,7 @@ term replace(term a) {
     for (auto &i : pairv)
       if (i.first == a)
         return replace(i.second);
-  if (!iscompound(a))
+  if (!isCompound(a))
     return a;
   auto n = size(a);
   auto r = comp(n);
@@ -80,37 +80,37 @@ term replace(term a) {
 // the ability of the system to detect duplicate terms and clauses, and to
 // maintain the invariant that the variable names in active clauses are distinct
 // from those in the alternative variable namespace
-term normvars(term a) {
+term normVars(term a) {
   if (tag(a) == term::Var) {
     for (auto &i : pairv)
       if (i.first == a)
         return i.second;
-    auto b = var(vartype(a), pairv.n);
+    auto b = var(varType(a), pairv.n);
     pairv.push(make_pair(a, b));
     return b;
   }
-  if (!iscompound(a))
+  if (!isCompound(a))
     return a;
   auto n = size(a);
   vec<term> v(n);
   for (si i = 0; i != n; ++i)
-    v[i] = normvars(at(a, i));
+    v[i] = normVars(at(a, i));
   return intern(tag(a), v);
 }
 
-void normvars() {
+void normVars() {
   pairv.n = 0;
   for (auto i = neg.p, e = neg.end(); i != e; ++i)
-    *i = normvars(*i);
+    *i = normVars(*i);
   for (auto i = pos.p, e = pos.end(); i != e; ++i)
-    *i = normvars(*i);
+    *i = normVars(*i);
 }
 
 // make a clause and if successful (not a tautology or duplicate) add it to the
 // passive queue
 void qclause(infer inf) {
-  normvars();
-  auto c = mkclause(inf);
+  normVars();
+  auto c = internClause(inf);
   if (c)
     passive.push(c);
 }
@@ -277,7 +277,7 @@ vec<si> position;
 term splice(term x, si *i) {
   if (i == position.end())
     return c1;
-  assert(iscompound(x));
+  assert(isCompound(x));
   vec<term> v;
   v.insert(v.p, begin(x), end(x));
   auto j = *i++;
@@ -290,7 +290,7 @@ void descend(term x) {
     return;
   if (unify(c0, x))
     superpositionq(splice(d0, position.p));
-  if (iscompound(x))
+  if (isCompound(x))
     for (si j = 0, n = size(x); j != n; ++j) {
       position.push_back(j);
       descend(at(x, j));
@@ -363,7 +363,7 @@ loop:
 
     // alternate variables
     pool1.init();
-    auto g1 = altvars(g);
+    auto g1 = altVars(g);
 
     // this is the Discount loop (in which only active clauses participate in
     // subsumption checks); in tests, it performed slightly better than the

@@ -17,7 +17,7 @@ template <class T> class bank {
   }
 
   void expand() {
-    assert(ispow2(cap));
+    assert(isPow2(cap));
     auto cap1 = cap * 2;
     auto entries1 = (T **)xcalloc(cap1, sizeof *entries);
     for (si i = 0; i != cap; ++i) {

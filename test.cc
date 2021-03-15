@@ -12,12 +12,7 @@ term fn(type t, sym *s) {
   return tag(term::Sym, s);
 }
 
-bool match0(term a, term b) {
-  pairv.n = 0;
-  return match(a, b);
-}
-
-clause *mkclause1() {
+clause *makeClause() {
   auto nn = neg.n;
   auto pn = pos.n;
   auto n = nn + pn;
@@ -30,6 +25,11 @@ clause *mkclause1() {
   c->n = n;
   memcpy(c->v, neg.p, n * sizeof *neg.p);
   return c;
+}
+
+bool match0(term a, term b) {
+  pairv.n = 0;
+  return match(a, b);
 }
 
 type mktype(type rt, type param1, type param2) {
@@ -45,7 +45,7 @@ term replace(term a) {
     for (auto &i : pairv)
       if (i.first == a)
         return replace(i.second);
-  if (!iscompound(a))
+  if (!isCompound(a))
     return a;
   auto n = size(a);
   vec<term> v;
@@ -57,29 +57,29 @@ term replace(term a) {
 ///
 
 // SORT
-void test_clause() {
+void testClause() {
   auto x = var(type::Int, 0);
   auto y = var(type::Int, 1);
 
   // a simple clause, x!=y
   neg.n = pos.n = 0;
   neg.push(intern(term::Eq, x, y));
-  auto c = mkclause(infer::none);
+  auto c = internClause(infer::none);
 
   // duplicate returns null
   neg.n = pos.n = 0;
   neg.push(intern(term::Eq, x, y));
-  auto d = mkclause(infer::none);
+  auto d = internClause(infer::none);
   assert(!d);
 
   // the duplicate check distinguishes between negative and positive literals
   neg.n = pos.n = 0;
   pos.push(intern(term::Eq, x, y));
-  d = mkclause(infer::none);
+  d = internClause(infer::none);
   assert(c != d);
 }
 
-void test_fn() {
+void testFn() {
   auto red = fn(type::Bool, intern("red"));
   auto redp = (sym *)rest(red);
   assert(redp->ft == type::Bool);
@@ -97,36 +97,36 @@ void test_fn() {
   assert(bluep == intern("blue"));
 }
 
-void test_getfree() {
+void testFreeVars() {
   auto a = fn(type::Individual, intern("a"));
   auto x = var(type::Individual, 0);
   auto y = var(type::Individual, 1);
 
-  getfree(a);
+  getFreeVars(a);
   assert(termv.n == 0);
 
-  getfree(x);
+  getFreeVars(x);
   assert(termv.n == 1);
   assert(termv[0] == x);
 
-  getfree(intern(term::Eq, x, x));
+  getFreeVars(intern(term::Eq, x, x));
   assert(termv.n == 1);
   assert(termv[0] == x);
 
-  getfree(intern(term::Eq, x, y));
+  getFreeVars(intern(term::Eq, x, y));
   assert(termv.n == 2);
   assert(termv[0] == x);
   assert(termv[1] == y);
 
-  getfree(intern(term::Eq, a, a));
+  getFreeVars(intern(term::Eq, a, a));
   assert(termv.n == 0);
 
-  getfree(intern(term::All, intern(term::Eq, x, y), x));
+  getFreeVars(intern(term::All, intern(term::Eq, x, y), x));
   assert(termv.n == 1);
   assert(termv[0] == y);
 }
 
-void test_int() {
+void testInt() {
   Int x1;
   mpz_init_set_ui(x1.val, 1);
   auto a1 = tag(term::Int, intern(x1));
@@ -147,7 +147,26 @@ void test_int() {
   assert(!mpz_cmp_ui(y3->val, 3));
 }
 
-void test_match() {
+void testIntern() {
+  auto red = fn(type::Bool, intern("red"));
+  auto green = fn(type::Bool, intern("green"));
+  auto blue = fn(type::Bool, intern("blue"));
+
+  auto a = intern(term::Not, red);
+  assert(a == intern(term::Not, red));
+
+  a = intern(term::And, red, green);
+  assert(a == intern(term::And, red, green));
+
+  vec<term> v;
+  v.push_back(red);
+  v.push_back(green);
+  v.push_back(blue);
+  a = intern(term::And, v);
+  assert(a == intern(term::And, v));
+}
+
+void testMatch() {
   // subset of unify where only the first argument can be treated as a variable
   // to be matched against the second argument. applied to the same test cases
   // as unify, gives the same results in some cases, but different results in
@@ -232,64 +251,7 @@ void test_match() {
   assert(!match(b, x));
 }
 
-void test_mk() {
-  auto red = fn(type::Bool, intern("red"));
-  auto green = fn(type::Bool, intern("green"));
-  auto blue = fn(type::Bool, intern("blue"));
-
-  auto a = intern(term::Not, red);
-  assert(a == intern(term::Not, red));
-
-  a = intern(term::And, red, green);
-  assert(a == intern(term::And, red, green));
-
-  vec<term> v;
-  v.push_back(red);
-  v.push_back(green);
-  v.push_back(blue);
-  a = intern(term::And, v);
-  assert(a == intern(term::And, v));
-}
-
-void test_mktype() {
-  auto bird = mktype(intern("bird"));
-  assert(bird == mktype(intern("bird")));
-  assert(!iscompound(bird));
-
-  auto plane = mktype(intern("plane"));
-  assert(plane == mktype(intern("plane")));
-  assert(!iscompound(plane));
-
-  assert(bird != plane);
-
-  vec<type> v;
-  v.push_back(type::Bool);
-  v.push_back(type::Int);
-  v.push_back(type::Int);
-  auto t_predicate_int_int = mktype(v);
-  assert(t_predicate_int_int == mktype(v));
-  assert(iscompound(t_predicate_int_int));
-  auto t = tcompoundp(t_predicate_int_int);
-  assert(t->n == 3);
-  assert(t->v[0] == type::Bool);
-  assert(t->v[1] == type::Int);
-  assert(t->v[2] == type::Int);
-
-  v.n = 0;
-  v.push_back(type::Bool);
-  v.push_back(type::Rat);
-  v.push_back(type::Rat);
-  auto t_predicate_rat_rat = mktype(v);
-  assert(t_predicate_rat_rat == mktype(v));
-  assert(iscompound(t_predicate_rat_rat));
-  t = tcompoundp(t_predicate_rat_rat);
-  assert(t->n == 3);
-  assert(t->v[0] == type::Bool);
-  assert(t->v[1] == type::Rat);
-  assert(t->v[2] == type::Rat);
-}
-
-void test_rat() {
+void testRat() {
   Rat x1;
   mpq_init(x1.val);
   mpq_set_ui(x1.val, 1, 1);
@@ -312,7 +274,7 @@ void test_rat() {
   assert(!mpq_cmp_ui(y3->val, 3, 1));
 }
 
-void test_subsume() {
+void testSubsume() {
   auto a = fn(type::Individual, intern("a"));
   auto a1 = fn(mktype(type::Individual, type::Individual), intern("a1"));
   auto b = fn(type::Individual, intern("b"));
@@ -328,64 +290,64 @@ void test_subsume() {
   clause *d;
 
   // false <= false
-  c = mkclause1();
+  c = makeClause();
   d = c;
   assert(subsumes(c, d));
 
   // false <= p
-  c = mkclause1();
+  c = makeClause();
   pos.push(p);
-  d = mkclause1();
+  d = makeClause();
   assert(subsumes(c, d));
   assert(!subsumes(d, c));
 
   // p <= p
   pos.push(p);
-  c = mkclause1();
+  c = makeClause();
   d = c;
   assert(subsumes(c, d));
 
   // !p <= !p
   neg.push(p);
-  c = mkclause1();
+  c = makeClause();
   d = c;
   assert(subsumes(c, d));
 
   // p <= p | p
   pos.push(p);
-  c = mkclause1();
+  c = makeClause();
   pos.push(p);
   pos.push(p);
-  d = mkclause1();
+  d = makeClause();
   assert(subsumes(c, d));
   assert(!subsumes(d, c));
 
   // p !<= !p
   pos.push(p);
-  c = mkclause1();
+  c = makeClause();
   neg.push(p);
-  d = mkclause1();
+  d = makeClause();
   assert(!subsumes(c, d));
   assert(!subsumes(d, c));
 
   // p | q <= q | p
   pos.push(p);
   pos.push(q);
-  c = mkclause1();
+  c = makeClause();
   pos.push(q);
   pos.push(p);
-  d = mkclause1();
+  d = makeClause();
   assert(subsumes(c, d));
   assert(subsumes(d, c));
 
   // p | q <= p | q | p
   pos.push(p);
   pos.push(q);
-  c = mkclause1();
+  c = makeClause();
   pos.push(p);
   pos.push(q);
   pos.push(p);
-  d = mkclause1();
+  d = makeClause();
   assert(subsumes(c, d));
   assert(!subsumes(d, c));
 
@@ -394,36 +356,36 @@ void test_subsume() {
   pos.push(intern(term::Call, p1, b));
   pos.push(intern(term::Call, q1, a));
   pos.push(intern(term::Call, q1, b));
-  c = mkclause1();
+  c = makeClause();
   pos.push(intern(term::Call, p1, a));
   pos.push(intern(term::Call, q1, a));
   pos.push(intern(term::Call, p1, b));
   pos.push(intern(term::Call, q1, b));
-  d = mkclause1();
+  d = makeClause();
   assert(subsumes(c, d));
   assert(subsumes(d, c));
 
   // p(x,y) <= p(a,b)
   pos.push(intern(term::Call, p2, x, y));
-  c = mkclause1();
+  c = makeClause();
   pos.push(intern(term::Call, p2, a, b));
-  d = mkclause1();
+  d = makeClause();
   assert(subsumes(c, d));
   assert(!subsumes(d, c));
 
   // p(x,x) !<= p(a,b)
   pos.push(intern(term::Call, p2, x, x));
-  c = mkclause1();
+  c = makeClause();
   pos.push(intern(term::Call, p2, a, b));
-  d = mkclause1();
+  d = makeClause();
   assert(!subsumes(c, d));
   assert(!subsumes(d, c));
 
   // p(x) <= p(y)
   pos.push(intern(term::Call, p1, x));
-  c = mkclause1();
+  c = makeClause();
   pos.push(intern(term::Call, p1, y));
-  d = mkclause1();
+  d = makeClause();
   assert(subsumes(c, d));
   assert(subsumes(d, c));
 
@@ -432,32 +394,32 @@ void test_subsume() {
   pos.push(intern(term::Call, p1, intern(term::Call, a1, x)));
   pos.push(intern(term::Call, p1,
                   intern(term::Call, a1, intern(term::Call, a1, x))));
-  c = mkclause1();
+  c = makeClause();
   pos.push(intern(term::Call, p1, y));
   pos.push(intern(term::Call, p1, intern(term::Call, a1, y)));
   pos.push(intern(term::Call, p1,
                   intern(term::Call, a1, intern(term::Call, a1, y))));
-  d = mkclause1();
+  d = makeClause();
   assert(subsumes(c, d));
   assert(subsumes(d, c));
 
   // p(x) | p(a) <= p(a) | p(b)
   pos.push(intern(term::Call, p1, x));
   pos.push(intern(term::Call, p1, a));
-  c = mkclause1();
+  c = makeClause();
   pos.push(intern(term::Call, p1, a));
   pos.push(intern(term::Call, p1, b));
-  d = mkclause1();
+  d = makeClause();
   assert(subsumes(c, d));
   assert(!subsumes(d, c));
 
   // p(x) | p(a(x)) <= p(a(y)) | p(y)
   pos.push(intern(term::Call, p1, x));
   pos.push(intern(term::Call, p1, intern(term::Call, a1, x)));
-  c = mkclause1();
+  c = makeClause();
   pos.push(intern(term::Call, p1, intern(term::Call, a1, y)));
   pos.push(intern(term::Call, p1, y));
-  d = mkclause1();
+  d = makeClause();
   assert(subsumes(c, d));
   assert(subsumes(d, c));
 
@@ -466,28 +428,28 @@ void test_subsume() {
   pos.push(intern(term::Call, p1, intern(term::Call, a1, x)));
   pos.push(intern(term::Call, p1,
                   intern(term::Call, a1, intern(term::Call, a1, x))));
-  c = mkclause1();
+  c = makeClause();
   pos.push(intern(term::Call, p1,
                   intern(term::Call, a1, intern(term::Call, a1, y))));
   pos.push(intern(term::Call, p1, intern(term::Call, a1, y)));
   pos.push(intern(term::Call, p1, y));
-  d = mkclause1();
+  d = makeClause();
   assert(subsumes(c, d));
   assert(subsumes(d, c));
 
   // (a = x) <= (a = b)
   pos.push(intern(term::Eq, a, x));
-  c = mkclause1();
+  c = makeClause();
   pos.push(intern(term::Eq, a, b));
-  d = mkclause1();
+  d = makeClause();
   assert(subsumes(c, d));
   assert(!subsumes(d, c));
 
   // (x = a) <= (a = b)
   pos.push(intern(term::Eq, x, a));
-  c = mkclause1();
+  c = makeClause();
   pos.push(intern(term::Eq, a, b));
-  d = mkclause1();
+  d = makeClause();
   assert(subsumes(c, d));
   assert(!subsumes(d, c));
 
@@ -495,11 +457,11 @@ void test_subsume() {
   neg.push(intern(term::Call, p1, y));
   neg.push(intern(term::Call, p1, x));
   pos.push(intern(term::Call, q1, x));
-  c = mkclause1();
+  c = makeClause();
   neg.push(intern(term::Call, p1, a));
   neg.push(intern(term::Call, p1, b));
   pos.push(intern(term::Call, q1, b));
-  d = mkclause1();
+  d = makeClause();
   assert(subsumes(c, d));
   assert(!subsumes(d, c));
 
@@ -507,25 +469,25 @@ void test_subsume() {
   neg.push(intern(term::Call, p1, x));
   neg.push(intern(term::Call, p1, y));
   pos.push(intern(term::Call, q1, x));
-  c = mkclause1();
+  c = makeClause();
   neg.push(intern(term::Call, p1, a));
   neg.push(intern(term::Call, p1, b));
   pos.push(intern(term::Call, q1, b));
-  d = mkclause1();
+  d = makeClause();
   assert(subsumes(c, d));
   assert(!subsumes(d, c));
 
   // p(x,a(x)) !<= p(a(y),a(y))
   pos.push(intern(term::Call, p2, x, intern(term::Call, a1, x)));
-  c = mkclause1();
+  c = makeClause();
   pos.push(intern(term::Call, p2, intern(term::Call, a1, y),
                   intern(term::Call, a1, y)));
-  d = mkclause1();
+  d = makeClause();
   assert(!subsumes(c, d));
   assert(!subsumes(d, c));
 }
 
-void test_sym() {
+void testSym() {
   assert(keyword(intern("cnf")) == k_cnf);
   assert(keyword(intern("cnf....", 3)) == k_cnf);
   assert(keyword(intern("fof")) == k_fof);
@@ -534,7 +496,45 @@ void test_sym() {
   assert(intern("xyz") == intern("xyz", 3));
 }
 
-void test_typeof() {
+void testType() {
+  auto bird = mktype(intern("bird"));
+  assert(bird == mktype(intern("bird")));
+  assert(!isCompound(bird));
+
+  auto plane = mktype(intern("plane"));
+  assert(plane == mktype(intern("plane")));
+  assert(!isCompound(plane));
+
+  assert(bird != plane);
+
+  vec<type> v;
+  v.push_back(type::Bool);
+  v.push_back(type::Int);
+  v.push_back(type::Int);
+  auto t_predicate_int_int = mktype(v);
+  assert(t_predicate_int_int == mktype(v));
+  assert(isCompound(t_predicate_int_int));
+  auto t = tcompoundp(t_predicate_int_int);
+  assert(t->n == 3);
+  assert(t->v[0] == type::Bool);
+  assert(t->v[1] == type::Int);
+  assert(t->v[2] == type::Int);
+
+  v.n = 0;
+  v.push_back(type::Bool);
+  v.push_back(type::Rat);
+  v.push_back(type::Rat);
+  auto t_predicate_rat_rat = mktype(v);
+  assert(t_predicate_rat_rat == mktype(v));
+  assert(isCompound(t_predicate_rat_rat));
+  t = tcompoundp(t_predicate_rat_rat);
+  assert(t->n == 3);
+  assert(t->v[0] == type::Bool);
+  assert(t->v[1] == type::Rat);
+  assert(t->v[2] == type::Rat);
+}
+
+void testTypeof() {
   assert(typeof(var(type::Int, 13)) == type::Int);
 
   Int i1;
@@ -551,7 +551,7 @@ void test_typeof() {
   assert(typeof(red) == type::Bool);
 }
 
-void test_unify() {
+void testUnify() {
   // https://en.wikipedia.org/wiki/Unification_(computer_science)#Examples_of_syntactic_unification_of_first-order_terms
   auto a = fn(type::Individual, intern("a"));
   auto b = fn(type::Individual, intern("b"));
@@ -622,24 +622,24 @@ void test_unify() {
 
   // Both x and y are unified with the constant a
   assert(unify(x, y));
-  assert(unify1(y, a));
+  assert(unifyMore(y, a));
   assert(pairv.n == 2);
   assert(replace(x) == a);
   assert(replace(y) == a);
 
   // As above (order of equations in set doesn't matter)
   assert(unify(a, y));
-  assert(unify1(x, y));
+  assert(unifyMore(x, y));
   assert(pairv.n == 2);
   assert(replace(x) == a);
   assert(replace(y) == a);
 
   // Fails. a and b do not match, so x can't be unified with both
   assert(unify(x, a));
-  assert(!unify1(b, x));
+  assert(!unifyMore(b, x));
 }
 
-void test_var() {
+void testVar() {
   auto x = var(type::Int, 0);
   assert(vari(x) == 0);
 
@@ -649,7 +649,7 @@ void test_var() {
   assert(x != y);
 }
 
-void test_vec() {
+void testVec() {
   vec<char, 1> v;
   assert(v.n == 0);
 
@@ -670,20 +670,20 @@ void test_vec() {
 
 void test() {
   // SORT
-  test_clause();
-  test_fn();
-  test_getfree();
-  test_int();
-  test_match();
-  test_mk();
-  test_mktype();
-  test_rat();
-  test_subsume();
-  test_sym();
-  test_typeof();
-  test_unify();
-  test_var();
-  test_vec();
+  testClause();
+  testFn();
+  testFreeVars();
+  testInt();
+  testIntern();
+  testMatch();
+  testRat();
+  testSubsume();
+  testSym();
+  testType();
+  testTypeof();
+  testUnify();
+  testVar();
+  testVec();
   ///
 }
 #endif

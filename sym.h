@@ -17,7 +17,7 @@ struct sym {
 };
 
 // SORT
-void init_syms();
+void initSyms();
 sym *intern(const char *s, si n);
 ///
 

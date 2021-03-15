@@ -8,7 +8,7 @@ public:
   void *alloc(si n) {
     assert(!((si)p & 7));
     assert(0 <= n);
-    n = n + 7 & ~(si)7;
+    assert(!(n & 7));
     auto r = p;
     p += n;
     if (p > v + cap)

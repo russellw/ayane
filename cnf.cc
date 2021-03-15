@@ -108,33 +108,6 @@ term rename_both(term a) {
   return b;
 }
 
-// Conjunction and disjunction
-term and1(const term *p, si n) {
-  auto r = comp(n);
-  memcpy(r->v, p, n * sizeof *p);
-  return tag(term::And, r);
-}
-
-term and1(term a, term b) {
-  term v[2];
-  v[0] = a;
-  v[1] = b;
-  return and1(v, sizeof v / sizeof *v);
-}
-
-term or1(const term *p, si n) {
-  auto r = comp(n);
-  memcpy(r->v, p, n * sizeof *p);
-  return tag(term::Or, r);
-}
-
-term or1(term a, term b) {
-  term v[2];
-  v[0] = a;
-  v[1] = b;
-  return or1(v, sizeof v / sizeof *v);
-}
-
 // negation normal form
 // for-all vars map to fresh vars
 // exists vars map to skolem functions
@@ -149,19 +122,11 @@ struct quant {
       : exists(exists), var(var), renamed(renamed) {}
 };
 
-struct nnf {
+struct converting {
   vec<quant> boundvars;
   vec<pair<term, term>> freevars;
   unordered_map<type, si> newvars;
   term r;
-
-  term args(bool pol, term a, term op) {
-    auto n = size(a);
-    auto r = comp(n);
-    for (si i = 0; i != n; ++i)
-      r->v[i] = convert(pol, at(a, i));
-    return tag(op, r);
-  }
 
   term all(bool pol, term a) {
     auto n = size(a);
@@ -195,131 +160,94 @@ struct nnf {
     return a;
   }
 
-  term convert(bool pol, term a) {
-    switch (tag(a)) {
-    case term::All:
-      return pol ? all(pol, a) : exists(pol, a);
-    case term::And:
-      return args(pol, a, pol ? term::And : term::Or);
-    case term::Eqv: {
-      auto x = at(a, 0);
-      if (nclauses(0, x) >= many || nclauses(1, x) >= many)
-        x = rename_both(x);
-      auto y = at(a, 1);
-      if (nclauses(0, y) >= many || nclauses(1, y) >= many)
-        y = rename_both(y);
-      return and1(or1(convert(0, x), convert(pol, y)),
-                  or1(convert(1, x), convert(pol ^ 1, y)));
+  void andPush(term a, vec<term> &r) {
+    if (tag(a) == term::And) {
+      r.insert(r.end(), begin(a), end(a));
+      return;
     }
-    case term::Imp: {
-      auto x = convert(pol ^ 1, at(a, 0));
-      auto y = convert(pol, at(a, 1));
-      return pol ? or1(x, y) : and1(x, y);
-    }
-    case term::Exists:
-      return pol ? exists(pol, a) : all(pol, a);
-    case term::False:
-      return term(pol ^ 1);
-    case term::Not:
-      return convert(pol ^ 1, at(a, 0));
-    case term::Or:
-      return args(pol, a, pol ? term::Or : term::And);
-    case term::True:
-      return term(pol);
-    case term::Var:
-      for (auto i = boundvars.rbegin(), e = boundvars.rend(); i != e; ++i)
-        if (i->var == a)
-          return i->renamed;
-      for (auto &i : freevars)
-        if (i.first == a)
-          return i.second;
-      auto t = vartype(a);
-      auto b = var(t, newvars[t]++);
-      freevars.push_back(make_pair(a, b));
-      return b;
-    }
-    a = args(1, a, tag(a));
-    return pol ? a : comp(term::Not, a);
+    r.push_back(a);
   }
 
-  nnf(term a) { r = convert(1, a); }
-};
-
-// distribute or into and
-// return:
-// at most one layer of and
-// any number of layers of or
-term distrib(term a) {
-  switch (tag(a)) {
-  case term::And: {
+  term and2(term a, term b) {
     vec<term> v;
-    for (auto b : a) {
-      b = distrib(b);
-      if (tag(b) == term::And) {
-        v.insert(v.end(), begin(b), end(b));
-        continue;
-      }
-      v.push_back(b);
-    }
-    return and1(v.p, v.n);
+    andPush(a, v);
+    andPush(b, v);
+    return comp(term::And, v);
   }
-  case term::Or: {
-    // take possibly nested ands and turn them into a layer no more than one
-    // deep
-    // also look for where there is going to be exponential blowup
-    // and rename terms to avoid it
-    si product = 1;
-    vec<term> ands;
-    for (auto b : a) {
-      b = distrib(b);
-      if (tag(b) == term::And) {
-        auto m = size(b) - 1;
-        if (product > 1 && m > 1 && product * m > 4) {
-          ands.push_back(rename_pos(b));
-          continue;
-        }
-        product *= m;
-      }
-      ands.push_back(b);
-    }
 
-    // a vector of indexes into and terms
-    // that will provide a slice through the and arguments
-    // to create a single or term
+  void andConvertPush(bool pol, term a, vec<term> &r) {
+    a = convert(pol, a);
+    andPush(a, r);
+  }
+
+  term andConvertArgs(bool pol, term a) {
+    vec<term> v;
+    for (auto b : a)
+      andConvertPush(pol, b, v);
+    return comp(term::And, v);
+  }
+
+  term andConvert2(bool pol_a, term a, bool pol_b, term b) {
+    vec<term> v;
+    andConvertPush(pol_a, a, v);
+    andConvertPush(pol_b, b, v);
+    return comp(term::And, v);
+  }
+
+  void orConvertPush(bool pol, term a, vec<term> &r, si &nc) {
+    a = convert(pol, a);
+    if (tag(a) == term::And) {
+      auto old = nc;
+      nc *= size(a);
+      if (nc >= many) {
+        nc = many;
+        if (old > 1) {
+          r.push_back(rename_pos(a));
+          return;
+        }
+      }
+    }
+    r.push_back(a);
+  }
+
+  term distrib(const vec<term> &ands) {
+    // a vector of indexes into And terms
+    // that will provide a slice through the And arguments
+    // to create a single Or term
     auto n = ands.n;
     vec<si> j(n);
     memset(j.p, 0, n * sizeof *j.p);
 
-    // the components of a single or term
-    vec<term> or2(n);
+    // the components of a single Or term
+    vec<term> literals(n);
 
-    // all the or terms
-    // that will become the arguments to an and
+    // all the Or terms
+    // that will become the arguments to an And
     vec<term> ors;
 
-    // cartesian product of ands
+    // cartesian product of Ands
     for (;;) {
-      // make another or that takes a slice through the and args
+      // make another Or that takes a slice through the And args
       for (si i = 0; i != n; ++i) {
         auto b = ands[i];
         if (tag(b) == term::And)
           b = at(b, j[i]);
         else
           assert(!j[i]);
-        or2[i] = b;
+        literals[i] = b;
       }
-      ors.push_back(or1(or2.p, or2.n));
+      ors.push_back(comp(term::Or, literals));
 
       // take the next slice
       for (si i = n;;) {
-        // if we have done all the slices, return and of ors
+        // if we have done all the slices, return And of Ors
         if (!i)
-          return and1(ors.p, ors.n);
+          return comp(term::And, ors);
 
         // next element of the index vector
         // this is equivalent to increment with carry, of a multi-precision
-        // integer except that the 'base', the maximum value of a 'digit', is
-        // different for each place, being the number of arguments to the and at
+        // integer, except that the 'base', the maximum value of a 'digit', is
+        // different for each place, being the number of arguments to the And at
         // that position
         auto b = ands[--i];
         if (tag(b) == term::And) {
@@ -334,9 +262,75 @@ term distrib(term a) {
       }
     }
   }
+
+  term orConvertArgs(bool pol, term a) {
+    vec<term> v;
+    si nc = 1;
+    for (auto b : a)
+      orConvertPush(pol, b, v, nc);
+    return distrib(v);
   }
-  return a;
-}
+
+  term orConvert2(bool pol_a, term a, bool pol_b, term b) {
+    vec<term> v;
+    si nc = 1;
+    orConvertPush(pol_a, a, v, nc);
+    orConvertPush(pol_b, b, v, nc);
+    return distrib(v);
+  }
+
+  term convert(bool pol, term a) {
+    switch (tag(a)) {
+    case term::All:
+      return pol ? all(pol, a) : exists(pol, a);
+    case term::And:
+      return pol ? andConvertArgs(pol, a) : orConvertArgs(pol, a);
+    case term::Eqv: {
+      auto x = at(a, 0);
+      if (nclauses(0, x) >= many || nclauses(1, x) >= many)
+        x = rename_both(x);
+      auto y = at(a, 1);
+      if (nclauses(0, y) >= many || nclauses(1, y) >= many)
+        y = rename_both(y);
+      return and2(orConvert2(0, x, pol, y), orConvert2(1, x, pol ^ 1, y));
+    }
+    case term::Imp: {
+      auto x = at(a, 0);
+      auto y = at(a, 1);
+      return pol ? orConvert2(0, x, 1, y) : andConvert2(1, x, 0, y);
+    }
+    case term::Exists:
+      return pol ? exists(pol, a) : all(pol, a);
+    case term::False:
+      return term(pol ^ 1);
+    case term::Not:
+      return convert(pol ^ 1, at(a, 0));
+    case term::Or:
+      return pol ? orConvertArgs(pol, a) : andConvertArgs(pol, a);
+    case term::True:
+      return term(pol);
+    case term::Var:
+      for (auto i = boundvars.rbegin(), e = boundvars.rend(); i != e; ++i)
+        if (i->var == a)
+          return i->renamed;
+      for (auto &i : freevars)
+        if (i.first == a)
+          return i.second;
+      auto t = vartype(a);
+      auto b = var(t, newvars[t]++);
+      freevars.push_back(make_pair(a, b));
+      return b;
+    }
+    auto n = size(a);
+    auto r = comp(n);
+    for (si i = 0; i != n; ++i)
+      r->v[i] = convert(1, at(a, i));
+    a = tag(tag(a), r);
+    return pol ? a : comp(term::Not, a);
+  }
+
+  converting(term a) { r = convert(1, a); }
+};
 
 // make clauses
 void toliterals(term a) {
@@ -368,14 +362,8 @@ void toclause(term a) {
 
 term cnf1(term a) {
   ck(a);
-
-  // negation normal form
-  nnf nnf1(a);
-  a = nnf1.r;
-  ck(a);
-
-  // distribute or into and
-  a = distrib(a);
+  converting co(a);
+  a = co.r;
   ck(a);
   return a;
 }

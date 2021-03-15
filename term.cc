@@ -17,6 +17,13 @@ compound *comp(si n) {
   return r;
 }
 
+term comp(term op, const vec<term> &v) {
+  auto n = v.n;
+  auto r = comp(n);
+  memcpy(r->v, v.p, n * sizeof *v.p);
+  return tag(op, r);
+}
+
 term comp(term op, term a) {
   auto r = comp(1);
   r->v[0] = a;
@@ -83,14 +90,14 @@ compound *put(const term *p, si n) {
 }
 } // namespace compounds
 
-term intern(term op, const ary<term> &args) {
+term intern(term op, const ary<term> &v) {
   assert(op == tag(op));
-  return tag(op, compounds::put(args.p, args.n));
+  return tag(op, compounds::put(v.p, v.n));
 }
 
-term intern(term op, const vec<term> &args) {
+term intern(term op, const vec<term> &v) {
   assert(op == tag(op));
-  return tag(op, compounds::put(args.p, args.n));
+  return tag(op, compounds::put(v.p, v.n));
 }
 
 term intern(term op, term a) {

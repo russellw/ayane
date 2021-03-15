@@ -101,12 +101,13 @@ inline term at(term a, si i) {
 
 // temporary compound terms
 compound *comp(si n);
+term comp(term op, const vec<term> &v);
 term comp(term op, term a);
 term comp(term op, term a, term b);
 
 // permanent/interned compound terms
-term intern(term op, const ary<term> &args);
-term intern(term op, const vec<term> &args);
+term intern(term op, const ary<term> &v);
+term intern(term op, const vec<term> &v);
 term intern(term op, term a);
 term intern(term op, term a, term b);
 term intern(term op, term a, term b, term c);

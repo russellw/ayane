@@ -370,6 +370,7 @@ term cnf1(term a) {
 } // namespace
 
 void cnf(term a, clause *f) {
+  a = cnf1(a);
   try {
     if (tag(a) == term::And)
       for (auto b : a)

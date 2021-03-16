@@ -85,7 +85,7 @@ term skolemTerms(type rt) {
 
   // compound
   auto r = comp(n + 1);
-  *r->v = skolem(mktype(v));
+  *r->v = skolem(internType(v));
   memcpy(r->v + 1, termv.p, n * sizeof(term));
   return tag(term::Call, r);
 }

@@ -389,7 +389,7 @@ struct parser1 : parser {
       }
       throw inappropriate();
     case t_word:
-      return mktype(s);
+      return internType(s);
     default:
       err("expected type", ts);
     }
@@ -404,11 +404,11 @@ struct parser1 : parser {
       expect(')');
       expect('>');
       v[0] = atomicType();
-      return mktype(v);
+      return internType(v);
     }
     auto t = atomicType();
     if (eat('>'))
-      return mktype(atomicType(), t);
+      return internType(atomicType(), t);
     return t;
   }
 

@@ -66,7 +66,7 @@ type put(const type *p, si n) {
 }
 } // namespace
 
-type mktype(sym *name) {
+type internType(sym *name) {
   if (name->t != type::none)
     return name->t;
   if (atoms >= tcompoundOffset)
@@ -74,13 +74,13 @@ type mktype(sym *name) {
   return name->t = (type)atoms++;
 }
 
-type mktype(const vec<type> &v) {
+type internType(const vec<type> &v) {
   if (v.n > 0xffff)
     throw "type too complex";
   return put(v.p, v.n);
 }
 
-type mktype(type rt, type param1) {
+type internType(type rt, type param1) {
   type v[2];
   v[0] = rt;
   v[1] = param1;
@@ -105,7 +105,7 @@ void defaultType(type t, term a) {
       assert(u != type::none);
       v[i] = u;
     }
-    s->ft = mktype(v);
+    s->ft = internType(v);
     break;
   }
   case term::Sym: {

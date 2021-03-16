@@ -28,9 +28,9 @@ inline tcompound *tcompoundp(type t) {
 
 struct sym;
 
-type mktype(sym *name);
-type mktype(const vec<type> &v);
-type mktype(type r, type t1);
+type internType(sym *name);
+type internType(const vec<type> &v);
+type internType(type r, type t1);
 
 enum class term : uint64_t;
 

@@ -12,6 +12,14 @@ term fn(type t, sym *s) {
   return tag(term::Sym, s);
 }
 
+type internType(type rt, type param1, type param2) {
+  vec<type> v(3);
+  v[0] = rt;
+  v[1] = param1;
+  v[2] = param2;
+  return internType(v);
+}
+
 clause *makeClause() {
   auto nn = neg.n;
   auto pn = pos.n;
@@ -30,14 +38,6 @@ clause *makeClause() {
 bool match(term a, term b) {
   pairv.n = 0;
   return matchMore(a, b);
-}
-
-type mktype(type rt, type param1, type param2) {
-  vec<type> v(3);
-  v[0] = rt;
-  v[1] = param1;
-  v[2] = param2;
-  return mktype(v);
 }
 
 term replace(term a) {
@@ -174,10 +174,10 @@ void testMatch() {
   // is assumed that the arguments will have disjoint variables
   auto a = fn(type::Individual, intern("a"));
   auto b = fn(type::Individual, intern("b"));
-  auto f1 = fn(mktype(type::Individual, type::Individual), intern("f1"));
-  auto f2 = fn(mktype(type::Individual, type::Individual, type::Individual),
+  auto f1 = fn(internType(type::Individual, type::Individual), intern("f1"));
+  auto f2 = fn(internType(type::Individual, type::Individual, type::Individual),
                intern("f2"));
-  auto g1 = fn(mktype(type::Individual, type::Individual), intern("g1"));
+  auto g1 = fn(internType(type::Individual, type::Individual), intern("g1"));
   auto x = var(type::Individual, 0);
   auto y = var(type::Individual, 1);
   auto z = var(type::Individual, 2);
@@ -276,14 +276,14 @@ void testRat() {
 
 void testSubsume() {
   auto a = fn(type::Individual, intern("a"));
-  auto a1 = fn(mktype(type::Individual, type::Individual), intern("a1"));
+  auto a1 = fn(internType(type::Individual, type::Individual), intern("a1"));
   auto b = fn(type::Individual, intern("b"));
   auto p = fn(type::Bool, intern("p"));
-  auto p1 = fn(mktype(type::Bool, type::Individual), intern("p1"));
-  auto p2 =
-      fn(mktype(type::Bool, type::Individual, type::Individual), intern("p2"));
+  auto p1 = fn(internType(type::Bool, type::Individual), intern("p1"));
+  auto p2 = fn(internType(type::Bool, type::Individual, type::Individual),
+               intern("p2"));
   auto q = fn(type::Bool, intern("q"));
-  auto q1 = fn(mktype(type::Bool, type::Individual), intern("q1"));
+  auto q1 = fn(internType(type::Bool, type::Individual), intern("q1"));
   auto x = var(type::Individual, 0);
   auto y = var(type::Individual, 1);
   clause *c;
@@ -497,12 +497,12 @@ void testSym() {
 }
 
 void testType() {
-  auto bird = mktype(intern("bird"));
-  assert(bird == mktype(intern("bird")));
+  auto bird = internType(intern("bird"));
+  assert(bird == internType(intern("bird")));
   assert(!isCompound(bird));
 
-  auto plane = mktype(intern("plane"));
-  assert(plane == mktype(intern("plane")));
+  auto plane = internType(intern("plane"));
+  assert(plane == internType(intern("plane")));
   assert(!isCompound(plane));
 
   assert(bird != plane);
@@ -511,8 +511,8 @@ void testType() {
   v.push_back(type::Bool);
   v.push_back(type::Int);
   v.push_back(type::Int);
-  auto t_predicate_int_int = mktype(v);
-  assert(t_predicate_int_int == mktype(v));
+  auto t_predicate_int_int = internType(v);
+  assert(t_predicate_int_int == internType(v));
   assert(isCompound(t_predicate_int_int));
   auto t = tcompoundp(t_predicate_int_int);
   assert(t->n == 3);
@@ -524,8 +524,8 @@ void testType() {
   v.push_back(type::Bool);
   v.push_back(type::Rat);
   v.push_back(type::Rat);
-  auto t_predicate_rat_rat = mktype(v);
-  assert(t_predicate_rat_rat == mktype(v));
+  auto t_predicate_rat_rat = internType(v);
+  assert(t_predicate_rat_rat == internType(v));
   assert(isCompound(t_predicate_rat_rat));
   t = tcompoundp(t_predicate_rat_rat);
   assert(t->n == 3);
@@ -555,10 +555,10 @@ void testUnify() {
   // https://en.wikipedia.org/wiki/Unification_(computer_science)#Examples_of_syntactic_unification_of_first-order_terms
   auto a = fn(type::Individual, intern("a"));
   auto b = fn(type::Individual, intern("b"));
-  auto f1 = fn(mktype(type::Individual, type::Individual), intern("f1"));
-  auto f2 = fn(mktype(type::Individual, type::Individual, type::Individual),
+  auto f1 = fn(internType(type::Individual, type::Individual), intern("f1"));
+  auto f2 = fn(internType(type::Individual, type::Individual, type::Individual),
                intern("f2"));
-  auto g1 = fn(mktype(type::Individual, type::Individual), intern("g1"));
+  auto g1 = fn(internType(type::Individual, type::Individual), intern("g1"));
   auto x = var(type::Individual, 0);
   auto y = var(type::Individual, 1);
   auto z = var(type::Individual, 2);

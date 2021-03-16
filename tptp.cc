@@ -1017,7 +1017,7 @@ void quant(char op, term a) {
     auto t = varType(x);
     if (t != type::Individual) {
       putchar(':');
-      printType(t);
+      print(t);
     }
   }
   printf("]:");
@@ -1036,7 +1036,7 @@ bool weird(const char *s) {
 ///
 } // namespace
 
-void printType(type t) {
+void print(type t) {
   switch (t) {
   case type::Bool:
     printf("$o");
@@ -1211,7 +1211,7 @@ void print(term a, term parent) {
   putchar(')');
 }
 
-void printClause(clause *c) {
+void println(clause *c) {
   printf(c->fof ? "fof" : "cnf");
 
   // name

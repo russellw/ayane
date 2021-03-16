@@ -571,11 +571,11 @@ struct parser1 : parser {
         auto t = typeof(v[0]);
         for (auto i = v.p + 1, e = v.end(); i != e; ++i)
           requireType(t, *i);
-        vec<term> clauses;
+        vec<term> inequalities;
         for (auto i = v.p, e = v.end(); i != e; ++i)
           for (auto j = v.p; j != i; ++j)
-            clauses.push_back(intern(term::Not, intern(term::Eq, *i, *j)));
-        return intern(term::And, clauses);
+            inequalities.push_back(intern(term::Not, intern(term::Eq, *i, *j)));
+        return intern(term::And, inequalities);
       }
       case k_false:
         return term::False;

@@ -4,8 +4,8 @@
 
 namespace {
 enum {
-  o_num = 1,
-  o_zero,
+  t_num = 1,
+  t_zero,
 };
 
 struct parser1 : parser {
@@ -25,7 +25,7 @@ struct parser1 : parser {
     case '0':
       if (!isDigit(s[1])) {
         text = s + 1;
-        tok = o_zero;
+        tok = t_zero;
         return;
       }
     case '1':
@@ -42,7 +42,7 @@ struct parser1 : parser {
       while (isDigit(*s));
       text = s;
       tokSym = intern(tokStart, s - tokStart);
-      tok = o_num;
+      tok = t_num;
       return;
     case 'c': {
       text = strchr(s, '\n');
@@ -84,11 +84,11 @@ struct parser1 : parser {
         text += 3;
         lex();
 
-        if (tok != o_num)
+        if (tok != t_num)
           err("expected count");
         lex();
 
-        if (tok != o_num)
+        if (tok != t_num)
           err("expected count");
         lex();
       }
@@ -101,10 +101,10 @@ struct parser1 : parser {
           if (neg.n | pos.n)
             addClause(infer::none);
           return;
-        case o_num:
+        case t_num:
           pos.push_back(fn());
           break;
-        case o_zero:
+        case t_zero:
           lex();
           addClause(infer::none);
           break;

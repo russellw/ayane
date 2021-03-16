@@ -4,20 +4,20 @@
 
 namespace {
 enum {
-  o_distinctObj = 1,
-  o_dollarWord,
-  o_eqv,
-  o_imp,
-  o_impr,
-  o_int,
-  o_nand,
-  o_ne,
-  o_nor,
-  o_rat,
-  o_real,
-  o_var,
-  o_word,
-  o_xor,
+  t_distinctObj = 1,
+  t_dollarWord,
+  t_eqv,
+  t_imp,
+  t_impr,
+  t_int,
+  t_nand,
+  t_ne,
+  t_nor,
+  t_rat,
+  t_real,
+  t_var,
+  t_word,
+  t_xor,
 };
 
 char isWord[0x100];
@@ -116,11 +116,11 @@ struct parser1 : parser {
     // sign without digits should give a clear error message
     if (!isDigit(*text))
       err("expected digit", text);
-    tok = o_int;
+    tok = t_int;
     digits();
     switch (*text) {
     case '.':
-      tok = o_real;
+      tok = t_real;
       ++text;
       digits();
       switch (*text) {
@@ -131,13 +131,13 @@ struct parser1 : parser {
       }
       break;
     case '/':
-      tok = o_rat;
+      tok = t_rat;
       ++text;
       digits();
       break;
     case 'E':
     case 'e':
-      tok = o_real;
+      tok = t_real;
       exp();
       break;
     }
@@ -161,17 +161,17 @@ struct parser1 : parser {
       switch (s[1]) {
       case '=':
         text = s + 2;
-        tok = o_ne;
+        tok = t_ne;
         return;
       }
       break;
     case '"':
-      tok = o_distinctObj;
+      tok = t_distinctObj;
       quote();
       return;
     case '$':
       text = s + 1;
-      tok = o_dollarWord;
+      tok = t_dollarWord;
       word();
       return;
     case '%': {
@@ -231,16 +231,16 @@ struct parser1 : parser {
       case '=':
         if (s[2] == '>') {
           text = s + 3;
-          tok = o_eqv;
+          tok = t_eqv;
           return;
         }
         text = s + 2;
-        tok = o_impr;
+        tok = t_impr;
         return;
       case '~':
         if (s[2] == '>') {
           text = s + 3;
-          tok = o_xor;
+          tok = t_xor;
           return;
         }
         tokStart = s + 2;
@@ -251,7 +251,7 @@ struct parser1 : parser {
       switch (s[1]) {
       case '>':
         text = s + 2;
-        tok = o_imp;
+        tok = t_imp;
         return;
       }
       break;
@@ -281,11 +281,11 @@ struct parser1 : parser {
     case 'X':
     case 'Y':
     case 'Z':
-      tok = o_var;
+      tok = t_var;
       word();
       return;
     case '\'':
-      tok = o_word;
+      tok = t_word;
       quote();
       return;
     case 'a':
@@ -314,18 +314,18 @@ struct parser1 : parser {
     case 'x':
     case 'y':
     case 'z':
-      tok = o_word;
+      tok = t_word;
       word();
       return;
     case '~':
       switch (s[1]) {
       case '&':
         text = s + 2;
-        tok = o_nand;
+        tok = t_nand;
         return;
       case '|':
         text = s + 2;
-        tok = o_nor;
+        tok = t_nor;
         return;
       }
       break;
@@ -374,7 +374,7 @@ struct parser1 : parser {
       expect(')');
       return t;
     }
-    case o_dollarWord:
+    case t_dollarWord:
       switch (keyword(s)) {
       case k_i:
         return type::Individual;
@@ -388,7 +388,7 @@ struct parser1 : parser {
         return type::Real;
       }
       throw inappropriate();
-    case o_word:
+    case t_word:
       return mktype(s);
     default:
       err("expected type", ts);
@@ -550,12 +550,12 @@ struct parser1 : parser {
     switch (tok) {
     case '!':
       throw inappropriate();
-    case o_distinctObj: {
+    case t_distinctObj: {
       auto a = tag(term::DistinctObj, tokSym);
       lex();
       return a;
     }
-    case o_dollarWord: {
+    case t_dollarWord: {
       auto s = tokSym;
       auto ts = tokStart;
       lex();
@@ -642,13 +642,13 @@ struct parser1 : parser {
       }
       err("unknown word", ts);
     }
-    case o_int:
+    case t_int:
       return parseInt();
-    case o_rat:
+    case t_rat:
       return parseRat();
-    case o_real:
+    case t_real:
       return parseReal();
-    case o_var: {
+    case t_var: {
       auto s = tokSym;
       auto ts = tokStart;
       lex();
@@ -661,7 +661,7 @@ struct parser1 : parser {
       vars.push_back(make_pair(s, x));
       return x;
     }
-    case o_word: {
+    case t_word: {
       auto a = tag(term::Sym, tokSym);
       lex();
       if (tok != '(')
@@ -687,7 +687,7 @@ struct parser1 : parser {
       requireType(typeof(a), b);
       return intern(term::Eq, a, b);
     }
-    case o_ne: {
+    case t_ne: {
       lex();
       auto b = atomicTerm();
       defaultType(type::Individual, a);
@@ -705,7 +705,7 @@ struct parser1 : parser {
     auto old = vars.n;
     vec<term> v(1);
     do {
-      if (tok != o_var)
+      if (tok != t_var)
         err("expected variable");
       auto s = tokSym;
       lex();
@@ -758,22 +758,22 @@ struct parser1 : parser {
       return associativeLogicFormula(term::And, a);
     case '|':
       return associativeLogicFormula(term::Or, a);
-    case o_eqv:
+    case t_eqv:
       lex();
       return intern(term::Eqv, a, unitaryFormula());
-    case o_imp:
+    case t_imp:
       lex();
       return intern(term::Imp, a, unitaryFormula());
-    case o_impr:
+    case t_impr:
       lex();
       return intern(term::Imp, unitaryFormula(), a);
-    case o_nand:
+    case t_nand:
       lex();
       return intern(term::Not, intern(term::And, a, unitaryFormula()));
-    case o_nor:
+    case t_nor:
       lex();
       return intern(term::Not, intern(term::Or, a, unitaryFormula()));
-    case o_xor:
+    case t_xor:
       lex();
       return intern(term::Not, intern(term::Eqv, a, unitaryFormula()));
     }
@@ -783,12 +783,12 @@ struct parser1 : parser {
   // top level
   sym *name() {
     switch (tok) {
-    case o_int: {
+    case t_int: {
       auto s = intern(tokStart, text - tokStart);
       lex();
       return s;
     }
-    case o_word: {
+    case t_word: {
       auto s = tokSym;
       lex();
       return s;
@@ -864,7 +864,7 @@ struct parser1 : parser {
           expect(',');
 
           // role
-          if (tok != o_word)
+          if (tok != t_word)
             err("expected role");
           auto role = keyword(tokSym);
           if (role == k_conjecture && conjecture)
@@ -880,7 +880,7 @@ struct parser1 : parser {
             auto s = name();
             expect(':');
             ts = tokStart;
-            if (tok == o_dollarWord && tokSym == keywords + k_tType) {
+            if (tok == t_dollarWord && tokSym == keywords + k_tType) {
               lex();
               if (tok == '>')
                 throw inappropriate();

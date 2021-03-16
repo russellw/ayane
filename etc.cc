@@ -26,14 +26,14 @@ void stackTrace() {
     SymFromAddr(process, address, 0, symbol);
     DWORD displacement;
     if (SymGetLineFromAddr64(process, address, &displacement, &location))
-      fprintf(stderr, "%s:%lu: ", location.FileName, location.LineNumber);
-    fprintf(stderr, "%s\n", symbol->Name);
+      printf("%s:%lu: ", location.FileName, location.LineNumber);
+    printf("%s\n", symbol->Name);
   }
 #endif
 }
 
 bool assertFail(const char *file, si line, const char *s) {
-  fprintf(stderr, "%s:%zu: assert failed: %s\n", file, line, s);
+  printf("%s:%zu: assert failed: %s\n", file, line, s);
   stackTrace();
   exit(1);
   // keep the compiler happy about the use of || in the assert macro
@@ -49,10 +49,10 @@ const char *basename(const char *file) {
   auto i = strlen(file);
   while (i) {
     if (file[i - 1] == '/')
-      return file + 1;
+      return file + i;
 #ifdef _WIN32
     if (file[i - 1] == '\\')
-      return file + 1;
+      return file + i;
 #endif
     --i;
   }

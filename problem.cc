@@ -11,7 +11,7 @@ const char *szsNames[] = {
 // SORT
 bool complete;
 time_t deadline;
-vec<clause *> clauses;
+vec<clause *> inputClauses;
 ///
 
 #ifdef DEBUG
@@ -19,16 +19,18 @@ szs expected;
 #endif
 
 void initProblem() {
-  clauses.n = 0;
+  // SORT
   complete = 1;
+  inputClauses.n = 0;
+  ///
 #ifdef DEBUG
   expected = szs::none;
 #endif
 }
 
-clause *addClause(infer inf) {
+clause *inputClause(infer inf) {
   auto c = internClause(inf);
   if (c)
-    clauses.push_back(c);
+    inputClauses.push_back(c);
   return c;
 }

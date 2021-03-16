@@ -850,9 +850,11 @@ struct parser1 : parser {
             break;
 
           // clause
-          auto c = addClause(infer::none);
-          clauseFiles[c] = file;
-          clauseNames[c] = clauseName->v;
+          auto c = inputClause(infer::none);
+          if (c) {
+            clauseFiles[c] = file;
+            clauseNames[c] = clauseName->v;
+          }
           break;
         }
         case k_fof:

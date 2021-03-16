@@ -98,16 +98,22 @@ struct parser1 : parser {
           neg.push_back(fn());
           break;
         case 0:
-          if (neg.n | pos.n)
-            addClause(infer::none);
+          if (neg.n | pos.n) {
+            auto c = inputClause(infer::none);
+            if (c)
+              clauseFiles[c] = file;
+          }
           return;
         case t_num:
           pos.push_back(fn());
           break;
-        case t_zero:
+        case t_zero: {
           lex();
-          addClause(infer::none);
+          auto c = inputClause(infer::none);
+          if (c)
+            clauseFiles[c] = file;
           break;
+        }
         default:
           err("syntax error");
         }

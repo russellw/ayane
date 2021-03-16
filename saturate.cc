@@ -339,7 +339,7 @@ szs saturate() {
   // passive clauses
   while (!passive.empty())
     passive.pop();
-  for (auto c : clauses)
+  for (auto c : inputClauses)
     passive.push(c);
 
   // active clauses

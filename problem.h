@@ -10,7 +10,7 @@ extern const char *szsNames[];
 // SORT
 extern bool complete;
 extern time_t deadline;
-extern vec<clause *> clauses;
+extern vec<clause *> inputClauses;
 ///
 
 #ifdef DEBUG
@@ -18,4 +18,4 @@ extern szs expected;
 #endif
 
 void initProblem();
-clause *addClause(infer inf);
+clause *inputClause(infer inf);

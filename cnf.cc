@@ -357,7 +357,7 @@ void toClause(term a) {
   assert(!neg.n);
   assert(!pos.n);
   toLiterals(a);
-  addClause(infer::cnf);
+  inputClause(infer::cnf);
 }
 
 term cnf1(term a) {

@@ -132,7 +132,7 @@ void getFreeVars1(term a) {
   case term::Exists: {
     auto old = boundVars.n;
     for (auto i = begin(a) + 1, e = end(a); i != e; ++i)
-      boundVars.push(*i);
+      boundVars.push_back(*i);
     getFreeVars1(at(a, 0));
     boundVars.n = old;
     return;
@@ -142,7 +142,7 @@ void getFreeVars1(term a) {
       return;
     if (find(termv.p, termv.end(), a) != termv.end())
       return;
-    termv.push(a);
+    termv.push_back(a);
     return;
   }
   if (!isCompound(a))

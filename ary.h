@@ -53,7 +53,7 @@ template <class T, si cap = 100000> struct ary {
   }
 
   // modifiers
-  void push(T a) {
+  void push_back(T a) {
     reserve(n + 1);
     p[n++] = a;
   }

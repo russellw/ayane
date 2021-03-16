@@ -840,7 +840,7 @@ struct parser1 : parser {
               no = no ^ 1;
               a = at(a, 0);
             }
-            (no ? neg : pos).push(a);
+            (no ? neg : pos).push_back(a);
           } while (eat('|'));
           if (parens)
             expect(')');

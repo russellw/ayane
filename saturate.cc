@@ -86,7 +86,7 @@ term normVars(term a) {
       if (i.first == a)
         return i.second;
     auto b = var(varType(a), pairv.n);
-    pairv.push(make_pair(a, b));
+    pairv.push_back(make_pair(a, b));
     return b;
   }
   if (!isCompound(a))
@@ -138,11 +138,11 @@ void resolveq() {
   assert(!neg.n);
   for (auto i = c->v, e = c->v + c->nn; i != e; ++i)
     if (i != ci)
-      neg.push(replace(*i));
+      neg.push_back(replace(*i));
 
   assert(!pos.n);
   for (auto i = c->v + c->nn, e = c->v + c->n; i != e; ++i)
-    pos.push(replace(*i));
+    pos.push_back(replace(*i));
 
   qclause(infer::resolve);
 }
@@ -193,13 +193,13 @@ void factorq() {
 
   assert(!neg.n);
   for (auto i = c->v, e = c->v + c->nn; i != e; ++i)
-    neg.push(replace(*i));
-  neg.push(equate(replace(c1), replace(d1)));
+    neg.push_back(replace(*i));
+  neg.push_back(equate(replace(c1), replace(d1)));
 
   assert(!pos.n);
   for (auto i = c->v + c->nn, e = c->v + c->n; i != e; ++i)
     if (i != di)
-      pos.push(replace(*i));
+      pos.push_back(replace(*i));
 
   qclause(infer::factor);
 }
@@ -252,22 +252,22 @@ where
 void superpositionq(term d0c1) {
   assert(!neg.n);
   for (auto i = c->v, e = c->v + c->nn; i != e; ++i)
-    neg.push(replace(*i));
+    neg.push_back(replace(*i));
   for (auto i = d->v, e = d->v + d->nn; i != e; ++i)
     if (i != di)
-      neg.push(replace(*i));
+      neg.push_back(replace(*i));
 
   assert(!pos.n);
   for (auto i = c->v + c->nn, e = c->v + c->n; i != e; ++i)
     if (i != ci)
-      pos.push(replace(*i));
+      pos.push_back(replace(*i));
   for (auto i = d->v + d->nn, e = d->v + d->n; i != e; ++i)
     if (i != di)
-      pos.push(replace(*i));
+      pos.push_back(replace(*i));
 
   // negative and positive superposition
   auto &v = di < (d->v + d->nn) ? neg : pos;
-  v.push(equate(replace(d0c1), replace(d1)));
+  v.push_back(equate(replace(d0c1), replace(d1)));
 
   qclause(infer::sp);
 }

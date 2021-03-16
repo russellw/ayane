@@ -150,7 +150,7 @@ struct converting {
       termv.n = 0;
       for (auto &j : boundVars)
         if (!j.exists)
-          termv.push(j.renamed);
+          termv.push_back(j.renamed);
       auto x = at(a, i);
       auto y = skolemTerms(varType(x));
       boundVars[old + i - 1] = quant(1, x, y);
@@ -340,7 +340,7 @@ void toLiterals(term a) {
   case term::Not:
     if (neg.n >= 0xffff)
       throw 0;
-    neg.push(at(a, 1));
+    neg.push_back(at(a, 1));
     return;
   case term::Or:
     for (auto b : a)
@@ -349,7 +349,7 @@ void toLiterals(term a) {
   }
   if (pos.n >= 0xffff)
     throw 0;
-  pos.push(a);
+  pos.push_back(a);
 }
 
 void toClause(term a) {

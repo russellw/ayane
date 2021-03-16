@@ -95,14 +95,14 @@ struct parser1 : parser {
       for (;;)
         switch (tok) {
         case '-':
-          neg.push(fn());
+          neg.push_back(fn());
           break;
         case 0:
           if (neg.n | pos.n)
             addClause(infer::none);
           return;
         case o_num:
-          pos.push(fn());
+          pos.push_back(fn());
           break;
         case o_zero:
           lex();

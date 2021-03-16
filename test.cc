@@ -63,18 +63,18 @@ void testClause() {
 
   // a simple clause, x!=y
   neg.n = pos.n = 0;
-  neg.push(intern(term::Eq, x, y));
+  neg.push_back(intern(term::Eq, x, y));
   auto c = internClause(infer::none);
 
   // duplicate returns null
   neg.n = pos.n = 0;
-  neg.push(intern(term::Eq, x, y));
+  neg.push_back(intern(term::Eq, x, y));
   auto d = internClause(infer::none);
   assert(!d);
 
   // the duplicate check distinguishes between negative and positive literals
   neg.n = pos.n = 0;
-  pos.push(intern(term::Eq, x, y));
+  pos.push_back(intern(term::Eq, x, y));
   d = internClause(infer::none);
   assert(c != d);
 }
@@ -296,192 +296,192 @@ void testSubsume() {
 
   // false <= p
   c = makeClause();
-  pos.push(p);
+  pos.push_back(p);
   d = makeClause();
   assert(subsumes(c, d));
   assert(!subsumes(d, c));
 
   // p <= p
-  pos.push(p);
+  pos.push_back(p);
   c = makeClause();
   d = c;
   assert(subsumes(c, d));
 
   // !p <= !p
-  neg.push(p);
+  neg.push_back(p);
   c = makeClause();
   d = c;
   assert(subsumes(c, d));
 
   // p <= p | p
-  pos.push(p);
+  pos.push_back(p);
   c = makeClause();
-  pos.push(p);
-  pos.push(p);
+  pos.push_back(p);
+  pos.push_back(p);
   d = makeClause();
   assert(subsumes(c, d));
   assert(!subsumes(d, c));
 
   // p !<= !p
-  pos.push(p);
+  pos.push_back(p);
   c = makeClause();
-  neg.push(p);
+  neg.push_back(p);
   d = makeClause();
   assert(!subsumes(c, d));
   assert(!subsumes(d, c));
 
   // p | q <= q | p
-  pos.push(p);
-  pos.push(q);
+  pos.push_back(p);
+  pos.push_back(q);
   c = makeClause();
-  pos.push(q);
-  pos.push(p);
+  pos.push_back(q);
+  pos.push_back(p);
   d = makeClause();
   assert(subsumes(c, d));
   assert(subsumes(d, c));
 
   // p | q <= p | q | p
-  pos.push(p);
-  pos.push(q);
+  pos.push_back(p);
+  pos.push_back(q);
   c = makeClause();
-  pos.push(p);
-  pos.push(q);
-  pos.push(p);
+  pos.push_back(p);
+  pos.push_back(q);
+  pos.push_back(p);
   d = makeClause();
   assert(subsumes(c, d));
   assert(!subsumes(d, c));
 
   // p(a) | p(b) | q(a) | q(b) | <= p(a) | q(a) | p(b) | q(b)
-  pos.push(intern(term::Call, p1, a));
-  pos.push(intern(term::Call, p1, b));
-  pos.push(intern(term::Call, q1, a));
-  pos.push(intern(term::Call, q1, b));
+  pos.push_back(intern(term::Call, p1, a));
+  pos.push_back(intern(term::Call, p1, b));
+  pos.push_back(intern(term::Call, q1, a));
+  pos.push_back(intern(term::Call, q1, b));
   c = makeClause();
-  pos.push(intern(term::Call, p1, a));
-  pos.push(intern(term::Call, q1, a));
-  pos.push(intern(term::Call, p1, b));
-  pos.push(intern(term::Call, q1, b));
+  pos.push_back(intern(term::Call, p1, a));
+  pos.push_back(intern(term::Call, q1, a));
+  pos.push_back(intern(term::Call, p1, b));
+  pos.push_back(intern(term::Call, q1, b));
   d = makeClause();
   assert(subsumes(c, d));
   assert(subsumes(d, c));
 
   // p(x,y) <= p(a,b)
-  pos.push(intern(term::Call, p2, x, y));
+  pos.push_back(intern(term::Call, p2, x, y));
   c = makeClause();
-  pos.push(intern(term::Call, p2, a, b));
+  pos.push_back(intern(term::Call, p2, a, b));
   d = makeClause();
   assert(subsumes(c, d));
   assert(!subsumes(d, c));
 
   // p(x,x) !<= p(a,b)
-  pos.push(intern(term::Call, p2, x, x));
+  pos.push_back(intern(term::Call, p2, x, x));
   c = makeClause();
-  pos.push(intern(term::Call, p2, a, b));
+  pos.push_back(intern(term::Call, p2, a, b));
   d = makeClause();
   assert(!subsumes(c, d));
   assert(!subsumes(d, c));
 
   // p(x) <= p(y)
-  pos.push(intern(term::Call, p1, x));
+  pos.push_back(intern(term::Call, p1, x));
   c = makeClause();
-  pos.push(intern(term::Call, p1, y));
+  pos.push_back(intern(term::Call, p1, y));
   d = makeClause();
   assert(subsumes(c, d));
   assert(subsumes(d, c));
 
   // p(x) | p(a(x)) | p(a(a(x))) <= p(y) | p(a(y)) | p(a(a(y)))
-  pos.push(intern(term::Call, p1, x));
-  pos.push(intern(term::Call, p1, intern(term::Call, a1, x)));
-  pos.push(intern(term::Call, p1,
-                  intern(term::Call, a1, intern(term::Call, a1, x))));
+  pos.push_back(intern(term::Call, p1, x));
+  pos.push_back(intern(term::Call, p1, intern(term::Call, a1, x)));
+  pos.push_back(intern(term::Call, p1,
+                       intern(term::Call, a1, intern(term::Call, a1, x))));
   c = makeClause();
-  pos.push(intern(term::Call, p1, y));
-  pos.push(intern(term::Call, p1, intern(term::Call, a1, y)));
-  pos.push(intern(term::Call, p1,
-                  intern(term::Call, a1, intern(term::Call, a1, y))));
+  pos.push_back(intern(term::Call, p1, y));
+  pos.push_back(intern(term::Call, p1, intern(term::Call, a1, y)));
+  pos.push_back(intern(term::Call, p1,
+                       intern(term::Call, a1, intern(term::Call, a1, y))));
   d = makeClause();
   assert(subsumes(c, d));
   assert(subsumes(d, c));
 
   // p(x) | p(a) <= p(a) | p(b)
-  pos.push(intern(term::Call, p1, x));
-  pos.push(intern(term::Call, p1, a));
+  pos.push_back(intern(term::Call, p1, x));
+  pos.push_back(intern(term::Call, p1, a));
   c = makeClause();
-  pos.push(intern(term::Call, p1, a));
-  pos.push(intern(term::Call, p1, b));
+  pos.push_back(intern(term::Call, p1, a));
+  pos.push_back(intern(term::Call, p1, b));
   d = makeClause();
   assert(subsumes(c, d));
   assert(!subsumes(d, c));
 
   // p(x) | p(a(x)) <= p(a(y)) | p(y)
-  pos.push(intern(term::Call, p1, x));
-  pos.push(intern(term::Call, p1, intern(term::Call, a1, x)));
+  pos.push_back(intern(term::Call, p1, x));
+  pos.push_back(intern(term::Call, p1, intern(term::Call, a1, x)));
   c = makeClause();
-  pos.push(intern(term::Call, p1, intern(term::Call, a1, y)));
-  pos.push(intern(term::Call, p1, y));
+  pos.push_back(intern(term::Call, p1, intern(term::Call, a1, y)));
+  pos.push_back(intern(term::Call, p1, y));
   d = makeClause();
   assert(subsumes(c, d));
   assert(subsumes(d, c));
 
   // p(x) | p(a(x)) | p(a(a(x))) <= p(a(a(y))) | p(a(y)) | p(y)
-  pos.push(intern(term::Call, p1, x));
-  pos.push(intern(term::Call, p1, intern(term::Call, a1, x)));
-  pos.push(intern(term::Call, p1,
-                  intern(term::Call, a1, intern(term::Call, a1, x))));
+  pos.push_back(intern(term::Call, p1, x));
+  pos.push_back(intern(term::Call, p1, intern(term::Call, a1, x)));
+  pos.push_back(intern(term::Call, p1,
+                       intern(term::Call, a1, intern(term::Call, a1, x))));
   c = makeClause();
-  pos.push(intern(term::Call, p1,
-                  intern(term::Call, a1, intern(term::Call, a1, y))));
-  pos.push(intern(term::Call, p1, intern(term::Call, a1, y)));
-  pos.push(intern(term::Call, p1, y));
+  pos.push_back(intern(term::Call, p1,
+                       intern(term::Call, a1, intern(term::Call, a1, y))));
+  pos.push_back(intern(term::Call, p1, intern(term::Call, a1, y)));
+  pos.push_back(intern(term::Call, p1, y));
   d = makeClause();
   assert(subsumes(c, d));
   assert(subsumes(d, c));
 
   // (a = x) <= (a = b)
-  pos.push(intern(term::Eq, a, x));
+  pos.push_back(intern(term::Eq, a, x));
   c = makeClause();
-  pos.push(intern(term::Eq, a, b));
+  pos.push_back(intern(term::Eq, a, b));
   d = makeClause();
   assert(subsumes(c, d));
   assert(!subsumes(d, c));
 
   // (x = a) <= (a = b)
-  pos.push(intern(term::Eq, x, a));
+  pos.push_back(intern(term::Eq, x, a));
   c = makeClause();
-  pos.push(intern(term::Eq, a, b));
+  pos.push_back(intern(term::Eq, a, b));
   d = makeClause();
   assert(subsumes(c, d));
   assert(!subsumes(d, c));
 
   // !p(y) | !p(x) | q(x) <= !p(a) | !p(b) | q(b)
-  neg.push(intern(term::Call, p1, y));
-  neg.push(intern(term::Call, p1, x));
-  pos.push(intern(term::Call, q1, x));
+  neg.push_back(intern(term::Call, p1, y));
+  neg.push_back(intern(term::Call, p1, x));
+  pos.push_back(intern(term::Call, q1, x));
   c = makeClause();
-  neg.push(intern(term::Call, p1, a));
-  neg.push(intern(term::Call, p1, b));
-  pos.push(intern(term::Call, q1, b));
+  neg.push_back(intern(term::Call, p1, a));
+  neg.push_back(intern(term::Call, p1, b));
+  pos.push_back(intern(term::Call, q1, b));
   d = makeClause();
   assert(subsumes(c, d));
   assert(!subsumes(d, c));
 
   // !p(x) | !p(y) | q(x) <= !p(a) | !p(b) | q(b)
-  neg.push(intern(term::Call, p1, x));
-  neg.push(intern(term::Call, p1, y));
-  pos.push(intern(term::Call, q1, x));
+  neg.push_back(intern(term::Call, p1, x));
+  neg.push_back(intern(term::Call, p1, y));
+  pos.push_back(intern(term::Call, q1, x));
   c = makeClause();
-  neg.push(intern(term::Call, p1, a));
-  neg.push(intern(term::Call, p1, b));
-  pos.push(intern(term::Call, q1, b));
+  neg.push_back(intern(term::Call, p1, a));
+  neg.push_back(intern(term::Call, p1, b));
+  pos.push_back(intern(term::Call, q1, b));
   d = makeClause();
   assert(subsumes(c, d));
   assert(!subsumes(d, c));
 
   // p(x,a(x)) !<= p(a(y),a(y))
-  pos.push(intern(term::Call, p2, x, intern(term::Call, a1, x)));
+  pos.push_back(intern(term::Call, p2, x, intern(term::Call, a1, x)));
   c = makeClause();
-  pos.push(intern(term::Call, p2, intern(term::Call, a1, y),
-                  intern(term::Call, a1, y)));
+  pos.push_back(intern(term::Call, p2, intern(term::Call, a1, y),
+                       intern(term::Call, a1, y)));
   d = makeClause();
   assert(!subsumes(c, d));
   assert(!subsumes(d, c));

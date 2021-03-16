@@ -61,7 +61,7 @@ type put(const type *p, si n) {
     i = slot(entries, cap, p, n);
   }
   auto t = entries[i] = type(tcompoundOffset + tcompounds.n);
-  tcompounds.push(store(p, n));
+  tcompounds.push_back(store(p, n));
   return t;
 }
 } // namespace

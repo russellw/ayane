@@ -20,7 +20,7 @@ bool matchMore(term a, term b) {
     }
 
     // new mapping
-    pairv.push(make_pair(a, b));
+    pairv.push_back(make_pair(a, b));
     return 1;
   }
 
@@ -75,7 +75,7 @@ bool unifyVar(term a, term b) {
     return 0;
 
   // new mapping
-  pairv.push(make_pair(a, b));
+  pairv.push_back(make_pair(a, b));
   return 1;
 }
 } // namespace

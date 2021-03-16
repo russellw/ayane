@@ -51,10 +51,14 @@ void expand() {
 pool<> formulas;
 } // namespace
 
-// SORT
-const char *clauseName(const clause *c) {
-  auto name = clauseNames[c];
-  return name ? name : "?";
+void initClauses() {
+  clauseFiles.clear();
+  clauseNames.clear();
+  conjecture = 0;
+  formulas.init();
+
+  count = 0;
+  memset(entries, 0, cap * sizeof *entries);
 }
 
 clause *formula(infer inf, term a, clause *from) {
@@ -66,16 +70,6 @@ clause *formula(infer inf, term a, clause *from) {
   r->from[0] = from;
   r->v[0] = a;
   return r;
-}
-
-void initClauses() {
-  clauseFiles.clear();
-  clauseNames.clear();
-  conjecture = 0;
-  formulas.init();
-
-  count = 0;
-  memset(entries, 0, cap * sizeof *entries);
 }
 
 clause *internClause(infer inf, clause *from, clause *from1) {
@@ -152,4 +146,8 @@ clause *internClause(infer inf, clause *from, clause *from1) {
   memcpy(c->v, p, n * sizeof *p);
   return c;
 }
-///
+
+const char *clauseName(const clause *c) {
+  auto name = clauseNames[c];
+  return name ? name : "?";
+}

@@ -38,9 +38,7 @@ extern unordered_map<const clause *, const char *> clauseFiles;
 extern unordered_map<const clause *, const char *> clauseNames;
 extern clause *conjecture;
 
-// SORT
-const char *clauseName(const clause *c);
-clause *formula(infer inf, term a, clause *from = 0);
 void initClauses();
+clause *formula(infer inf, term a, clause *from = 0);
 clause *internClause(infer inf, clause *from = 0, clause *from1 = 0);
-///
+const char *clauseName(const clause *c);

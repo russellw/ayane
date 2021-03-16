@@ -1,7 +1,7 @@
 #ifdef _MSC_VER
 #define noret __declspec(noreturn) void
 #else
-#define noret void
+#define noret __attribute__((__noreturn__)) void
 #endif
 
 typedef intptr_t si;

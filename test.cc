@@ -27,9 +27,9 @@ clause *makeClause() {
   return c;
 }
 
-bool match0(term a, term b) {
+bool match(term a, term b) {
   pairv.n = 0;
-  return match(a, b);
+  return matchMore(a, b);
 }
 
 type mktype(type rt, type param1, type param2) {
@@ -183,72 +183,72 @@ void testMatch() {
   auto z = var(type::Individual, 2);
 
   // Succeeds. (tautology)
-  assert(match0(a, a));
+  assert(match(a, a));
   assert(pairv.n == 0);
 
   // a and b do not match
-  assert(!match0(a, b));
+  assert(!match(a, b));
 
   // Succeeds. (tautology)
-  assert(match0(x, x));
+  assert(match(x, x));
   assert(pairv.n == 0);
 
   // x is not matched with the constant a, because the variable is on the
   // right-hand side
-  assert(!match0(a, x));
+  assert(!match(a, x));
 
   // x and y are aliased
-  assert(match0(x, y));
+  assert(match(x, y));
   assert(pairv.n == 1);
   assert(replace(x) == replace(y));
 
   // Function and constant symbols match, x is unified with the constant b
-  assert(match0(intern(term::Call, f2, a, x), intern(term::Call, f2, a, b)));
+  assert(match(intern(term::Call, f2, a, x), intern(term::Call, f2, a, b)));
   assert(pairv.n == 1);
   assert(replace(x) == b);
 
   // f and g do not match
-  assert(!match0(intern(term::Call, f1, a), intern(term::Call, g1, a)));
+  assert(!match(intern(term::Call, f1, a), intern(term::Call, g1, a)));
 
   // x and y are aliased
-  assert(match0(intern(term::Call, f1, x), intern(term::Call, f1, y)));
+  assert(match(intern(term::Call, f1, x), intern(term::Call, f1, y)));
   assert(pairv.n == 1);
   assert(replace(x) == replace(y));
 
   // f and g do not match
-  assert(!match0(intern(term::Call, f1, x), intern(term::Call, g1, y)));
+  assert(!match(intern(term::Call, f1, x), intern(term::Call, g1, y)));
 
   // Fails. The f function symbols have different arity
-  assert(!match0(intern(term::Call, f1, x), intern(term::Call, f2, y, z)));
+  assert(!match(intern(term::Call, f1, x), intern(term::Call, f2, y, z)));
 
   // Does not match y with the term g1(x), because the variable is on the
   // right-hand side
-  assert(!match0(intern(term::Call, f1, intern(term::Call, g1, x)),
-                 intern(term::Call, f1, y)));
+  assert(!match(intern(term::Call, f1, intern(term::Call, g1, x)),
+                intern(term::Call, f1, y)));
 
   // Does not match, because the variable is on the right-hand side
-  assert(!match0(intern(term::Call, f2, intern(term::Call, g1, x), x),
-                 intern(term::Call, f2, y, a)));
+  assert(!match(intern(term::Call, f2, intern(term::Call, g1, x), x),
+                intern(term::Call, f2, y, a)));
 
   // Returns false in first-order logic and many modern Prolog dialects
   // (enforced by the occurs check) but returns true here because match has no
   // notion of an occurs check
-  assert(match0(x, intern(term::Call, f1, x)));
+  assert(match(x, intern(term::Call, f1, x)));
   assert(pairv.n == 1);
 
   // Both x and y are unified with the constant a
-  assert(match0(x, y));
-  assert(match(y, a));
+  assert(match(x, y));
+  assert(matchMore(y, a));
   assert(pairv.n == 2);
   assert(replace(x) == a);
   assert(replace(y) == a);
 
   // Fails this time, because the variable is on the right-hand side
-  assert(!match0(a, y));
+  assert(!match(a, y));
 
   // Fails. a and b do not match, so x can't be unified with both
-  assert(match0(x, a));
-  assert(!match(b, x));
+  assert(match(x, a));
+  assert(!matchMore(b, x));
 }
 
 void testRat() {

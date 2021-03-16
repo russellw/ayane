@@ -13,11 +13,11 @@ bool matchEqn(const eqn &a, const eqn &b) {
 
   auto old = pairv.n;
 
-  if (match(a.left, b.left) && match(a.right, b.right))
+  if (matchMore(a.left, b.left) && matchMore(a.right, b.right))
     return 1;
   pairv.n = old;
 
-  if (match(a.left, b.right) && match(a.right, b.left))
+  if (matchMore(a.left, b.right) && matchMore(a.right, b.left))
     return 1;
   pairv.n = old;
 

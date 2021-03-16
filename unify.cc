@@ -2,7 +2,7 @@
 // stdafx.h must be first
 #include "main.h"
 
-bool match(term a, term b) {
+bool matchMore(term a, term b) {
   // equal
   if (a == b)
     return 1;
@@ -35,7 +35,7 @@ bool match(term a, term b) {
   if (n != size(b))
     return 0;
   for (si i = 0; i != n; ++i)
-    if (!match(at(a, i), at(b, i)))
+    if (!matchMore(at(a, i), at(b, i)))
       return 0;
   return 1;
 }

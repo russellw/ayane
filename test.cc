@@ -54,6 +54,17 @@ term replace(term a) {
     v[i] = replace(at(a, i));
   return intern(tag(a), v);
 }
+
+void testCnf1(term a, vec<clause *> expected) {
+  inputClauses.n = 0;
+  cnf(a, 0);
+  assert(inputClauses.n == expected.n);
+  sort(expected.p, expected.end());
+  sort(inputClauses.p, inputClauses.end());
+  assert(!memcmp(inputClauses.p, expected.p,
+                 inputClauses.n * sizeof *inputClauses.p));
+  expected.n = 0;
+}
 ///
 
 // SORT
@@ -77,6 +88,13 @@ void testClause() {
   pos.push_back(intern(term::Eq, x, y));
   d = internClause(infer::none);
   assert(c != d);
+}
+
+void testCnf() {
+  vec<clause *> v;
+
+  // true
+  testCnf1(term::True, v);
 }
 
 void testFn() {
@@ -671,6 +689,7 @@ void testVec() {
 void test() {
   // SORT
   testClause();
+  testCnf();
   testFn();
   testFreeVars();
   testInt();

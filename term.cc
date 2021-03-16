@@ -160,7 +160,7 @@ void getFreeVars(term a) {
 
 #ifdef DEBUG
 namespace {
-void ckptr(void *p) {
+void checkPtr(void *p) {
   // a valid pointer will not point to the first page of address space
   assert(0xfff < (si)p);
 
@@ -178,36 +178,36 @@ void ckptr(void *p) {
   *buf = *(char *)p;
 }
 
-void cktype(type t) {
+void checkType(type t) {
   if (!isCompound(t))
     return;
   auto p = tcompoundp(t);
-  ckptr(p);
+  checkPtr(p);
   auto n = p->n;
   assert(1 < n);
   for (si i = 0; i != n; ++i) {
     assert(p->v[i] != type::none);
-    cktype(p->v[i]);
+    checkType(p->v[i]);
   }
 }
 
-void cksym(sym *s) {
-  ckptr(s);
+void checkSym(sym *s) {
+  checkPtr(s);
   assert(*s->v);
   assert(strlen(s->v) < sizeof buf);
-  cktype(s->t);
-  cktype(s->ft);
+  checkType(s->t);
+  checkType(s->ft);
 }
 } // namespace
 
-void ck(term a) {
-  cktype(typeof(a));
+void check(term a) {
+  checkType(typeof(a));
   if (isCompound(a)) {
     auto n = size(a);
     assert(0 < n);
     assert(n < 1000000);
     for (auto b : a)
-      ck(b);
+      check(b);
   }
   switch (tag(a)) {
   case term::Add:
@@ -245,17 +245,17 @@ void ck(term a) {
     break;
   case term::DistinctObj:
   case term::Sym:
-    cksym((sym *)rest(a));
+    checkSym((sym *)rest(a));
     break;
   case term::Int:
-    ckptr((Int *)rest(a));
+    checkPtr((Int *)rest(a));
     break;
   case term::Rat:
   case term::Real: {
     auto p = (Rat *)rest(a);
-    ckptr(p);
-    ckptr(mpq_numref(p->val));
-    ckptr(mpq_denref(p->val));
+    checkPtr(p);
+    checkPtr(mpq_numref(p->val));
+    checkPtr(mpq_denref(p->val));
     assert(mpz_cmp_ui(mpq_denref(p->val), 0) > 0);
     break;
   }

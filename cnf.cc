@@ -361,10 +361,10 @@ void toClause(term a) {
 }
 
 term cnf1(term a) {
-  ck(a);
+  check(a);
   converting co(a);
   a = co.r;
-  ck(a);
+  check(a);
   return a;
 }
 } // namespace

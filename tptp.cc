@@ -835,7 +835,7 @@ struct parser1 : parser {
           do {
             auto no = eat('~');
             auto a = infixUnary();
-            ck(a);
+            check(a);
             if (tag(a) == term::Not) {
               no = no ^ 1;
               a = at(a, 0);
@@ -900,7 +900,7 @@ struct parser1 : parser {
           cnfMode = 0;
           auto a = logicFormula();
           assert(!vars.n);
-          ck(a);
+          check(a);
 
           // select
           if (!sel.count(formulaName))

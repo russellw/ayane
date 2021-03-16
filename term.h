@@ -138,7 +138,7 @@ void getFreeVars(term a);
 
 // check terms for structural consistency
 #ifdef DEBUG
-void ck(term a);
+void check(term a);
 #else
-#define ck(a)
+#define check(a)
 #endif

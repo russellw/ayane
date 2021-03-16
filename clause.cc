@@ -8,12 +8,10 @@ const char *inferNames[] = {
 #include "infer.h"
 };
 
-// SORT
 ary<term> neg, pos;
-clause *conjecture;
 unordered_map<const clause *, const char *> clauseFiles;
 unordered_map<const clause *, const char *> clauseNames;
-///
+clause *conjecture;
 
 namespace {
 si cap = 0x1000;

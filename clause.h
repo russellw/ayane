@@ -33,12 +33,10 @@ struct clause {
   term v[0];
 };
 
-// SORT
 extern ary<term> neg, pos;
-extern clause *conjecture;
 extern unordered_map<const clause *, const char *> clauseFiles;
 extern unordered_map<const clause *, const char *> clauseNames;
-///
+extern clause *conjecture;
 
 // SORT
 const char *clauseName(const clause *c);

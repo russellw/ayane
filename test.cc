@@ -58,6 +58,8 @@ term replace(term a) {
 void testCnf1(term a, vec<clause *> expected) {
   inputClauses.n = 0;
   cnf(a, 0);
+  debug(inputClauses.n);
+  debug(expected.n);
   assert(inputClauses.n == expected.n);
   sort(expected.p, expected.end());
   sort(inputClauses.p, inputClauses.end());
@@ -95,6 +97,12 @@ void testCnf() {
 
   // true
   testCnf1(term::True, v);
+
+  // false
+  neg.n = 0;
+  pos.n = 0;
+  v.push_back(internClause(infer::none));
+  testCnf1(term::False, v);
 }
 
 void testFn() {

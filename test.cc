@@ -80,18 +80,39 @@ void testClause() {
 }
 
 void testCnf() {
+  pool1.init();
+
   // true
   initClauses();
+  initProblem();
   cnf(term::True, 0);
   assert(inputClauses.n == 0);
 
   // false
   initClauses();
+  initProblem();
   cnf(term::False, 0);
   assert(inputClauses.n == 1);
+
   neg.n = 0;
   pos.n = 0;
   assert(!internClause(infer::none));
+
+  // !true
+  initClauses();
+  initProblem();
+  cnf(comp(term::Not, term::True), 0);
+  assert(inputClauses.n == 1);
+
+  neg.n = 0;
+  pos.n = 0;
+  assert(!internClause(infer::none));
+
+  // !false
+  initClauses();
+  initProblem();
+  cnf(comp(term::Not, term::False), 0);
+  assert(inputClauses.n == 0);
 }
 
 void testFn() {

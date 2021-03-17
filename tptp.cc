@@ -1108,7 +1108,7 @@ void print(term a, term parent) {
     return;
   case term::False:
     printf("$false");
-    break;
+    return;
   case term::Floor:
     printf("$floor");
     break;
@@ -1186,7 +1186,7 @@ void print(term a, term parent) {
     break;
   case term::True:
     printf("$true");
-    break;
+    return;
   case term::Trunc:
     printf("$truncate");
     break;

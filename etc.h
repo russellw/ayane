@@ -8,7 +8,6 @@ typedef intptr_t si;
 
 // SORT
 inline void print(si a) { printf("%zu", a); }
-
 inline void print(void *a) { printf("%p", a); }
 ///
 

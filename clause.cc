@@ -52,13 +52,14 @@ pool<> formulas;
 } // namespace
 
 void initClauses() {
+  // SORT
   clauseFiles.clear();
   clauseNames.clear();
   conjecture = 0;
-  formulas.init();
-
   count = 0;
+  formulas.init();
   memset(entries, 0, cap * sizeof *entries);
+  ///
 }
 
 clause *formula(infer inf, term a, clause *from) {
